@@ -6,7 +6,7 @@
     "version": "0.0.2",
     "autoload": {
         "psr-4": {
-            "Wexample\\SymfonyCart\\": "src/"
+            "Wexample\\SymfonyForms\\": "src/"
         }
     },
     "authors": [
