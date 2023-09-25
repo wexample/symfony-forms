@@ -16,6 +16,6 @@
         }
     ],
     "require": {
-        "wexample/symfony-design-system": "^0.1.44",
+        "wexample/symfony-design-system": "^0.1.44"
     }
 }
