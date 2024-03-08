@@ -2,7 +2,7 @@
 
 namespace Wexample\SymfonyForms;
 
-use Wexample\SymfonyHelpers\AbstractBundle;
+use Wexample\SymfonyHelpers\Class\AbstractBundle;
 
 class WexampleSymfonyFormsBundle extends AbstractBundle
 {
