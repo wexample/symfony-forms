@@ -3,7 +3,7 @@
     "description": "Forms management for Symfony design system",
     "type": "library",
     "license": "MIT",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "autoload": {
         "psr-4": {
             "Wexample\\SymfonyForms\\": "src/"
@@ -16,6 +16,6 @@
         }
     ],
     "require": {
-        "wexample/symfony-design-system": "^0.1.48"
+        "wexample/symfony-design-system": "^0.1.49"
     }
 }
