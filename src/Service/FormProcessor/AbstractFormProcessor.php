@@ -78,11 +78,11 @@ abstract class AbstractFormProcessor
     ): FormInterface {
         $formClass = static::getFormClass();
 
-        if (!class_exists($formClass)) {
+        if (! class_exists($formClass)) {
             throw new Exception('Unable to find form '.$formClass.' related to processor '.$this::class);
         }
 
-        if ($formClass::$ajax && !isset($options['action'])) {
+        if ($formClass::$ajax && ! isset($options['action'])) {
             $options['action'] = $this->createFormAction($data);
         }
 
@@ -152,7 +152,7 @@ abstract class AbstractFormProcessor
             $isValid = $this->formIsValid($form);
             $hasError = (bool) $form->getErrors(true)->count();
 
-            if (!$hasError) {
+            if (! $hasError) {
                 if ($isValid) {
                     $this->onValid($form);
                 } else {
@@ -216,7 +216,7 @@ abstract class AbstractFormProcessor
 
     public function prepareDisplay($form): void
     {
-        if (!$this->adaptiveResponse->hasAction()) {
+        if (! $this->adaptiveResponse->hasAction()) {
             $this->onRender($form);
         }
     }
