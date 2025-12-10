@@ -1,6 +1,6 @@
 # wexample/symfony-forms
 
-Version: 1.0.59
+Version: 1.0.60
 
 Forms management for Symfony design system
 
@@ -113,7 +113,7 @@ Free to use in both personal and commercial projects.
 
 ## Integration in the Suite
 
-This package is part of the **Wexample Suite** — a collection of high-quality Python packages designed to work seamlessly together.
+This package is part of the Wexample Suite — a collection of high-quality, modular tools designed to work seamlessly together across multiple languages and environments.
 
 ### Related Packages
 
@@ -129,7 +129,7 @@ Refer to each package's documentation for specific version compatibility require
 
 ## Dependencies
 
-- wexample/symfony-design-system: 1.0.62
+- wexample/symfony-design-system: 1.0.63
 
 
 # About us
