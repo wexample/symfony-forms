@@ -25,7 +25,7 @@ class FormRenderingService
 
     private function validate(array $context): void
     {
-        $schemaPath = $this->getInputSchemaPath();
+        $schemaPath = $this->resolveSchemaPath($context['schema_path'] ?? null);
         $schemaJson = file_get_contents($schemaPath);
         if ($schemaJson === false) {
             throw new \InvalidArgumentException(sprintf(
@@ -76,6 +76,7 @@ class FormRenderingService
             'input_attr',
             'error_condition',
             'error_text',
+            'schema_path',
         ];
 
         foreach ($excludeKeys as $key) {
@@ -109,5 +110,22 @@ class FormRenderingService
     private function getInputSchemaPath(): string
     {
         return __DIR__.'/../../assets/schemas/form_input.json';
+    }
+
+    private function resolveSchemaPath(?string $schemaPath): string
+    {
+        if ($schemaPath === null || $schemaPath === '') {
+            return $this->getInputSchemaPath();
+        }
+
+        if (str_starts_with($schemaPath, '/')) {
+            return $schemaPath;
+        }
+
+        if (preg_match('/^[A-Za-z]:\\\\/', $schemaPath)) {
+            return $schemaPath;
+        }
+
+        return __DIR__.'/../../'.$schemaPath;
     }
 }
