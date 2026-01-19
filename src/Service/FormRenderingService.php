@@ -62,7 +62,8 @@ class FormRenderingService
             }
 
             throw new \InvalidArgumentException(sprintf(
-                'form_input context does not match schema: %s',
+                '%s context does not match schema: %s',
+                $type,
                 $message
             ));
         }
@@ -76,7 +77,6 @@ class FormRenderingService
             'input_attr',
             'error_condition',
             'error_text',
-            'schema_path',
         ];
 
         foreach ($excludeKeys as $key) {
