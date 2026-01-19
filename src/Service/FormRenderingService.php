@@ -27,7 +27,7 @@ class FormRenderingService
         }
 
         $data = $this->stripTwigContext($context);
-        $dataObject = json_decode(json_encode($data, JSON_THROW_ON_ERROR));
+        $dataObject = JsonHelper::toObject($data);
 
         $validator = new Validator();
         $result = $validator->validate($dataObject, $schema);
