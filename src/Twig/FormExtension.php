@@ -4,7 +4,6 @@ namespace Wexample\SymfonyForms\Twig;
 
 use Twig\Environment;
 use Twig\TwigFunction;
-use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\Validator;
 
 class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateExtension
@@ -53,7 +52,13 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
             ));
         }
 
-        $schema = Schema::fromJsonString($schemaJson);
+        $schema = json_decode($schemaJson);
+        if ($schema === null && json_last_error() !== JSON_ERROR_NONE) {
+            throw new \InvalidArgumentException(sprintf(
+                'Invalid JSON schema file: %s',
+                $schemaPath
+            ));
+        }
 
         $data = $this->stripTwigContext($context);
         $dataObject = json_decode(json_encode($data, JSON_THROW_ON_ERROR));
@@ -67,7 +72,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 ? sprintf(
                     '%s at %s',
                     $error->keyword(),
-                    $error->dataPointer() ?: '/'
+                    $error->dataPath() ?: '/'
                 )
                 : 'unknown error';
 
