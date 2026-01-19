@@ -19,8 +19,8 @@
       "description": "Label displayed to the user."
     },
     "placeholder": {
-      "type": "string",
-      "default": ""
+      "type": ["string", "null"],
+      "default": null
     },
     "required": {
       "type": "boolean",
