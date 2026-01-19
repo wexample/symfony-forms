@@ -4,6 +4,8 @@ namespace Wexample\SymfonyForms\Twig;
 
 use Twig\Environment;
 use Twig\TwigFunction;
+use Opis\JsonSchema\Schema;
+use Opis\JsonSchema\Validator;
 
 class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateExtension
 {
@@ -14,6 +16,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 'form_input',
                 function (Environment $twig, array $context = []) {
                     $context = $this->normalizeInputContext($context);
+                    $this->validateInputContext($context);
 
                     return $this->renderTemplate(
                         $twig,
@@ -54,6 +57,10 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
 
         if (!isset($context['id']) && isset($context['name'])) {
             $context['id'] = $context['name'];
+        }
+
+        if (!isset($context['type'])) {
+            $context['type'] = 'text';
         }
 
         return $context;
@@ -99,5 +106,52 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
         }
 
         return 'text';
+    }
+
+    private function validateInputContext(array $context): void
+    {
+        if (! class_exists(Validator::class)) {
+            return;
+        }
+
+        $schemaPath = $this->getInputSchemaPath();
+        $schemaJson = file_get_contents($schemaPath);
+        if ($schemaJson === false) {
+            throw new \InvalidArgumentException(sprintf(
+                'Unable to read JSON schema file: %s',
+                $schemaPath
+            ));
+        }
+
+        $schemaArray = json_decode($schemaJson, true, 512, JSON_THROW_ON_ERROR);
+        $schema = Schema::fromJsonString($schemaJson);
+
+        $validatedKeys = array_keys($schemaArray['properties'] ?? []);
+        $data = array_intersect_key($context, array_flip($validatedKeys));
+        $dataObject = json_decode(json_encode($data, JSON_THROW_ON_ERROR));
+
+        $validator = new Validator();
+        $result = $validator->validate($dataObject, $schema);
+
+        if (! $result->isValid()) {
+            $error = $result->error();
+            $message = $error
+                ? sprintf(
+                    '%s at %s',
+                    $error->keyword(),
+                    $error->dataPointer() ?: '/'
+                )
+                : 'unknown error';
+
+            throw new \InvalidArgumentException(sprintf(
+                'form_input context does not match schema: %s',
+                $message
+            ));
+        }
+    }
+
+    private function getInputSchemaPath(): string
+    {
+        return __DIR__.'/../../assets/schemas/form_input.json';
     }
 }
