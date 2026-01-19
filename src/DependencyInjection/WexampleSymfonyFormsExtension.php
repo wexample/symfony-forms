@@ -5,7 +5,7 @@ namespace Wexample\SymfonyForms\DependencyInjection;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Wexample\SymfonyHelpers\DependencyInjection\AbstractWexampleSymfonyExtension;
 
-class WexampleSymfonyHelpersExtension extends AbstractWexampleSymfonyExtension
+class WexampleSymfonyFormsExtension extends AbstractWexampleSymfonyExtension
 {
     public function load(
         array $configs,
