@@ -12,25 +12,24 @@ class FormRenderingService
 
     public function validate(array $context, string $type): void
     {
-        $schemaPath = $this->getInputSchemaPath($type);
-        $schema = JsonHelper::read($schemaPath);
+        $schema = JsonHelper::read($this->getInputSchemaPath($type));
+        $dataObject = JsonHelper::toObject(
+            TemplateHelper::stripTwigContextKeys($context)
+        );
+        $result = (new Validator())->validate($dataObject, $schema);
 
-        $data = TemplateHelper::stripTwigContextKeys($context);
-        $dataObject = JsonHelper::toObject($data);
-
-        $validator = new Validator();
-        $result = $validator->validate($dataObject, $schema);
-
-        if (! $result->isValid()) {
-            $error = $result->error();
-            $message = $error ? $error->message() : 'unknown error';
-
-            throw new \InvalidArgumentException(sprintf(
-                '%s context does not match schema: %s',
-                $type,
-                $message
-            ));
+        if ($result->isValid()) {
+            return;
         }
+
+        $error = $result->error();
+        $message = $error ? $error->message() : 'unknown error';
+
+        throw new \InvalidArgumentException(sprintf(
+            '%s context does not match schema: %s',
+            $type,
+            $message
+        ));
     }
 
     private function getInputSchemaPath(string $type): string
