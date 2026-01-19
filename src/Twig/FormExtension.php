@@ -18,16 +18,16 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
     {
         return [
             new TwigFunction(
-                FormRenderingService::FORM_TYPE_INPUT,
+                FormRenderingService::FORM_TYPE_TEXT_INPUT,
                 function (
                     Environment $twig,
                     array $context = []
                 ) {
-                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_INPUT);
+                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_TEXT_INPUT);
 
                     return $this->renderTemplate(
                         $twig,
-                        '@WexampleSymfonyFormsBundle/components/' . FormRenderingService::FORM_TYPE_INPUT . '.html.twig',
+                        '@WexampleSymfonyFormsBundle/components/form_input.html.twig',
                         $context
                     );
                 },

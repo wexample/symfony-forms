@@ -8,7 +8,7 @@ use Wexample\SymfonyTemplate\Helper\TemplateHelper;
 
 class FormRenderingService
 {
-    public const string FORM_TYPE_INPUT = 'form_input';
+    public const string FORM_TYPE_TEXT_INPUT = 'text_input';
 
     public function validate(array $context, string $type): void
     {
