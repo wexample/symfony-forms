@@ -4,8 +4,8 @@ namespace Wexample\SymfonyForms\Service;
 
 use Opis\JsonSchema\Validator;
 use Wexample\SymfonyHelpers\Helper\JsonHelper;
+use Wexample\SymfonySemanticSchemaWeb\Helper\SchemaLoaderHelper;
 use Wexample\SymfonyTemplate\Helper\TemplateHelper;
-use Wexample\SymfonyJsonSchema\Helper\JsonSchemaHelper;
 
 class FormRenderingService
 {
@@ -14,12 +14,11 @@ class FormRenderingService
 
     public function validate(array $context, string $type): void
     {
-        $schema = $this->buildSchema($type);
+        $schema = SchemaLoaderHelper::loadSchema($type);
         $dataObject = JsonHelper::toObject(
             TemplateHelper::stripTwigContextKeys($context)
         );
-        $validator = $this->createValidator();
-        $result = $validator->validate($dataObject, $schema);
+        $result = (new Validator())->validate($dataObject, $schema);
 
         if ($result->isValid()) {
             return;
@@ -33,49 +32,6 @@ class FormRenderingService
             $type,
             $message
         ));
-    }
-
-    private function getInputSchemaPath(string $type): string
-    {
-        return __DIR__.'/../../assets/schemas/' . $type . '.json';
-    }
-
-    private function buildSchema(string $type): object
-    {
-        $schema = JsonHelper::read($this->getInputSchemaPath($type));
-        $base = JsonHelper::read(__DIR__.'/../../assets/schemas/field_base.json');
-
-        if (! is_object($schema) || ! is_object($base)) {
-            return $schema;
-        }
-
-        return JsonSchemaHelper::mergeSchemaObjects($schema, $base);
-    }
-
-    private function createValidator(): Validator
-    {
-        $validator = new Validator();
-        $this->registerBaseSchema($validator);
-
-        return $validator;
-    }
-
-    private function registerBaseSchema(Validator $validator): void
-    {
-        $schemaPath = __DIR__.'/../../assets/schemas/field_base.json';
-        $schema = JsonHelper::read($schemaPath);
-        $schemaId = is_object($schema) ? ($schema->{'$id'} ?? null) : null;
-
-        if (! $schemaId) {
-            return;
-        }
-
-        $resolver = $validator->loader()->resolver();
-        if (! $resolver) {
-            return;
-        }
-
-        $resolver->registerRaw($schema, $schemaId);
     }
 
     private function formatErrorMessage(object $error): string

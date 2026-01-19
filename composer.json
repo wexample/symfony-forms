@@ -17,6 +17,6 @@
   ],
   "require": {
     "wexample/symfony-design-system": "1.0.69",
-    "opis/json-schema": "*"
+    "syrtis/php-semantic-schema-web": "*"
   }
 }
