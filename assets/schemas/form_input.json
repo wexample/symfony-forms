@@ -23,7 +23,7 @@
       "default": null
     },
     "required": {
-      "type": "boolean",
+      "type": ["boolean", "null"],
       "default": false
     },
     "minLength": {
@@ -39,8 +39,8 @@
       "description": "Regex pattern the value must match."
     },
     "value": {
-      "type": "string",
-      "default": ""
+      "type": ["string", "null"],
+      "default": null
     }
   },
   "required": ["type", "name", "label"]
