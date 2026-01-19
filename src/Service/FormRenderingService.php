@@ -43,16 +43,7 @@ class FormRenderingService
 
         if (! $result->isValid()) {
             $error = $result->error();
-            if ($error) {
-                $path = $this->formatErrorPath($error->data()->fullPath());
-                $message = sprintf(
-                    '%s at %s',
-                    $error->message(),
-                    $path
-                );
-            } else {
-                $message = 'unknown error';
-            }
+            $message = $error ? $error->message() : 'unknown error';
 
             throw new \InvalidArgumentException(sprintf(
                 '%s context does not match schema: %s',
@@ -77,27 +68,6 @@ class FormRenderingService
         }
 
         return $context;
-    }
-
-    /**
-     * @param array<int|string> $path
-     */
-    private function formatErrorPath(array $path): string
-    {
-        if ($path === []) {
-            return '/';
-        }
-
-        $encoded = array_map(
-            static function ($segment): string {
-                $segment = (string) $segment;
-
-                return str_replace(['~', '/'], ['~0', '~1'], $segment);
-            },
-            $path
-        );
-
-        return '/'.implode('/', $encoded);
     }
 
     private function getInputSchemaPath(string $type): string
