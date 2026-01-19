@@ -15,7 +15,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 function (Environment $twig) {
                     return $this->renderTemplate(
                         $twig,
-                        '@WexampleSymfonyForms/components/form_input.html.twig',
+                        '@WexampleSymfonyFormsBundle/components/form_input.html.twig',
                         [
 
                         ]
