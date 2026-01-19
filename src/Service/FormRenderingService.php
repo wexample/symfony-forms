@@ -2,8 +2,8 @@
 
 namespace Wexample\SymfonyForms\Service;
 
-use Wexample\SymfonyJsonSchema\Helper\JsonSchemaValidationHelper;
-use Wexample\SymfonySemanticSchemaWeb\Helper\SchemaLoaderHelper;
+use Syrtis\JsonSchema\Helper\JsonSchemaValidationHelper;
+use Syrtis\SemanticSchemaWeb\Helper\SchemaLoaderHelper;
 use Wexample\SymfonyTemplate\Helper\TemplateHelper;
 
 class FormRenderingService
