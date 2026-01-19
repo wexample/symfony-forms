@@ -6,10 +6,10 @@ use Opis\JsonSchema\Validator;
 
 class FormRenderingService
 {
-    public function prepare(array $context): array
+    public function prepare(array $context, string $type): array
     {
         $context = $this->normalize($context);
-        $this->validate($context);
+        $this->validate($context, $type);
 
         return $context;
     }
@@ -23,9 +23,9 @@ class FormRenderingService
         return $context;
     }
 
-    private function validate(array $context): void
+    private function validate(array $context, string $type): void
     {
-        $schemaPath = $this->resolveSchemaPath($context['schema_path'] ?? null);
+        $schemaPath = $this->getInputSchemaPath($type);
         $schemaJson = file_get_contents($schemaPath);
         if ($schemaJson === false) {
             throw new \InvalidArgumentException(sprintf(
@@ -107,25 +107,8 @@ class FormRenderingService
         return '/'.implode('/', $encoded);
     }
 
-    private function getInputSchemaPath(): string
+    private function getInputSchemaPath(string $type): string
     {
-        return __DIR__.'/../../assets/schemas/form_input.json';
-    }
-
-    private function resolveSchemaPath(?string $schemaPath): string
-    {
-        if ($schemaPath === null || $schemaPath === '') {
-            return $this->getInputSchemaPath();
-        }
-
-        if (str_starts_with($schemaPath, '/')) {
-            return $schemaPath;
-        }
-
-        if (preg_match('/^[A-Za-z]:\\\\/', $schemaPath)) {
-            return $schemaPath;
-        }
-
-        return __DIR__.'/../../'.$schemaPath;
+        return __DIR__.'/../../assets/schemas/' . $type . '.json';
     }
 }

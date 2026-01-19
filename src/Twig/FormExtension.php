@@ -19,7 +19,10 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
             new TwigFunction(
                 'form_input',
                 function (Environment $twig, array $context = []) {
-                    $context = $this->contextService->prepare($context);
+                    $context = $this->contextService->prepare(
+                        $context,
+                        'form_input'
+                    );
 
                     return $this->renderTemplate(
                         $twig,
