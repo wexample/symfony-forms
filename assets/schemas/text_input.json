@@ -4,7 +4,7 @@
   "title": "Text input field",
   "type": "object",
   "allOf": [
-    { "$ref": "field_base.json" }
+    { "$ref": "https://example.com/schemas/field_base.json" }
   ],
   "properties": {
     "type": {

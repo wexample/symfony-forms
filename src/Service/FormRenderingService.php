@@ -13,7 +13,7 @@ class FormRenderingService
 
     public function validate(array $context, string $type): void
     {
-        $schema = JsonHelper::read($this->getInputSchemaPath($type));
+        $schema = $this->buildSchema($type);
         $dataObject = JsonHelper::toObject(
             TemplateHelper::stripTwigContextKeys($context)
         );
@@ -37,6 +37,32 @@ class FormRenderingService
     private function getInputSchemaPath(string $type): string
     {
         return __DIR__.'/../../assets/schemas/' . $type . '.json';
+    }
+
+    private function buildSchema(string $type): object
+    {
+        $schema = JsonHelper::read($this->getInputSchemaPath($type));
+        $base = JsonHelper::read(__DIR__.'/../../assets/schemas/field_base.json');
+
+        if (! is_object($schema) || ! is_object($base)) {
+            return $schema;
+        }
+
+        $schemaProperties = (array) ($schema->properties ?? []);
+        $baseProperties = (array) ($base->properties ?? []);
+        $schemaRequired = is_array($schema->required ?? null) ? $schema->required : [];
+        $baseRequired = is_array($base->required ?? null) ? $base->required : [];
+
+        $combined = (object) array_merge((array) $schema, [
+            'type' => 'object',
+            'properties' => (object) array_merge($baseProperties, $schemaProperties),
+            'required' => array_values(array_unique(array_merge($baseRequired, $schemaRequired))),
+            'additionalProperties' => false,
+        ]);
+
+        unset($combined->allOf, $combined->{'$ref'}, $combined->unevaluatedProperties);
+
+        return $combined;
     }
 
     private function createValidator(): Validator
