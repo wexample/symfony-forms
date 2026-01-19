@@ -2,8 +2,7 @@
 
 namespace Wexample\SymfonyForms\Service;
 
-use Opis\JsonSchema\Validator;
-use Wexample\SymfonyHelpers\Helper\JsonHelper;
+use Wexample\SymfonyJsonSchema\Helper\JsonSchemaValidationHelper;
 use Wexample\SymfonySemanticSchemaWeb\Helper\SchemaLoaderHelper;
 use Wexample\SymfonyTemplate\Helper\TemplateHelper;
 
@@ -15,44 +14,11 @@ class FormRenderingService
     public function validate(array $context, string $type): void
     {
         $schema = SchemaLoaderHelper::loadSchema($type);
-        $dataObject = JsonHelper::toObject(
-            TemplateHelper::stripTwigContextKeys($context)
+        $data = TemplateHelper::stripTwigContextKeys($context);
+        JsonSchemaValidationHelper::validateOrThrow(
+            $schema,
+            $data,
+            $type.' context'
         );
-        $result = (new Validator())->validate($dataObject, $schema);
-
-        if ($result->isValid()) {
-            return;
-        }
-
-        $error = $result->error();
-        $message = $error ? $this->formatErrorMessage($error) : 'unknown error';
-
-        throw new \InvalidArgumentException(sprintf(
-            '%s context does not match schema: %s',
-            $type,
-            $message
-        ));
-    }
-
-    private function formatErrorMessage(object $error): string
-    {
-        $message = $error->message();
-        $args = $error->args();
-
-        if (! is_array($args) || $args === []) {
-            return $message;
-        }
-
-        foreach ($args as $key => $value) {
-            if (is_array($value)) {
-                $value = implode(', ', array_map('strval', $value));
-            } elseif (! is_scalar($value)) {
-                $value = (string) $value;
-            }
-
-            $message = str_replace('{'.$key.'}', (string) $value, $message);
-        }
-
-        return $message;
     }
 }
