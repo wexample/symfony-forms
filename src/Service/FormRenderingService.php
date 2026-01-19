@@ -13,13 +13,7 @@ class FormRenderingService
     public function validate(array $context, string $type): void
     {
         $schemaPath = $this->getInputSchemaPath($type);
-        $schema = JsonHelper::readOrNull($schemaPath);
-        if ($schema === null) {
-            throw new \InvalidArgumentException(sprintf(
-                'Invalid JSON schema file: %s',
-                $schemaPath
-            ));
-        }
+        $schema = JsonHelper::read($schemaPath);
 
         $data = TemplateHelper::stripTwigContextKeys($context);
         $dataObject = JsonHelper::toObject($data);
