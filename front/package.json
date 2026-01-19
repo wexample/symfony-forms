@@ -1,5 +1,7 @@
 {
   "name": "@wexample/symfony-forms",
   "version": "1.0.66",
-  "peerDependencies": {}
+  "peerDependencies": {
+    "ajv": "^8.17.1"
+  }
 }
