@@ -6,7 +6,7 @@ namespace Wexample\SymfonyForms\Form\Demo;
 
 use Symfony\Component\Form\FormBuilderInterface;
 use Wexample\SymfonyForms\Form\AbstractForm;
-use Wexample\SymfonyForms\Form\Type\TextType;
+use Wexample\SymfonyForms\Form\Type\SimpleTextType;
 
 class FormTextSimpleForm extends AbstractForm
 {
@@ -18,7 +18,7 @@ class FormTextSimpleForm extends AbstractForm
         $builder
             ->add(
                 'text_simple',
-                TextType::class,
+                SimpleTextType::class,
                 [
                     self::FIELD_OPTION_NAME_LABEL => 'Text',
                     self::FIELD_OPTION_NAME_REQUIRED => false,

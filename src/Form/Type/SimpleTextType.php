@@ -4,7 +4,7 @@ namespace Wexample\SymfonyForms\Form\Type;
 
 use Wexample\SymfonyForms\Form\Traits\FieldOptionsTrait;
 
-class TextType extends \Symfony\Component\Form\AbstractType
+class SimpleTextType extends \Symfony\Component\Form\AbstractType
 {
     use FieldOptionsTrait;
 
