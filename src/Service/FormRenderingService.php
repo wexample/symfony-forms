@@ -3,6 +3,7 @@
 namespace Wexample\SymfonyForms\Service;
 
 use Opis\JsonSchema\Validator;
+use Wexample\SymfonyHelpers\Helper\JsonHelper;
 
 class FormRenderingService
 {
@@ -26,16 +27,8 @@ class FormRenderingService
     private function validate(array $context, string $type): void
     {
         $schemaPath = $this->getInputSchemaPath($type);
-        $schemaJson = file_get_contents($schemaPath);
-        if ($schemaJson === false) {
-            throw new \InvalidArgumentException(sprintf(
-                'Unable to read JSON schema file: %s',
-                $schemaPath
-            ));
-        }
-
-        $schema = json_decode($schemaJson);
-        if ($schema === null && json_last_error() !== JSON_ERROR_NONE) {
+        $schema = JsonHelper::readOrNull($schemaPath);
+        if ($schema === null) {
             throw new \InvalidArgumentException(sprintf(
                 'Invalid JSON schema file: %s',
                 $schemaPath
