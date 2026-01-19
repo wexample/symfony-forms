@@ -68,13 +68,16 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
 
         if (! $result->isValid()) {
             $error = $result->error();
-            $message = $error
-                ? sprintf(
+            if ($error) {
+                $path = $this->formatErrorPath($error->data()->fullPath());
+                $message = sprintf(
                     '%s at %s',
-                    $error->keyword(),
-                    $error->dataPath() ?: '/'
-                )
-                : 'unknown error';
+                    $error->message(),
+                    $path
+                );
+            } else {
+                $message = 'unknown error';
+            }
 
             throw new \InvalidArgumentException(sprintf(
                 'form_input context does not match schema: %s',
@@ -98,6 +101,27 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
         }
 
         return $context;
+    }
+
+    /**
+     * @param array<int|string> $path
+     */
+    private function formatErrorPath(array $path): string
+    {
+        if ($path === []) {
+            return '/';
+        }
+
+        $encoded = array_map(
+            static function ($segment): string {
+                $segment = (string) $segment;
+
+                return str_replace(['~', '/'], ['~0', '~1'], $segment);
+            },
+            $path
+        );
+
+        return '/'.implode('/', $encoded);
     }
 
     private function getInputSchemaPath(): string
