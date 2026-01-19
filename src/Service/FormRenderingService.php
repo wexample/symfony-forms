@@ -4,22 +4,13 @@ namespace Wexample\SymfonyForms\Service;
 
 use Opis\JsonSchema\Validator;
 use Wexample\SymfonyHelpers\Helper\JsonHelper;
+use Wexample\SymfonyTemplate\Helper\TemplateHelper;
 
 class FormRenderingService
 {
     public function prepare(array $context, string $type): array
     {
-        $context = $this->normalize($context);
         $this->validate($context, $type);
-
-        return $context;
-    }
-
-    private function normalize(array $context): array
-    {
-        if (!isset($context['id']) && isset($context['name'])) {
-            $context['id'] = $context['name'];
-        }
 
         return $context;
     }
@@ -55,19 +46,7 @@ class FormRenderingService
 
     private function stripTwigContext(array $context): array
     {
-        $excludeKeys = [
-            'id',
-            'value_attr',
-            'input_attr',
-            'error_condition',
-            'error_text',
-        ];
-
-        foreach ($excludeKeys as $key) {
-            unset($context[$key]);
-        }
-
-        return $context;
+        return TemplateHelper::stripTwigContextKeys($context);
     }
 
     private function getInputSchemaPath(string $type): string
