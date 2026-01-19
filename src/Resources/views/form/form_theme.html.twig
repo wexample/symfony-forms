@@ -1,0 +1,17 @@
+{% block form_row %}
+    {{ form_widget(form) }}
+{% endblock %}
+
+{% block form_widget_simple %}
+    {{ form_input({
+        type: type|default('text'),
+        name: full_name,
+        id: id,
+        label: form.vars.label is same as(false)
+            ? form.vars.name
+            : (form.vars.label ?? form.vars.name),
+        placeholder: attr.placeholder ?? null,
+        required: required,
+        value: value
+    }) }}
+{% endblock %}
