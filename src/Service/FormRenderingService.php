@@ -8,14 +8,8 @@ use Wexample\SymfonyTemplate\Helper\TemplateHelper;
 
 class FormRenderingService
 {
-    public function prepare(array $context, string $type): array
-    {
-        $this->validate($context, $type);
 
-        return $context;
-    }
-
-    private function validate(array $context, string $type): void
+    public function validate(array $context, string $type): void
     {
         $schemaPath = $this->getInputSchemaPath($type);
         $schema = JsonHelper::readOrNull($schemaPath);
