@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/text-input.schema.json",
+  "title": "Text input field",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "const": "text"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Field name (form key)."
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Label displayed to the user."
+    },
+    "placeholder": {
+      "type": "string",
+      "default": ""
+    },
+    "required": {
+      "type": "boolean",
+      "default": false
+    },
+    "minLength": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "maxLength": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "pattern": {
+      "type": "string",
+      "description": "Regex pattern the value must match."
+    },
+    "value": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": ["type", "name", "label"]
+}
