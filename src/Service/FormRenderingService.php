@@ -5,6 +5,7 @@ namespace Wexample\SymfonyForms\Service;
 use Opis\JsonSchema\Validator;
 use Wexample\SymfonyHelpers\Helper\JsonHelper;
 use Wexample\SymfonyTemplate\Helper\TemplateHelper;
+use Wexample\SymfonyJsonSchema\Helper\JsonSchemaHelper;
 
 class FormRenderingService
 {
@@ -48,21 +49,7 @@ class FormRenderingService
             return $schema;
         }
 
-        $schemaProperties = (array) ($schema->properties ?? []);
-        $baseProperties = (array) ($base->properties ?? []);
-        $schemaRequired = is_array($schema->required ?? null) ? $schema->required : [];
-        $baseRequired = is_array($base->required ?? null) ? $base->required : [];
-
-        $combined = (object) array_merge((array) $schema, [
-            'type' => 'object',
-            'properties' => (object) array_merge($baseProperties, $schemaProperties),
-            'required' => array_values(array_unique(array_merge($baseRequired, $schemaRequired))),
-            'additionalProperties' => false,
-        ]);
-
-        unset($combined->allOf, $combined->{'$ref'}, $combined->unevaluatedProperties);
-
-        return $combined;
+        return JsonSchemaHelper::mergeSchemaObjects($schema, $base);
     }
 
     private function createValidator(): Validator
