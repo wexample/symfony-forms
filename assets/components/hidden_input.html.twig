@@ -1,0 +1,7 @@
+<input
+    type="hidden"
+    {% if name is defined %}name="{{ name }}"{% endif %}
+    {% if id is defined %}id="{{ id }}"{% endif %}
+    {% if value is defined and value_attr is not defined %}value="{{ value }}"{% endif %}
+    {% if value_attr is defined %}{{ value_attr|raw }}{% endif %}
+>

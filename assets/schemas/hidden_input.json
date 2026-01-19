@@ -1,16 +1,16 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/schemas/text_input.json",
-  "title": "Text input field",
+  "$id": "https://example.com/schemas/hidden_input.json",
+  "title": "Hidden input field",
   "type": "object",
   "allOf": [
     { "$ref": "field_base.json" }
   ],
   "properties": {
     "type": {
-      "const": "text"
+      "const": "hidden"
     }
   },
-  "required": ["type", "name", "label"],
+  "required": ["type", "name"],
   "unevaluatedProperties": false
 }

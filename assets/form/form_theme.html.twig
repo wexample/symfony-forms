@@ -4,7 +4,6 @@
 
 {% block form_widget_simple %}
     {{ text_input({
-        type: type|default('text'),
         name: full_name,
         id: id,
         label: form.vars.label is same as(false)
@@ -12,6 +11,14 @@
             : (form.vars.label ?? form.vars.name),
         placeholder: attr.placeholder ?? null,
         required: required,
+        value: value
+    }) }}
+{% endblock %}
+
+{% block hidden_widget %}
+    {{ hidden_input({
+        name: full_name,
+        id: id,
         value: value
     }) }}
 {% endblock %}

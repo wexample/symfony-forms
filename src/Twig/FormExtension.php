@@ -23,11 +23,29 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                     Environment $twig,
                     array $context = []
                 ) {
+                    $context['type'] = 'text';
                     $this->contextService->validate($context, FormRenderingService::FORM_TYPE_TEXT_INPUT);
 
                     return $this->renderTemplate(
                         $twig,
-                        '@WexampleSymfonyFormsBundle/components/form_input.html.twig',
+                        '@WexampleSymfonyFormsBundle/components/text_input.html.twig',
+                        $context
+                    );
+                },
+                self::TEMPLATE_FUNCTION_OPTIONS
+            ),
+            new TwigFunction(
+                FormRenderingService::FORM_TYPE_HIDDEN_INPUT,
+                function (
+                    Environment $twig,
+                    array $context = []
+                ) {
+                    $context['type'] = 'hidden';
+                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_HIDDEN_INPUT);
+
+                    return $this->renderTemplate(
+                        $twig,
+                        '@WexampleSymfonyFormsBundle/components/hidden_input.html.twig',
                         $context
                     );
                 },

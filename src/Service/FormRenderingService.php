@@ -9,6 +9,7 @@ use Wexample\SymfonyTemplate\Helper\TemplateHelper;
 class FormRenderingService
 {
     public const string FORM_TYPE_TEXT_INPUT = 'text_input';
+    public const string FORM_TYPE_HIDDEN_INPUT = 'hidden_input';
 
     public function validate(array $context, string $type): void
     {
@@ -16,7 +17,8 @@ class FormRenderingService
         $dataObject = JsonHelper::toObject(
             TemplateHelper::stripTwigContextKeys($context)
         );
-        $result = (new Validator())->validate($dataObject, $schema);
+        $validator = $this->createValidator();
+        $result = $validator->validate($dataObject, $schema);
 
         if ($result->isValid()) {
             return;
@@ -35,6 +37,32 @@ class FormRenderingService
     private function getInputSchemaPath(string $type): string
     {
         return __DIR__.'/../../assets/schemas/' . $type . '.json';
+    }
+
+    private function createValidator(): Validator
+    {
+        $validator = new Validator();
+        $this->registerBaseSchema($validator);
+
+        return $validator;
+    }
+
+    private function registerBaseSchema(Validator $validator): void
+    {
+        $schemaPath = __DIR__.'/../../assets/schemas/field_base.json';
+        $schema = JsonHelper::read($schemaPath);
+        $schemaId = is_object($schema) ? ($schema->{'$id'} ?? null) : null;
+
+        if (! $schemaId) {
+            return;
+        }
+
+        $resolver = $validator->loader()->resolver();
+        if (! $resolver) {
+            return;
+        }
+
+        $resolver->registerRaw($schema, $schemaId);
     }
 
     private function formatErrorMessage(object $error): string
