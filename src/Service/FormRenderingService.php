@@ -26,7 +26,7 @@ class FormRenderingService
             ));
         }
 
-        $data = $this->stripTwigContext($context);
+        $data = TemplateHelper::stripTwigContextKeys($context);
         $dataObject = JsonHelper::toObject($data);
 
         $validator = new Validator();
@@ -42,11 +42,6 @@ class FormRenderingService
                 $message
             ));
         }
-    }
-
-    private function stripTwigContext(array $context): array
-    {
-        return TemplateHelper::stripTwigContextKeys($context);
     }
 
     private function getInputSchemaPath(string $type): string
