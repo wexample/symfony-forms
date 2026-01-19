@@ -12,9 +12,4 @@ class TextType extends \Symfony\Component\Form\AbstractType
     {
         return \Symfony\Component\Form\Extension\Core\Type\TextType::class;
     }
-
-    public function getBlockPrefix(): string
-    {
-        return 'form_text';
-    }
 }
