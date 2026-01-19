@@ -25,10 +25,6 @@ class FormRenderingService
 
     private function validate(array $context): void
     {
-        if (! class_exists(Validator::class)) {
-            return;
-        }
-
         $schemaPath = $this->getInputSchemaPath();
         $schemaJson = file_get_contents($schemaPath);
         if ($schemaJson === false) {
