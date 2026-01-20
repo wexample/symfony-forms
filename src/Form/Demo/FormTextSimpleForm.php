@@ -31,7 +31,6 @@ class FormTextSimpleForm extends AbstractForm
                 SubmitType::class,
                 [
                     self::FIELD_OPTION_NAME_LABEL => 'Submit',
-                    self::FIELD_OPTION_NAME_MAPPED => false,
                 ]
             );
     }
