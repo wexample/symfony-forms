@@ -51,6 +51,23 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 },
                 self::TEMPLATE_FUNCTION_OPTIONS
             ),
+            new TwigFunction(
+                FormRenderingService::FORM_TYPE_SUBMIT_INPUT,
+                function (
+                    Environment $twig,
+                    array $context = []
+                ) {
+                    $context['type'] = 'submit';
+                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_SUBMIT_INPUT);
+
+                    return $this->renderTemplate(
+                        $twig,
+                        '@WexampleSymfonyFormsBundle/components/submit_input.html.twig',
+                        $context
+                    );
+                },
+                self::TEMPLATE_FUNCTION_OPTIONS
+            ),
         ];
     }
 }
