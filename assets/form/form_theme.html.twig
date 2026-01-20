@@ -1,5 +1,17 @@
+{% use 'form_div_layout.html.twig' %}
+
 {% block form_row %}
     {{ form_widget(form) }}
+{% endblock %}
+
+{% block form_widget_compound %}
+    {{ block('form_rows') }}
+    {{ form_rest(form) }}
+{% endblock %}
+
+{% block form_start %}
+    {% set attr = attr|merge({ class: (attr.class ?? '') ~ ' form' }) %}
+    {{ parent() }}
 {% endblock %}
 
 {% block form_widget_simple %}

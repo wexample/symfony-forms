@@ -2,5 +2,9 @@
     type="submit"
     {% if name is defined %}name="{{ name }}"{% endif %}
     {% if id is defined %}id="{{ id }}"{% endif %}
-    {% if value is defined %}value="{{ value }}"{% elseif label is defined %}value="{{ label }}"{% endif %}
+    {% if value is defined and value != '' %}
+        value="{{ value }}"
+    {% elseif label is defined %}
+        value="{{ label }}"
+    {% endif %}
 >
