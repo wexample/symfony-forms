@@ -4,9 +4,9 @@
 namespace Wexample\SymfonyForms\Form\Demo;
 
 
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Wexample\SymfonyForms\Form\AbstractForm;
+use Wexample\SymfonyForms\Form\Type\SubmitInputType;
 use Wexample\SymfonyForms\Form\Type\TextInputType;
 
 class FormTextSimpleForm extends AbstractForm
@@ -28,9 +28,10 @@ class FormTextSimpleForm extends AbstractForm
             )
             ->add(
                 'submit',
-                SubmitType::class,
+                SubmitInputType::class,
                 [
                     self::FIELD_OPTION_NAME_LABEL => 'Submit',
+                    'icon' => 'ph:bold/paper-plane-tilt',
                 ]
             );
     }

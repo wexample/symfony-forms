@@ -42,6 +42,7 @@
         label: form.vars.label is same as(false)
             ? form.vars.name
             : (form.vars.label ?? form.vars.name),
-        value: value
+        value: value,
+        icon: form.vars.icon ?? null
     }) }}
 {% endblock %}
