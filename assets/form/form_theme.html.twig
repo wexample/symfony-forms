@@ -36,14 +36,12 @@
 {% endblock %}
 
 {% block submit_widget %}
-    <div class="form--actions">
-        {{ submit_input({
-            name: full_name,
-            id: id,
-            label: form.vars.label is same as(false)
-                ? form.vars.name
-                : (form.vars.label ?? form.vars.name),
-            value: value
-        }) }}
-    </div>
+    {{ submit_input({
+        name: full_name,
+        id: id,
+        label: form.vars.label is same as(false)
+            ? form.vars.name
+            : (form.vars.label ?? form.vars.name),
+        value: value
+    }) }}
 {% endblock %}
