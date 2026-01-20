@@ -11,7 +11,4 @@
         {% if input_attr is defined %}{{ input_attr|raw }}{% endif %}
         {% if placeholder is defined %}placeholder="{{ placeholder }}"{% endif %}
     >
-    {% if error_condition is defined and error_text is defined %}
-        <div v-if="{{ error_condition }}">[[ {{ error_text }} ]]</div>
-    {% endif %}
 </div>
