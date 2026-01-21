@@ -15,12 +15,18 @@
 {% endblock %}
 
 {% block form_widget_simple %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans({}, form.vars.translation_domain)
+    %}
     {{ text_input({
         name: full_name,
         id: id,
-        label: form.vars.label is same as(false)
-            ? form.vars.name
-            : (form.vars.label ?? form.vars.name),
+        label: label_value,
         placeholder: attr.placeholder ?? null,
         required: required,
         value: value
@@ -36,12 +42,18 @@
 {% endblock %}
 
 {% block submit_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans({}, form.vars.translation_domain)
+    %}
     {{ submit_input({
         name: full_name,
         id: id,
-        label: form.vars.label is same as(false)
-            ? form.vars.name
-            : (form.vars.label ?? form.vars.name),
+        label: label_value,
         value: value,
         icon: form.vars.icon ?? null
     }) }}
