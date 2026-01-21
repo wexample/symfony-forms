@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\SymfonyForms\Form\AbstractForm;
+use Wexample\SymfonyTranslations\Translation\Translator;
 
 abstract class AbstractFormProcessor
 {
@@ -20,13 +22,16 @@ abstract class AbstractFormProcessor
     public const FORMS_PROCESSOR_CLASS_BASE_PATH = 'App\\Service\\FormProcessor\\';
 
     protected ?Request $request = null;
+    protected ?Translator $translator = null;
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
         RequestStack $requestStack,
-        protected ?UrlGeneratorInterface $urlGenerator = null
+        protected ?UrlGeneratorInterface $urlGenerator = null,
+        ?Translator $translator = null
     ) {
         $this->request = $requestStack->getCurrentRequest();
+        $this->translator = $translator;
     }
 
     public function createForm(
@@ -108,15 +113,31 @@ abstract class AbstractFormProcessor
 
         $form->handleRequest($request);
 
-        if ($this->formIsSubmitted($form)) {
-            $this->onSubmitted($form);
+        $domainSet = false;
 
-            $isValid = $this->formIsValid($form);
+        if ($this->translator) {
+            $this->translator->setDomain(
+                Translator::DOMAIN_TYPE_FORM,
+                AbstractForm::transTypeDomain(static::getFormClass())
+            );
+            $domainSet = true;
+        }
 
-            if ($isValid) {
-                $this->onValid($form);
-            } else {
-                $this->onInvalid($form);
+        try {
+            if ($this->formIsSubmitted($form)) {
+                $this->onSubmitted($form);
+
+                $isValid = $this->formIsValid($form);
+
+                if ($isValid) {
+                    $this->onValid($form);
+                } else {
+                    $this->onInvalid($form);
+                }
+            }
+        } finally {
+            if ($domainSet) {
+                $this->translator?->revertDomain(Translator::DOMAIN_TYPE_FORM);
             }
         }
 
