@@ -172,6 +172,11 @@ abstract class AbstractFormProcessor
         // To override by children.
     }
 
+    public function getSuccessRedirectUrl(FormInterface $form): ?string
+    {
+        return null;
+    }
+
     protected function getPostedRawData(string $key)
     {
         if (!$this->request) {
