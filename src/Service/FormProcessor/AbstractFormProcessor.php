@@ -57,6 +57,13 @@ abstract class AbstractFormProcessor
             );
         }
 
+        if (property_exists($formClass, 'ajax')
+            && $formClass::$ajax
+            && !isset($options['action'])
+        ) {
+            $options['action'] = $this->createFormAction($data);
+        }
+
         return $this->formFactory->create(
             $formClass,
             $data,

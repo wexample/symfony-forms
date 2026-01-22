@@ -5,4 +5,4 @@ services:
         public: false
 
     Wexample\SymfonyForms\:
-        resource: '../../{Service,Twig}'
+        resource: '../../{Service,Twig,Controller}'

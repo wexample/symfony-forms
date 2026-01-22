@@ -9,6 +9,8 @@ use Wexample\SymfonyTranslations\Translation\Translator;
 
 class AbstractForm extends \Symfony\Component\Form\AbstractType
 {
+    public static bool $ajax = false;
+
     public const FIELD_OPTION_NAME_LABEL = 'label';
     public const FIELD_OPTION_NAME_REQUIRED = 'required';
     public const FIELD_OPTION_NAME_MAPPED = 'mapped';
