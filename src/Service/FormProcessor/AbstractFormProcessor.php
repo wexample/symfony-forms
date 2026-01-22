@@ -8,9 +8,11 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\SymfonyForms\Form\AbstractForm;
+use Wexample\SymfonyLoader\Service\AdaptiveFormResponseService;
 use Wexample\SymfonyTranslations\Translation\Translator;
 
 abstract class AbstractFormProcessor
@@ -23,15 +25,20 @@ abstract class AbstractFormProcessor
 
     protected ?Request $request = null;
     protected ?Translator $translator = null;
+    protected ?AdaptiveFormResponseService $adaptiveFormResponseService = null;
+
+    public const VAR_FORM_DATA = 'formData';
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
         RequestStack $requestStack,
         protected ?UrlGeneratorInterface $urlGenerator = null,
-        ?Translator $translator = null
+        ?Translator $translator = null,
+        ?AdaptiveFormResponseService $adaptiveFormResponseService = null
     ) {
         $this->request = $requestStack->getCurrentRequest();
         $this->translator = $translator;
+        $this->adaptiveFormResponseService = $adaptiveFormResponseService;
     }
 
     public function createForm(
@@ -144,6 +151,38 @@ abstract class AbstractFormProcessor
         return $form;
     }
 
+    public function handleStaticFormOrRenderAdaptiveResponse(
+        string $view,
+        array $parameters = [],
+        $formData = null,
+        string $formParameterName = 'form'
+    ): Response {
+        if (!$this->request) {
+            throw new RuntimeException('A request is required to handle form submission.');
+        }
+
+        if (!$this->adaptiveFormResponseService) {
+            throw new RuntimeException('AdaptiveFormResponseService is required to render adaptive responses.');
+        }
+
+        $form = $this->createForm($formData);
+
+        if ($form->handleRequest($this->request) && $this->formIsSubmitted($form)) {
+            // Override first form by submitted one.
+            $form = $this->handleSubmission($this->request);
+        }
+
+        $this->prepareDisplay($form);
+
+        $this->adaptiveFormResponseService->setViewDefault($view);
+        $this->adaptiveFormResponseService->addParameters(
+            $this->buildViewParameters($form, $formParameterName)
+            + $parameters
+        );
+
+        return $this->adaptiveFormResponseService->render();
+    }
+
     public function createFormSubmitted(
         Request $request
     ): FormInterface {
@@ -196,6 +235,63 @@ abstract class AbstractFormProcessor
     public function getSuccessRedirectUrl(FormInterface $form): ?string
     {
         return null;
+    }
+
+    public function prepareDisplay(FormInterface $form): void
+    {
+        if (!$this->adaptiveFormResponseService
+            || !$this->adaptiveFormResponseService->hasAction()
+        ) {
+            $this->onRender($form);
+        }
+    }
+
+    public function onRender(FormInterface $form): void
+    {
+        // To override by children.
+    }
+
+    protected function buildViewParameters(
+        FormInterface $form,
+        string $formParameterName = 'form'
+    ): array {
+        return [
+            self::VAR_FORM_DATA => $form->getData(),
+            $formParameterName => $form->createView(),
+        ];
+    }
+
+    public function render(FormInterface $form, string $formParameterName = 'form'): Response
+    {
+        if (!$this->adaptiveFormResponseService) {
+            throw new RuntimeException('AdaptiveFormResponseService is required to render adaptive responses.');
+        }
+
+        $this->adaptiveFormResponseService->setForm($form, $formParameterName);
+
+        return $this->adaptiveFormResponseService->render();
+    }
+
+    public function redirectToRoute(
+        string $routeName,
+        array $params = []
+    ): void {
+        if (!$this->urlGenerator) {
+            throw new RuntimeException('UrlGeneratorInterface is required to build redirects.');
+        }
+
+        $this->redirect(
+            $this->urlGenerator->generate($routeName, $params)
+        );
+    }
+
+    public function redirect(string $url): void
+    {
+        if (!$this->adaptiveFormResponseService) {
+            throw new RuntimeException('AdaptiveFormResponseService is required to render redirects.');
+        }
+
+        $this->adaptiveFormResponseService->setRedirectUrl($url);
     }
 
     protected function getPostedRawData(string $key)
