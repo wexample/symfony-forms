@@ -10,8 +10,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
 {
     public function __construct(
         private readonly FormRenderingService $contextService
-    )
-    {
+    ) {
     }
 
     public function getFunctions(): array

@@ -47,7 +47,7 @@ abstract class AbstractFormProcessor
     ): FormInterface {
         $formClass = static::getFormClass();
 
-        if (!class_exists($formClass)) {
+        if (! class_exists($formClass)) {
             throw new RuntimeException(
                 sprintf(
                     'Unable to find form %s related to processor %s.',
@@ -59,7 +59,7 @@ abstract class AbstractFormProcessor
 
         if (property_exists($formClass, 'ajax')
             && $formClass::$ajax
-            && !isset($options['action'])
+            && ! isset($options['action'])
         ) {
             $options['action'] = $this->createFormAction($data);
         }
@@ -80,7 +80,7 @@ abstract class AbstractFormProcessor
     {
         $formClass = static::guessFormClass();
 
-        if (!$formClass || !class_exists($formClass)) {
+        if (! $formClass || ! class_exists($formClass)) {
             throw new RuntimeException(sprintf(
                 'Unable to resolve form class for %s. Override getFormClass().',
                 static::class
@@ -117,8 +117,7 @@ abstract class AbstractFormProcessor
 
     public function handleSubmission(
         Request $request
-    ): FormInterface
-    {
+    ): FormInterface {
         $form = $this->createFormSubmitted($request);
 
         $form->handleRequest($request);
@@ -160,11 +159,11 @@ abstract class AbstractFormProcessor
         $formData = null,
         string $formParameterName = 'form'
     ): Response {
-        if (!$this->request) {
+        if (! $this->request) {
             throw new RuntimeException('A request is required to handle form submission.');
         }
 
-        if (!$this->adaptiveFormResponseService) {
+        if (! $this->adaptiveFormResponseService) {
             throw new RuntimeException('AdaptiveFormResponseService is required to render adaptive responses.');
         }
 
@@ -242,8 +241,8 @@ abstract class AbstractFormProcessor
 
     public function prepareDisplay(FormInterface $form): void
     {
-        if (!$this->adaptiveFormResponseService
-            || !$this->adaptiveFormResponseService->hasAction()
+        if (! $this->adaptiveFormResponseService
+            || ! $this->adaptiveFormResponseService->hasAction()
         ) {
             $this->onRender($form);
         }
@@ -266,7 +265,7 @@ abstract class AbstractFormProcessor
 
     public function render(FormInterface $form, string $formParameterName = 'form'): Response
     {
-        if (!$this->adaptiveFormResponseService) {
+        if (! $this->adaptiveFormResponseService) {
             throw new RuntimeException('AdaptiveFormResponseService is required to render adaptive responses.');
         }
 
@@ -286,7 +285,7 @@ abstract class AbstractFormProcessor
 
     public function redirect(string $url): void
     {
-        if (!$this->adaptiveFormResponseService) {
+        if (! $this->adaptiveFormResponseService) {
             throw new RuntimeException('AdaptiveFormResponseService is required to render redirects.');
         }
 
@@ -295,7 +294,7 @@ abstract class AbstractFormProcessor
 
     protected function getPostedRawData(string $key)
     {
-        if (!$this->request) {
+        if (! $this->request) {
             return null;
         }
 
@@ -312,13 +311,13 @@ abstract class AbstractFormProcessor
         $base = static::FORMS_PROCESSOR_CLASS_BASE_PATH;
         $suffix = static::CLASS_EXTENSION;
 
-        if (!str_starts_with($processorClass, $base)) {
+        if (! str_starts_with($processorClass, $base)) {
             return null;
         }
 
         $relative = substr($processorClass, strlen($base));
 
-        if (!str_ends_with($relative, $suffix)) {
+        if (! str_ends_with($relative, $suffix)) {
             return null;
         }
 

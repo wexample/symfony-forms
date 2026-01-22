@@ -130,6 +130,7 @@ Refer to each package's documentation for specific version compatibility require
 ## Dependencies
 
 - wexample/symfony-design-system: 1.0.69
+- syrtis/php-semantic-schema-web: *
 
 
 # About us

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Wexample\SymfonyForms\Form\Demo;
-
 
 use Symfony\Component\Form\FormBuilderInterface;
 use Wexample\SymfonyForms\Form\AbstractForm;
@@ -14,8 +12,7 @@ class FormTextSimpleForm extends AbstractForm
     public function buildForm(
         FormBuilderInterface $builder,
         array $options
-    )
-    {
+    ) {
         $builder
             ->add(
                 'text_simple',

@@ -22,7 +22,7 @@ class FormProcessorPostHandler
         $formClass = AbstractFormProcessor::FORMS_CLASS_BASE_PATH
             . ClassHelper::longTableizedNameToClass($formName);
 
-        if (!class_exists($formClass)) {
+        if (! class_exists($formClass)) {
             throw new RuntimeException('Form class not found: ' . $formClass);
         }
 
@@ -34,7 +34,7 @@ class FormProcessorPostHandler
             AbstractFormProcessor::CLASS_EXTENSION
         );
 
-        if (!class_exists($processorClass)) {
+        if (! class_exists($processorClass)) {
             throw new RuntimeException('Form processor class not found: ' . $processorClass);
         }
 
