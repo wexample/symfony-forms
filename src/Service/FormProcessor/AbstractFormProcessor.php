@@ -32,7 +32,7 @@ abstract class AbstractFormProcessor
     public function __construct(
         protected FormFactoryInterface $formFactory,
         RequestStack $requestStack,
-        protected ?UrlGeneratorInterface $urlGenerator = null,
+        protected UrlGeneratorInterface $urlGenerator,
         ?Translator $translator = null,
         ?AdaptiveFormResponseService $adaptiveFormResponseService = null
     ) {
@@ -85,10 +85,6 @@ abstract class AbstractFormProcessor
 
     public function createFormAction($data): string
     {
-        if (!$this->urlGenerator) {
-            throw new RuntimeException('UrlGeneratorInterface is required to build form actions.');
-        }
-
         return $this->urlGenerator->generate(
             $this->getFormActionRoute(),
             $this->getFormActionArgs($data)
@@ -276,10 +272,6 @@ abstract class AbstractFormProcessor
         string $routeName,
         array $params = []
     ): void {
-        if (!$this->urlGenerator) {
-            throw new RuntimeException('UrlGeneratorInterface is required to build redirects.');
-        }
-
         $this->redirect(
             $this->urlGenerator->generate($routeName, $params)
         );
