@@ -1,0 +1,60 @@
+{% use 'form_div_layout.html.twig' %}
+
+{% block form_row %}
+    {{ form_widget(form) }}
+{% endblock %}
+
+{% block form_widget_compound %}
+    {{ block('form_rows') }}
+    {{ form_rest(form) }}
+{% endblock %}
+
+{% block form_start %}
+    {% set attr = attr|merge({ class: (attr.class ?? '') ~ ' form' }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block form_widget_simple %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans({}, form.vars.translation_domain)
+    %}
+    {{ text_input({
+        name: full_name,
+        id: id,
+        label: label_value,
+        placeholder: attr.placeholder ?? null,
+        required: required,
+        value: value
+    }) }}
+{% endblock %}
+
+{% block hidden_widget %}
+    {{ hidden_input({
+        name: full_name,
+        id: id,
+        value: value
+    }) }}
+{% endblock %}
+
+{% block submit_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans({}, form.vars.translation_domain)
+    %}
+    {{ submit_input({
+        name: full_name,
+        id: id,
+        label: label_value,
+        value: value,
+        icon: form.vars.icon ?? null
+    }) }}
+{% endblock %}

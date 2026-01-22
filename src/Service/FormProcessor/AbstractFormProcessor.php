@@ -2,26 +2,18 @@
 
 namespace Wexample\SymfonyForms\Service\FormProcessor;
 
-use App\Wex\BaseBundle\Form\AbstractForm;
-use App\Wex\BaseBundle\Form\FormError\FormErrorTranslated;
-use App\Wex\BaseBundle\Service\AdaptiveEventsBag;
-use App\Wex\BaseBundle\Service\AdaptiveResponse;
-use App\Wex\BaseBundle\Translation\Translator;
-use App\Wex\BaseBundle\Twig\TranslationExtension;
-use Exception;
-use JetBrains\PhpStorm\ArrayShape;
-use JetBrains\PhpStorm\Pure;
-use Symfony\Component\Form\FormError;
+use RuntimeException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
-use Wexample\SymfonyHelpers\Helper\VariableHelper;
+use Wexample\SymfonyForms\Form\AbstractForm;
+use Wexample\SymfonyLoader\Service\AdaptiveFormResponseService;
+use Wexample\SymfonyTranslations\Translation\Translator;
 
 abstract class AbstractFormProcessor
 {
@@ -32,57 +24,43 @@ abstract class AbstractFormProcessor
     public const FORMS_PROCESSOR_CLASS_BASE_PATH = 'App\\Service\\FormProcessor\\';
 
     protected ?Request $request = null;
-
-    protected Translator $translator;
+    protected ?Translator $translator = null;
+    protected ?AdaptiveFormResponseService $adaptiveFormResponseService = null;
 
     public const VAR_FORM_DATA = 'formData';
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
-        protected UrlGeneratorInterface $urlGenerator,
         RequestStack $requestStack,
-        protected AdaptiveResponse $adaptiveResponse,
-        protected AdaptiveEventsBag $adaptiveEventsBag,
-        protected TranslationExtension $transExt
+        protected UrlGeneratorInterface $urlGenerator,
+        ?Translator $translator = null,
+        ?AdaptiveFormResponseService $adaptiveFormResponseService = null
     ) {
         $this->request = $requestStack->getCurrentRequest();
-    }
-
-    public function handleStaticFormOrRenderAdaptiveResponse(
-        string $view,
-        array $parameters = [],
-        $formData = null
-    ): Response {
-        $form = $this->createForm($formData);
-
-        if ($form->handleRequest($this->request)
-            && $this->formIsSubmitted($form)) {
-            // Override first form by submitted one.
-            $form = $this->handleSubmission($this->request);
-        }
-
-        $this->prepareDisplay($form);
-
-        $this->adaptiveResponse->setViewDefault(
-            $view,
-            $this->buildViewParameters($form)
-            + $parameters
-        );
-
-        return $this->render($form);
+        $this->translator = $translator;
+        $this->adaptiveFormResponseService = $adaptiveFormResponseService;
     }
 
     public function createForm(
-        $data,
+        $data = null,
         array $options = []
     ): FormInterface {
         $formClass = static::getFormClass();
 
         if (! class_exists($formClass)) {
-            throw new Exception('Unable to find form '.$formClass.' related to processor '.$this::class);
+            throw new RuntimeException(
+                sprintf(
+                    'Unable to find form %s related to processor %s.',
+                    $formClass,
+                    static::class
+                )
+            );
         }
 
-        if ($formClass::$ajax && ! isset($options['action'])) {
+        if (property_exists($formClass, 'ajax')
+            && $formClass::$ajax
+            && ! isset($options['action'])
+        ) {
             $options['action'] = $this->createFormAction($data);
         }
 
@@ -98,15 +76,18 @@ abstract class AbstractFormProcessor
      * By default, search the form which have the same name as the current
      * processor.
      */
-    #[Pure]
     public static function getFormClass(): string
     {
-        return ClassHelper::getCousin(
-            static::class,
-            static::FORMS_PROCESSOR_CLASS_BASE_PATH,
-            AbstractFormProcessor::CLASS_EXTENSION,
-            static::FORMS_CLASS_BASE_PATH
-        );
+        $formClass = static::guessFormClass();
+
+        if (! $formClass || ! class_exists($formClass)) {
+            throw new RuntimeException(sprintf(
+                'Unable to resolve form class for %s. Override getFormClass().',
+                static::class
+            ));
+        }
+
+        return $formClass;
     }
 
     public function createFormAction($data): string
@@ -122,7 +103,6 @@ abstract class AbstractFormProcessor
         return 'form_processor_submit';
     }
 
-    #[ArrayShape(['name' => 'string'])]
     public function getFormActionArgs($data): array
     {
         return [
@@ -135,40 +115,74 @@ abstract class AbstractFormProcessor
         return $form->isSubmitted();
     }
 
-    public function handleSubmission(Request $request): FormInterface
-    {
+    public function handleSubmission(
+        Request $request
+    ): FormInterface {
         $form = $this->createFormSubmitted($request);
 
         $form->handleRequest($request);
 
-        $this->transExt->translator->setDomain(
-            Translator::DOMAIN_TYPE_FORM,
-            AbstractForm::transTypeDomain(static::getFormClass())
-        );
+        $domainSet = false;
 
-        if ($this->formIsSubmitted($form)) {
-            $this->onSubmitted($form);
+        if ($this->translator) {
+            $this->translator->setDomain(
+                Translator::DOMAIN_TYPE_FORM,
+                AbstractForm::transTypeDomain(static::getFormClass())
+            );
+            $domainSet = true;
+        }
 
-            $isValid = $this->formIsValid($form);
-            $hasError = (bool) $form->getErrors(true)->count();
+        try {
+            if ($this->formIsSubmitted($form)) {
+                $this->onSubmitted($form);
 
-            if (! $hasError) {
+                $isValid = $this->formIsValid($form);
+
                 if ($isValid) {
                     $this->onValid($form);
                 } else {
-                    $this->addFormMessageError('not_valid', [], 'forms');
+                    $this->onInvalid($form);
                 }
             }
-        } else {
-            $this->addFormMessageError('not_submitted', [], 'forms');
+        } finally {
+            if ($domainSet) {
+                $this->translator?->revertDomain(Translator::DOMAIN_TYPE_FORM);
+            }
         }
 
-        $this->transExt->transJs(
-            '@'.Translator::DOMAIN_TYPE_FORM.Translator::DOMAIN_SEPARATOR.'*'
-        );
-        $this->transExt->translator->revertDomain(Translator::DOMAIN_TYPE_FORM);
-
         return $form;
+    }
+
+    public function handleStaticFormOrRenderAdaptiveResponse(
+        string $view,
+        array $parameters = [],
+        $formData = null,
+        string $formParameterName = 'form'
+    ): Response {
+        if (! $this->request) {
+            throw new RuntimeException('A request is required to handle form submission.');
+        }
+
+        if (! $this->adaptiveFormResponseService) {
+            throw new RuntimeException('AdaptiveFormResponseService is required to render adaptive responses.');
+        }
+
+        $form = $this->createForm($formData);
+
+        if ($form->handleRequest($this->request) && $this->formIsSubmitted($form)) {
+            // Override first form by submitted one.
+            $form = $this->handleSubmission($this->request);
+        }
+
+        $this->prepareDisplay($form);
+
+        $this->adaptiveFormResponseService->setViewDefault($view);
+        $this->adaptiveFormResponseService->addParameters(
+            $this->buildViewParameters($form, $formParameterName)
+            + $parameters
+        );
+
+        return $this->adaptiveFormResponseService->render();
     }
 
     public function createFormSubmitted(
@@ -201,48 +215,6 @@ abstract class AbstractFormProcessor
         // To override by children.
     }
 
-    public function addFormMessageError(
-        string $name,
-        array $args = [],
-        $domain = null
-    ) {
-        $this->adaptiveEventsBag->addPageMessageError(
-            $name,
-            $args,
-            $domain
-            ?? $this->transExt->translator->resolveDomain('@'.Translator::DOMAIN_TYPE_FORM)
-        );
-    }
-
-    public function prepareDisplay($form): void
-    {
-        if (! $this->adaptiveResponse->hasAction()) {
-            $this->onRender($form);
-        }
-    }
-
-    public function onRender(FormInterface $form): void
-    {
-        // To override...
-    }
-
-    #[ArrayShape([
-        self::VAR_FORM_DATA => VariableHelper::VARIABLE_TYPE_MIXED,
-        VariableHelper::FORM => FormView::class,
-    ])]
-    protected function buildViewParameters(FormInterface $form): array
-    {
-        return [
-            self::VAR_FORM_DATA => $form->getData(),
-            VariableHelper::FORM => $form->createView(),
-        ];
-    }
-
-    public function render(FormInterface $form): Response
-    {
-        return $this->adaptiveResponse->setForm($form)->render();
-    }
-
     /**
      * Create only form when rendering is managed externally (ex: multiple form
      * in a page).
@@ -253,42 +225,79 @@ abstract class AbstractFormProcessor
     ): FormView {
         $form = $this->createForm($data, $options);
 
-        $this->prepareDisplay($form);
-
         return $form->createView();
+    }
+
+    public function onInvalid(
+        FormInterface $form
+    ) {
+        // To override by children.
+    }
+
+    public function getSuccessRedirectUrl(FormInterface $form): ?string
+    {
+        return null;
+    }
+
+    public function prepareDisplay(FormInterface $form): void
+    {
+        if (! $this->adaptiveFormResponseService
+            || ! $this->adaptiveFormResponseService->hasAction()
+        ) {
+            $this->onRender($form);
+        }
+    }
+
+    public function onRender(FormInterface $form): void
+    {
+        // To override by children.
+    }
+
+    protected function buildViewParameters(
+        FormInterface $form,
+        string $formParameterName = 'form'
+    ): array {
+        return [
+            self::VAR_FORM_DATA => $form->getData(),
+            $formParameterName => $form->createView(),
+        ];
+    }
+
+    public function render(FormInterface $form, string $formParameterName = 'form'): Response
+    {
+        if (! $this->adaptiveFormResponseService) {
+            throw new RuntimeException('AdaptiveFormResponseService is required to render adaptive responses.');
+        }
+
+        $this->adaptiveFormResponseService->setForm($form, $formParameterName);
+
+        return $this->adaptiveFormResponseService->render();
     }
 
     public function redirectToRoute(
         string $routeName,
         array $params = []
-    ) {
+    ): void {
         $this->redirect(
             $this->urlGenerator->generate($routeName, $params)
         );
     }
 
-    public function redirect(string $url)
+    public function redirect(string $url): void
     {
-        $this->adaptiveResponse->setRedirect(
-            new RedirectResponse($url)
-        );
-    }
+        if (! $this->adaptiveFormResponseService) {
+            throw new RuntimeException('AdaptiveFormResponseService is required to render redirects.');
+        }
 
-    public function addFormMessageSuccess(
-        string $name = 'submit',
-        array $args = [],
-        $domain = null
-    ) {
-        $this->adaptiveEventsBag->addPageMessageSuccess(
-            $name,
-            $args,
-            $domain
-            ?? $this->transExt->translator->resolveDomain('@'.Translator::DOMAIN_TYPE_FORM)
-        );
+        $this->adaptiveFormResponseService->setRedirectUrl($url);
     }
 
     protected function getPostedRawData(string $key)
     {
+        if (! $this->request) {
+            return null;
+        }
+
         $data = $this->request->get(
             ClassHelper::getTableizedName(static::getFormClass())
         );
@@ -296,40 +305,24 @@ abstract class AbstractFormProcessor
         return $data[$key] ?? null;
     }
 
-    public function addFieldError(
-        FormInterface $form,
-        string $fieldName,
-        string $error
-    ): void {
-        $form
-            ->get($fieldName)
-            ->addError(
-                new FormErrorTranslated('field.'.$fieldName.'.error.'.$error, $form)
-            );
-    }
+    protected static function guessFormClass(): ?string
+    {
+        $processorClass = static::class;
+        $base = static::FORMS_PROCESSOR_CLASS_BASE_PATH;
+        $suffix = static::CLASS_EXTENSION;
 
-    protected function setFieldError(
-        FormInterface $form,
-        string $fieldName,
-        string $key
-    ) {
-        $form->get('plainPassword')->get($fieldName)->addError(
-            new FormError(
-                $this->transField(
-                    'field.'.$fieldName,
-                    'error.'.$key
-                )
-            )
-        );
-    }
+        if (! str_starts_with($processorClass, $base)) {
+            return null;
+        }
 
-    protected function transField(
-        string $fieldName,
-        string $key
-    ) {
-        return AbstractForm::transForm(
-            $fieldName.'.'.$key,
-            self::getFormClass()
-        );
+        $relative = substr($processorClass, strlen($base));
+
+        if (! str_ends_with($relative, $suffix)) {
+            return null;
+        }
+
+        $formRelative = substr($relative, 0, -strlen($suffix));
+
+        return static::FORMS_CLASS_BASE_PATH . $formRelative;
     }
 }
