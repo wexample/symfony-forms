@@ -33,6 +33,29 @@
     }) }}
 {% endblock %}
 
+{% block password_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans({}, form.vars.translation_domain)
+    %}
+    {{ password_input({
+        name: full_name,
+        id: id,
+        label: label_value,
+        placeholder: attr.placeholder ?? null,
+        required: required,
+        value: value
+    }) }}
+{% endblock %}
+
+{% block password_input_widget %}
+    {{ block('password_widget') }}
+{% endblock %}
+
 {% block hidden_widget %}
     {{ hidden_input({
         name: full_name,

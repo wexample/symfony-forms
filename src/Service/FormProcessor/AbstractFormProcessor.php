@@ -28,6 +28,9 @@ abstract class AbstractFormProcessor
     protected ?AdaptiveFormResponseService $adaptiveFormResponseService = null;
 
     public const VAR_FORM_DATA = 'formData';
+    private const string REQUEST_REDIRECT_PARAM = 'redirect';
+    private const string SESSION_REDIRECT_TARGET = 'app.redirect_target';
+    private const string SESSION_SECURITY_TARGET = '_security.main.target_path';
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
@@ -283,6 +286,38 @@ abstract class AbstractFormProcessor
         );
     }
 
+    public function redirectToPreviousOrToRoute(
+        string $routeName,
+        array $parameters = []
+    ): void {
+        $target = null;
+
+        if ($this->request) {
+            $candidate = $this->request->get(self::REQUEST_REDIRECT_PARAM);
+            $target = is_string($candidate) ? $candidate : null;
+        }
+
+        $session = $this->request?->getSession();
+
+        if (! $target && $session) {
+            $candidate = $session->get(self::SESSION_REDIRECT_TARGET)
+                ?? $session->get(self::SESSION_SECURITY_TARGET);
+            $target = is_string($candidate) ? $candidate : null;
+        }
+
+        if ($session) {
+            $session->remove(self::SESSION_REDIRECT_TARGET);
+            $session->remove(self::SESSION_SECURITY_TARGET);
+        }
+
+        if ($target && $this->isSafeRedirectTarget($target)) {
+            $this->redirect($target);
+            return;
+        }
+
+        $this->redirect($this->urlGenerator->generate($routeName, $parameters));
+    }
+
     public function redirect(string $url): void
     {
         if (! $this->adaptiveFormResponseService) {
@@ -290,6 +325,11 @@ abstract class AbstractFormProcessor
         }
 
         $this->adaptiveFormResponseService->setRedirectUrl($url);
+    }
+
+    private function isSafeRedirectTarget(string $target): bool
+    {
+        return str_starts_with($target, '/') && ! str_starts_with($target, '//');
     }
 
     protected function getPostedRawData(string $key)
