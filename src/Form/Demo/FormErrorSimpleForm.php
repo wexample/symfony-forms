@@ -7,7 +7,7 @@ use Wexample\SymfonyForms\Form\AbstractForm;
 use Wexample\SymfonyForms\Form\Type\SubmitInputType;
 use Wexample\SymfonyForms\Form\Type\TextInputType;
 
-class FormTextSimpleForm extends AbstractForm
+class FormErrorSimpleForm extends AbstractForm
 {
     public function buildForm(
         FormBuilderInterface $builder,
