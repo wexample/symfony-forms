@@ -1,7 +1,13 @@
 {% use 'form_div_layout.html.twig' %}
 
 {% block form_row %}
-    {{ form_widget(form) }}
+    {% set row_attr = row_attr|default({}) %}
+    {% set row_class = row_attr.class ?? '' %}
+    <div {{ block('attributes')|raw }} class="{{ row_class }}">
+        {{ form_widget(form) }}
+        {{ form_errors(form) }}
+        {{ form_help(form) }}
+    </div>
 {% endblock %}
 
 {% block form_widget_compound %}
@@ -91,6 +97,14 @@
                     <li>{{ error.message }}</li>
                 {% endfor %}
             </ul>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block form_help %}
+    {% if help is not empty %}
+        <div class="form--help">
+            {{ help|trans(help_translation_parameters, translation_domain) }}
         </div>
     {% endif %}
 {% endblock %}

@@ -3,6 +3,9 @@
 namespace Wexample\SymfonyForms\Form\Demo;
 
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Wexample\SymfonyForms\Form\AbstractForm;
 use Wexample\SymfonyForms\Form\Type\SubmitInputType;
 use Wexample\SymfonyForms\Form\Type\TextInputType;
@@ -31,5 +34,17 @@ class FormTextSimpleForm extends AbstractForm
                     'icon' => 'ph:bold/paper-plane-tilt',
                 ]
             );
+
+        $builder->addEventListener(
+            FormEvents::POST_SUBMIT,
+            function (FormEvent $event): void {
+                $form = $event->getForm();
+                $form->addError(new FormError('Example form error'));
+
+                if ($form->has('text_simple')) {
+                    $form->get('text_simple')->addError(new FormError('Example field error'));
+                }
+            }
+        );
     }
 }
