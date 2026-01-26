@@ -2,8 +2,13 @@
 
 {% block form_row %}
     {% set row_attr = row_attr|default({}) %}
-    {% set row_class = row_attr.class ?? '' %}
-    <div {{ block('attributes')|raw }} class="{{ row_class }}">
+    {% set row_classes = (row_attr.class ?? '') ~ ' form--group' %}
+    {% if errors|length > 0 %}
+        {% set row_classes = row_classes ~ ' has-error' %}
+    {% endif %}
+    {% set row_attr = row_attr|merge({ class: row_classes|trim }) %}
+    {% set attr = row_attr %}
+    <div {{ block('attributes')|raw }}>
         {{ form_widget(form) }}
         {{ form_errors(form) }}
         {{ form_help(form) }}
@@ -91,13 +96,23 @@
 
 {% block form_errors %}
     {% if errors|length > 0 %}
-        <div class="form--errors">
-            <ul>
-                {% for error in errors %}
-                    <li>{{ error.message }}</li>
-                {% endfor %}
-            </ul>
-        </div>
+        {% if form.parent is null %}
+            <div class="form--errors">
+                <ul>
+                    {% for error in errors %}
+                        <li>{{ error.message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <div class="form--field-errors">
+                <ul>
+                    {% for error in errors %}
+                        <li>{{ error.message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
