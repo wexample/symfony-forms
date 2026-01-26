@@ -22,14 +22,8 @@ class FormTextSimpleForm extends AbstractForm
                     self::FIELD_OPTION_NAME_REQUIRED => false,
                     self::FIELD_OPTION_NAME_MAPPED => false,
                 ]
-            )
-            ->add(
-                'submit',
-                SubmitInputType::class,
-                [
-                    self::FIELD_OPTION_NAME_LABEL => true,
-                    'icon' => 'ph:bold/paper-plane-tilt',
-                ]
             );
+
+        $this->builderAddSubmit($builder);
     }
 }

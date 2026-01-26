@@ -103,6 +103,9 @@
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
     %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'action.' ~ form.vars.name %}
+    {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
         : label_key|trans({}, form.vars.translation_domain)
