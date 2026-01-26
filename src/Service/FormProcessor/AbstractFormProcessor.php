@@ -237,6 +237,25 @@ abstract class AbstractFormProcessor
         // To override by children.
     }
 
+    protected function addFormErrorFromApiKey(
+        FormInterface $form,
+        string $errorKey,
+        string $prefix = 'error.'
+    ): void {
+        $key = $prefix . $errorKey . '.message';
+        $translationKey = '@' . Translator::DOMAIN_TYPE_FORM
+            . Translator::DOMAIN_SEPARATOR
+            . $key;
+
+        if ($this->translator) {
+            $form->addError(new \Symfony\Component\Form\FormError(
+                $this->translator->trans($translationKey)
+            ));
+        } else {
+            $form->addError(new \Symfony\Component\Form\FormError($translationKey));
+        }
+    }
+
     public function getSuccessRedirectUrl(FormInterface $form): ?string
     {
         return null;

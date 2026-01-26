@@ -18,7 +18,7 @@ class FormTextSimpleForm extends AbstractForm
                 'text_simple',
                 TextInputType::class,
                 [
-                    self::FIELD_OPTION_NAME_LABEL => 'Text',
+                    self::FIELD_OPTION_NAME_LABEL => true,
                     self::FIELD_OPTION_NAME_REQUIRED => false,
                     self::FIELD_OPTION_NAME_MAPPED => false,
                 ]
@@ -27,7 +27,7 @@ class FormTextSimpleForm extends AbstractForm
                 'submit',
                 SubmitInputType::class,
                 [
-                    self::FIELD_OPTION_NAME_LABEL => 'Submit',
+                    self::FIELD_OPTION_NAME_LABEL => true,
                     'icon' => 'ph:bold/paper-plane-tilt',
                 ]
             );
