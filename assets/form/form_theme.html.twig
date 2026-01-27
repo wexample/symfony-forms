@@ -30,6 +30,7 @@
     {{ parent() }}
 
     {% if form.vars.ajax is defined and form.vars.ajax == true and render_pass is defined %}
+        <input type="hidden" name="_adaptive_view" value="{{ render_pass.view }}" />
         {{ component_init_previous(
             render_pass,
             '@WexampleSymfonyLoaderBundle/components/form',

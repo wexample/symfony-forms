@@ -11,7 +11,7 @@ use Wexample\Helpers\Helper\ClassHelper;
 class FormProcessorPostHandler
 {
     public function __construct(
-        private readonly ContainerInterface $container
+        private readonly ContainerInterface $processors
     ) {
     }
 
@@ -38,8 +38,12 @@ class FormProcessorPostHandler
             throw new RuntimeException('Form processor class not found: ' . $processorClass);
         }
 
+        if (! $this->processors->has($processorClass)) {
+            throw new RuntimeException('Form processor service not found: ' . $processorClass);
+        }
+
         /** @var AbstractFormProcessor $formProcessor */
-        $formProcessor = $this->container->get($processorClass);
+        $formProcessor = $this->processors->get($processorClass);
         $form = $formProcessor->handleSubmission($request);
 
         return $formProcessor->render($form);
