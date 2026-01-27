@@ -77,6 +77,7 @@ class FormProcessorPostHandler
                 $errors['form'][] = $message;
                 $translationKeys[] = $message;
                 ++$errors['count'];
+
                 continue;
             }
 

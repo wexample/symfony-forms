@@ -4,7 +4,6 @@ namespace Wexample\SymfonyForms\Form\Demo;
 
 use Symfony\Component\Form\FormBuilderInterface;
 use Wexample\SymfonyForms\Form\AbstractForm;
-use Wexample\SymfonyForms\Form\Type\SubmitInputType;
 use Wexample\SymfonyForms\Form\Type\TextInputType;
 
 class FormTextSimpleForm extends AbstractForm

@@ -12,8 +12,7 @@ class FormTextActionsForm extends AbstractForm
     public function buildForm(
         FormBuilderInterface $builder,
         array $options
-    )
-    {
+    ) {
         $builder
             ->add(
                 'name',
