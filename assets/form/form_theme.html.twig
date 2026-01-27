@@ -1,10 +1,22 @@
 {% use 'form_div_layout.html.twig' %}
 
 {% block form_row %}
-    {{ form_widget(form) }}
+    {% set row_attr = row_attr|default({}) %}
+    {% set row_classes = (row_attr.class ?? '') ~ ' form--group' %}
+    {% if errors|length > 0 %}
+        {% set row_classes = row_classes ~ ' has-error' %}
+    {% endif %}
+    {% set row_attr = row_attr|merge({ class: row_classes|trim }) %}
+    {% set attr = row_attr %}
+    <div {{ block('attributes')|raw }}>
+        {{ form_widget(form) }}
+        {{ form_errors(form) }}
+        {{ form_help(form) }}
+    </div>
 {% endblock %}
 
 {% block form_widget_compound %}
+    {{ form_errors(form) }}
     {{ block('form_rows') }}
     {{ form_rest(form) }}
 {% endblock %}
@@ -14,20 +26,46 @@
     {{ parent() }}
 {% endblock %}
 
+{% block form_end %}
+    {{ parent() }}
+
+    {% if form.vars.ajax is defined and form.vars.ajax == true and render_pass is defined %}
+        {{ component_init_previous(
+            render_pass,
+            '@WexampleSymfonyLoaderBundle/components/form',
+            {
+                name: form.vars.name,
+                ajax: true
+            }
+        ) }}
+    {% endif %}
+{% endblock %}
+
 {% block form_widget_simple %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
     %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
         : label_key|trans({}, form.vars.translation_domain)
     %}
+    {% set placeholder_key = attr.placeholder ?? null %}
+    {% if placeholder_key is same as(true) %}
+        {% set placeholder_key = 'field.' ~ form.vars.name ~ '.placeholder' %}
+    {% endif %}
+    {% set placeholder_value = placeholder_key %}
+    {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
+        {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
+    {% endif %}
     {{ text_input({
         name: full_name,
         id: id,
         label: label_value,
-        placeholder: attr.placeholder ?? null,
+        placeholder: placeholder_value,
         required: required,
         value: value
     }) }}
@@ -38,15 +76,26 @@
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
     %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
         : label_key|trans({}, form.vars.translation_domain)
     %}
+    {% set placeholder_key = attr.placeholder ?? null %}
+    {% if placeholder_key is same as(true) %}
+        {% set placeholder_key = 'field.' ~ form.vars.name ~ '.placeholder' %}
+    {% endif %}
+    {% set placeholder_value = placeholder_key %}
+    {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
+        {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
+    {% endif %}
     {{ password_input({
         name: full_name,
         id: id,
         label: label_value,
-        placeholder: attr.placeholder ?? null,
+        placeholder: placeholder_value,
         required: required,
         value: value
     }) }}
@@ -69,6 +118,9 @@
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
     %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'action.' ~ form.vars.name %}
+    {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
         : label_key|trans({}, form.vars.translation_domain)
@@ -80,4 +132,38 @@
         value: value,
         icon: form.vars.icon ?? null
     }) }}
+{% endblock %}
+
+{% block form_errors %}
+    {% if errors|length > 0 %}
+        {% if form.parent is null %}
+            <div class="form--errors">
+                <ul>
+                    {% for error in errors %}
+                        <li>{{ error.message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <div class="form--field-errors">
+                <ul>
+                    {% for error in errors %}
+                        <li>{{ error.message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block form_help %}
+    {% if help is not empty %}
+        {% set help_key = help %}
+        {% if help_key is same as(true) %}
+            {% set help_key = 'field.' ~ form.vars.name ~ '.help' %}
+        {% endif %}
+        <div class="form--help">
+            {{ help_key|trans(help_translation_parameters, translation_domain) }}
+        </div>
+    {% endif %}
 {% endblock %}

@@ -3,6 +3,17 @@ services:
         autowire: true
         autoconfigure: true
         public: false
+    _instanceof:
+        Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor:
+            tags: ['wexample.symfony_forms.form_processor']
 
     Wexample\SymfonyForms\:
         resource: '../../{Service,Twig,Controller}'
+
+    Wexample\SymfonyForms\Controller\:
+        resource: '../../Controller'
+        tags: ['controller.service_arguments']
+
+    Wexample\SymfonyForms\Service\FormProcessor\FormProcessorPostHandler:
+        arguments:
+            $processors: !tagged_locator { tag: 'wexample.symfony_forms.form_processor' }

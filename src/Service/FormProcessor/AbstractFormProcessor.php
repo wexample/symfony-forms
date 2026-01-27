@@ -237,6 +237,25 @@ abstract class AbstractFormProcessor
         // To override by children.
     }
 
+    protected function addFormErrorFromApiKey(
+        FormInterface $form,
+        string $errorKey,
+        string $prefix = 'error.'
+    ): void {
+        $key = $prefix . $errorKey . '.message';
+        $translationKey = '@' . Translator::DOMAIN_TYPE_FORM
+            . Translator::DOMAIN_SEPARATOR
+            . $key;
+
+        if ($this->translator) {
+            $form->addError(new \Symfony\Component\Form\FormError(
+                $this->translator->trans($translationKey)
+            ));
+        } else {
+            $form->addError(new \Symfony\Component\Form\FormError($translationKey));
+        }
+    }
+
     public function getSuccessRedirectUrl(FormInterface $form): ?string
     {
         return null;
@@ -275,6 +294,33 @@ abstract class AbstractFormProcessor
         $this->adaptiveFormResponseService->setForm($form, $formParameterName);
 
         return $this->adaptiveFormResponseService->render();
+    }
+
+    public function getRedirectUrl(): ?string
+    {
+        return $this->adaptiveFormResponseService?->getRedirectUrl();
+    }
+
+    public function translateKeys(array $keys): array
+    {
+        if (! $this->translator) {
+            return [];
+        }
+
+        $translations = [];
+        $uniqueKeys = array_values(array_unique(array_filter($keys)));
+
+        foreach ($uniqueKeys as $key) {
+            $lookupKey = $key;
+
+            if (str_starts_with($lookupKey, Translator::DOMAIN_PREFIX)) {
+                $lookupKey = substr($lookupKey, strlen(Translator::DOMAIN_PREFIX));
+            }
+
+            $translations[$key] = $this->translator->trans($lookupKey);
+        }
+
+        return $translations;
     }
 
     public function redirectToRoute(

@@ -18,7 +18,7 @@ class FormTextActionsForm extends AbstractForm
                 'name',
                 TextInputType::class,
                 [
-                    self::FIELD_OPTION_NAME_LABEL => 'Name',
+                    self::FIELD_OPTION_NAME_LABEL => true,
                     self::FIELD_OPTION_NAME_REQUIRED => false,
                     self::FIELD_OPTION_NAME_MAPPED => false,
                 ]
@@ -27,21 +27,21 @@ class FormTextActionsForm extends AbstractForm
                 'submit_primary',
                 SubmitType::class,
                 [
-                    self::FIELD_OPTION_NAME_LABEL => 'Primary',
+                    self::FIELD_OPTION_NAME_LABEL => true,
                 ]
             )
             ->add(
                 'submit_secondary',
                 SubmitType::class,
                 [
-                    self::FIELD_OPTION_NAME_LABEL => 'Secondary',
+                    self::FIELD_OPTION_NAME_LABEL => true,
                 ]
             )
             ->add(
                 'submit_tertiary',
                 SubmitType::class,
                 [
-                    self::FIELD_OPTION_NAME_LABEL => 'Tertiary',
+                    self::FIELD_OPTION_NAME_LABEL => true,
                 ]
             );
     }
