@@ -26,6 +26,21 @@
     {{ parent() }}
 {% endblock %}
 
+{% block form_end %}
+    {{ parent() }}
+
+    {% if form.vars.ajax is defined and form.vars.ajax == true and render_pass is defined %}
+        {{ component_init_previous(
+            render_pass,
+            '@WexampleSymfonyLoaderBundle/components/form',
+            {
+                name: form.vars.name,
+                ajax: true
+            }
+        ) }}
+    {% endif %}
+{% endblock %}
+
 {% block form_widget_simple %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name

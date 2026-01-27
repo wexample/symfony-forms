@@ -6,3 +6,7 @@ services:
 
     Wexample\SymfonyForms\:
         resource: '../../{Service,Twig,Controller}'
+
+    Wexample\SymfonyForms\Controller\:
+        resource: '../../Controller'
+        tags: ['controller.service_arguments']
