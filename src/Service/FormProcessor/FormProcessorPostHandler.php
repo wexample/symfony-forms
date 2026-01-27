@@ -4,9 +4,12 @@ namespace Wexample\SymfonyForms\Service\FormProcessor;
 
 use Psr\Container\ContainerInterface;
 use RuntimeException;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\SymfonyHelpers\Helper\RequestHelper;
 
 class FormProcessorPostHandler
 {
@@ -46,6 +49,93 @@ class FormProcessorPostHandler
         $formProcessor = $this->processors->get($processorClass);
         $form = $formProcessor->handleSubmission($request);
 
+        if (RequestHelper::isJsonRequest($request)) {
+            return new JsonResponse(
+                $this->buildFormResponsePayload($formProcessor, $form)
+            );
+        }
+
         return $formProcessor->render($form);
+    }
+
+    private function buildFormResponsePayload(
+        AbstractFormProcessor $formProcessor,
+        FormInterface $form
+    ): array {
+        $errors = [
+            'form' => [],
+            'fields' => [],
+            'count' => 0,
+        ];
+        $translationKeys = [];
+
+        foreach ($form->getErrors(true, true) as $error) {
+            $origin = $error->getOrigin();
+            $message = $error->getMessage();
+
+            if (! $origin || $origin === $form) {
+                $errors['form'][] = $message;
+                $translationKeys[] = $message;
+                ++$errors['count'];
+                continue;
+            }
+
+            $fullName = $this->buildFullFieldName($origin);
+
+            if (! isset($errors['fields'][$fullName])) {
+                $errors['fields'][$fullName] = [];
+            }
+
+            $errors['fields'][$fullName][] = $message;
+            $translationKeys[] = $message;
+            ++$errors['count'];
+        }
+
+        $payload = [
+            'ok' => $errors['count'] === 0,
+            'form' => [
+                'name' => $form->getName(),
+                'errors' => $errors,
+            ],
+        ];
+
+        $translations = $formProcessor->translateKeys($translationKeys);
+
+        if ($translations) {
+            $payload['translations'] = $translations;
+        }
+
+        $redirectUrl = $formProcessor->getRedirectUrl();
+
+        if (is_string($redirectUrl) && $redirectUrl !== '') {
+            $payload['redirect'] = [
+                'url' => $redirectUrl,
+            ];
+        }
+
+        return $payload;
+    }
+
+    private function buildFullFieldName(FormInterface $field): string
+    {
+        $parts = [];
+        $current = $field;
+
+        while ($current) {
+            $name = $current->getName();
+            if ($name !== '') {
+                array_unshift($parts, $name);
+            }
+            $current = $current->getParent();
+        }
+
+        $root = array_shift($parts) ?? '';
+        $full = $root;
+
+        foreach ($parts as $part) {
+            $full .= '[' . $part . ']';
+        }
+
+        return $full;
     }
 }
