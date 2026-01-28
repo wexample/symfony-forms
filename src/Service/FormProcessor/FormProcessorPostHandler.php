@@ -11,8 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Wexample\Helpers\Helper\ClassHelper;
-use Wexample\SymfonyHelpers\Helper\RoleHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
+use Wexample\SymfonyHelpers\Helper\RoleHelper;
 
 class FormProcessorPostHandler
 {
