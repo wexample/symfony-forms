@@ -323,6 +323,11 @@ abstract class AbstractFormProcessor
         return $translations;
     }
 
+    public function getRequiredRoles(): array
+    {
+        return ['ROLE_USER'];
+    }
+
     public function redirectToRoute(
         string $routeName,
         array $params = []
