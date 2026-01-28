@@ -8,13 +8,17 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
+use Wexample\SymfonyHelpers\Helper\RoleHelper;
 
 class FormProcessorPostHandler
 {
     public function __construct(
-        private readonly ContainerInterface $processors
+        private readonly ContainerInterface $processors,
+        private readonly AuthorizationCheckerInterface $authorizationChecker
     ) {
     }
 
@@ -47,6 +51,7 @@ class FormProcessorPostHandler
 
         /** @var AbstractFormProcessor $formProcessor */
         $formProcessor = $this->processors->get($processorClass);
+        $this->assertHasAccess($formProcessor);
         $form = $formProcessor->handleSubmission($request);
 
         if (RequestHelper::isJsonRequest($request)) {
@@ -56,6 +61,27 @@ class FormProcessorPostHandler
         }
 
         return $formProcessor->render($form);
+    }
+
+    private function assertHasAccess(AbstractFormProcessor $formProcessor): void
+    {
+        $roles = $formProcessor->getRequiredRoles();
+
+        if (empty($roles)) {
+            return;
+        }
+
+        foreach ($roles as $role) {
+            if ($role === RoleHelper::PUBLIC_ACCESS) {
+                return;
+            }
+
+            if ($this->authorizationChecker->isGranted($role)) {
+                return;
+            }
+        }
+
+        throw new AccessDeniedHttpException('Access denied for form submission.');
     }
 
     private function buildFormResponsePayload(
