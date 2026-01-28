@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\SymfonyHelpers\Helper\RoleHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 
 class FormProcessorPostHandler
@@ -71,7 +72,7 @@ class FormProcessorPostHandler
         }
 
         foreach ($roles as $role) {
-            if ($role === 'PUBLIC_ACCESS') {
+            if ($role === RoleHelper::PUBLIC_ACCESS) {
                 return;
             }
 

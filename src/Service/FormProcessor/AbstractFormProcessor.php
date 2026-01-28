@@ -18,6 +18,7 @@ use Wexample\SymfonyTranslations\Translation\Translator;
 abstract class AbstractFormProcessor
 {
     public const CLASS_EXTENSION = 'Processor';
+    public const FORM_SUBMIT_ROUTE = 'form_processor_submit';
 
     public const FORMS_CLASS_BASE_PATH = 'App\\Form\\';
 
@@ -103,7 +104,7 @@ abstract class AbstractFormProcessor
 
     public function getFormActionRoute(): string
     {
-        return 'form_processor_submit';
+        return self::FORM_SUBMIT_ROUTE;
     }
 
     public function getFormActionArgs($data): array

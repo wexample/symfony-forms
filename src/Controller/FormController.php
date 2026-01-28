@@ -10,11 +10,13 @@ use Wexample\SymfonyForms\Service\FormProcessor\FormProcessorPostHandler;
 #[Route(name: 'form_')]
 final class FormController
 {
+    public const ROUTE_PATH_PROCESSOR_SUBMIT = '_forms/submit/{name}';
     public const ROUTE_PROCESSOR_SUBMIT = 'processor_submit';
     public const ROUTE_ENTITY_FORM_PROCESSOR_SUBMIT = 'entity_form_processor_submit';
+    public const ROUTE_PATH_ENTITY_PROCESSOR_SUBMIT = '_forms/submit/{name}/entity/{id}';
 
     #[Route(
-        path: 'system/form/{name}/submit',
+        path: self::ROUTE_PATH_PROCESSOR_SUBMIT,
         name: self::ROUTE_PROCESSOR_SUBMIT,
         methods: [Request::METHOD_POST]
     )]
@@ -27,7 +29,7 @@ final class FormController
     }
 
     #[Route(
-        path: 'system/form/{name}/submit/entity/{id}',
+        path: self::ROUTE_PATH_ENTITY_PROCESSOR_SUBMIT,
         name: self::ROUTE_ENTITY_FORM_PROCESSOR_SUBMIT,
         defaults: ['id' => null],
         methods: [Request::METHOD_POST]
