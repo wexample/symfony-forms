@@ -7,5 +7,6 @@
         {% if required is defined and required %}required{% endif %}
         {% if input_attr is defined %}{{ input_attr|raw }}{% endif %}
         {% if placeholder is defined %}placeholder="{{ placeholder }}"{% endif %}
+        {% if rows is defined and rows %}rows="{{ rows }}"{% endif %}
     >{% if value is defined %}{{ value }}{% endif %}</textarea>
 </div>
