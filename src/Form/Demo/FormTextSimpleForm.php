@@ -4,6 +4,7 @@ namespace Wexample\SymfonyForms\Form\Demo;
 
 use Symfony\Component\Form\FormBuilderInterface;
 use Wexample\SymfonyForms\Form\AbstractForm;
+use Wexample\SymfonyForms\Form\Type\TextareaInputType;
 use Wexample\SymfonyForms\Form\Type\TextInputType;
 
 class FormTextSimpleForm extends AbstractForm
@@ -20,6 +21,18 @@ class FormTextSimpleForm extends AbstractForm
                     self::FIELD_OPTION_NAME_LABEL => true,
                     self::FIELD_OPTION_NAME_REQUIRED => false,
                     self::FIELD_OPTION_NAME_MAPPED => false,
+                ]
+            );
+
+        $builder
+            ->add(
+                'text_area',
+                TextareaInputType::class,
+                [
+                    self::FIELD_OPTION_NAME_LABEL => true,
+                    self::FIELD_OPTION_NAME_REQUIRED => false,
+                    self::FIELD_OPTION_NAME_MAPPED => false,
+                    'rows' => 4,
                 ]
             );
 
