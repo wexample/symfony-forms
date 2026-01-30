@@ -101,6 +101,40 @@
     }) }}
 {% endblock %}
 
+{% block textarea_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans({}, form.vars.translation_domain)
+    %}
+    {% set placeholder_key = attr.placeholder ?? null %}
+    {% if placeholder_key is same as(true) %}
+        {% set placeholder_key = 'field.' ~ form.vars.name ~ '.placeholder' %}
+    {% endif %}
+    {% set placeholder_value = placeholder_key %}
+    {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
+        {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
+    {% endif %}
+    {{ textarea_input({
+        name: full_name,
+        id: id,
+        label: label_value,
+        placeholder: placeholder_value,
+        required: required,
+        value: value
+    }) }}
+{% endblock %}
+
+{% block textarea_input_widget %}
+    {{ block('textarea_widget') }}
+{% endblock %}
+
 {% block password_input_widget %}
     {{ block('password_widget') }}
 {% endblock %}
