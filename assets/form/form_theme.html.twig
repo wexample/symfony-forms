@@ -121,15 +121,19 @@
     {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
         {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
     {% endif %}
-    {{ textarea_input({
-        name: full_name,
-        id: id,
-        label: label_value,
-        placeholder: placeholder_value,
-        required: required,
-        value: value,
-        rows: form.vars.rows ?? null
-    }) }}
+    {{ component(
+        render_pass,
+        '@WexampleSymfonyLoaderBundle/components/form/textarea',
+        {
+            name: full_name,
+            id: id,
+            label: label_value,
+            placeholder: placeholder_value,
+            required: required,
+            value: value,
+            rows: form.vars.rows ?? null
+        }
+    ) }}
 {% endblock %}
 
 {% block textarea_input_widget %}
