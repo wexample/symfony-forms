@@ -33,6 +33,8 @@ class FormTextSimpleForm extends AbstractForm
                     self::FIELD_OPTION_NAME_REQUIRED => false,
                     self::FIELD_OPTION_NAME_MAPPED => false,
                     'rows' => 4,
+                    'max_rows' => 12,
+                    'auto_resize' => true,
                 ]
             );
 
