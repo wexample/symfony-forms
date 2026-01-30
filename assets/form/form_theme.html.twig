@@ -61,14 +61,18 @@
     {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
         {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
     {% endif %}
-    {{ text_input({
-        name: full_name,
-        id: id,
-        label: label_value,
-        placeholder: placeholder_value,
-        required: required,
-        value: value
-    }) }}
+    {{ component(
+        render_pass,
+        '@WexampleSymfonyLoaderBundle/components/form/text_input',
+        {
+            name: full_name,
+            id: id,
+            label: label_value,
+            placeholder: placeholder_value,
+            required: required,
+            value: value
+        }
+    ) }}
 {% endblock %}
 
 {% block password_widget %}
@@ -91,14 +95,18 @@
     {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
         {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
     {% endif %}
-    {{ password_input({
-        name: full_name,
-        id: id,
-        label: label_value,
-        placeholder: placeholder_value,
-        required: required,
-        value: value
-    }) }}
+    {{ component(
+        render_pass,
+        '@WexampleSymfonyLoaderBundle/components/form/password_input',
+        {
+            name: full_name,
+            id: id,
+            label: label_value,
+            placeholder: placeholder_value,
+            required: required,
+            value: value
+        }
+    ) }}
 {% endblock %}
 
 {% block textarea_widget %}
@@ -147,11 +155,15 @@
 {% endblock %}
 
 {% block hidden_widget %}
-    {{ hidden_input({
-        name: full_name,
-        id: id,
-        value: value
-    }) }}
+    {{ component(
+        render_pass,
+        '@WexampleSymfonyLoaderBundle/components/form/hidden_input',
+        {
+            name: full_name,
+            id: id,
+            value: value
+        }
+    ) }}
 {% endblock %}
 
 {% block submit_widget %}
@@ -166,13 +178,17 @@
         ? label_key
         : label_key|trans({}, form.vars.translation_domain)
     %}
-    {{ submit_input({
-        name: full_name,
-        id: id,
-        label: label_value,
-        value: value,
-        icon: form.vars.icon ?? null
-    }) }}
+    {{ component(
+        render_pass,
+        '@WexampleSymfonyLoaderBundle/components/form/submit_input',
+        {
+            name: full_name,
+            id: id,
+            label: label_value,
+            value: value,
+            icon: form.vars.icon ?? null
+        }
+    ) }}
 {% endblock %}
 
 {% block form_errors %}
