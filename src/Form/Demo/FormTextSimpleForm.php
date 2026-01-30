@@ -35,6 +35,9 @@ class FormTextSimpleForm extends AbstractForm
                     'rows' => 4,
                     'max_rows' => 12,
                     'auto_resize' => true,
+                    'attr' => [
+                        'placeholder' => true,
+                    ],
                 ]
             );
 
