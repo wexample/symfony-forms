@@ -101,6 +101,23 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 },
                 self::TEMPLATE_FUNCTION_OPTIONS
             ),
+            new TwigFunction(
+                FormRenderingService::FORM_TYPE_SELECT_INPUT,
+                function (
+                    Environment $twig,
+                    array $context = []
+                ) {
+                    $context['type'] = 'select';
+                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_SELECT_INPUT);
+
+                    return $this->renderTemplate(
+                        $twig,
+                        '@WexampleSymfonyLoaderBundle/components/form/select_input.html.twig',
+                        $context
+                    );
+                },
+                self::TEMPLATE_FUNCTION_OPTIONS
+            ),
         ];
     }
 }
