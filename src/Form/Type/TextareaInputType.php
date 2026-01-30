@@ -25,8 +25,12 @@ class TextareaInputType extends \Symfony\Component\Form\AbstractType
     {
         $resolver->setDefaults([
             'rows' => null,
+            'max_rows' => null,
+            'auto_resize' => false,
         ]);
         $resolver->setAllowedTypes('rows', ['null', 'int']);
+        $resolver->setAllowedTypes('max_rows', ['null', 'int']);
+        $resolver->setAllowedTypes('auto_resize', ['bool']);
     }
 
     public function buildView(
@@ -35,5 +39,7 @@ class TextareaInputType extends \Symfony\Component\Form\AbstractType
         array $options
     ): void {
         $view->vars['rows'] = $options['rows'];
+        $view->vars['max_rows'] = $options['max_rows'];
+        $view->vars['auto_resize'] = $options['auto_resize'];
     }
 }

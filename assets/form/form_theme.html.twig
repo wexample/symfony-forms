@@ -131,7 +131,9 @@
             placeholder: placeholder_value,
             required: required,
             value: value,
-            rows: form.vars.rows ?? null
+            rows: form.vars.rows ?? null,
+            max_rows: form.vars.max_rows ?? null,
+            auto_resize: form.vars.auto_resize ?? false
         }
     ) }}
 {% endblock %}
