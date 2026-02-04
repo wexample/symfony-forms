@@ -126,6 +126,13 @@ abstract class AbstractFormProcessor
 
         $form->handleRequest($request);
 
+        $this->processSubmittedForm($form);
+
+        return $form;
+    }
+
+    protected function processSubmittedForm(FormInterface $form): void
+    {
         $domainSet = false;
 
         if ($this->translator) {
@@ -153,8 +160,6 @@ abstract class AbstractFormProcessor
                 $this->translator?->revertDomain(Translator::DOMAIN_TYPE_FORM);
             }
         }
-
-        return $form;
     }
 
     public function handleStaticFormOrRenderAdaptiveResponse(
@@ -174,8 +179,7 @@ abstract class AbstractFormProcessor
         $form = $this->createForm($formData);
 
         if ($form->handleRequest($this->request) && $this->formIsSubmitted($form)) {
-            // Override first form by submitted one.
-            $form = $this->handleSubmission($this->request);
+            $this->processSubmittedForm($form);
         }
 
         $this->prepareDisplay($form);
