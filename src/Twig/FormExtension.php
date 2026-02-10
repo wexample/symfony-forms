@@ -112,7 +112,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
 
                     return $this->renderTemplate(
                         $twig,
-                        '@WexampleSymfonyLoaderBundle/components/form/select_input.html.twig',
+                        '@WexampleSymfonyDesignSystemBundle/components/form/select_input.html.twig',
                         $context
                     );
                 },
