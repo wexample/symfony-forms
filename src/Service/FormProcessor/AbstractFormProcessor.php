@@ -27,6 +27,7 @@ abstract class AbstractFormProcessor
     protected ?Request $request = null;
     protected ?Translator $translator = null;
     protected ?AdaptiveFormResponseService $adaptiveFormResponseService = null;
+    protected ?array $successAction = null;
 
     public const VAR_FORM_DATA = 'formData';
     private const string REQUEST_REDIRECT_PARAM = 'redirect';
@@ -240,6 +241,16 @@ abstract class AbstractFormProcessor
         FormInterface $form
     ) {
         // To override by children.
+    }
+
+    public function setSuccessAction(array $action): void
+    {
+        $this->successAction = $action;
+    }
+
+    public function getSuccessAction(): ?array
+    {
+        return $this->successAction;
     }
 
     protected function addFormErrorFromApiKey(

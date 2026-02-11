@@ -140,6 +140,13 @@ class FormProcessorPostHandler
             ];
         }
 
+        if ($payload['ok']) {
+            $action = $formProcessor->getSuccessAction();
+            if (is_array($action)) {
+                $payload['action'] = $action;
+            }
+        }
+
         return $payload;
     }
 
