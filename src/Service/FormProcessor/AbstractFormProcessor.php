@@ -17,22 +17,19 @@ use Wexample\SymfonyTranslations\Translation\Translator;
 
 abstract class AbstractFormProcessor
 {
-    public const CLASS_EXTENSION = 'Processor';
-    public const FORM_SUBMIT_ROUTE = 'form_processor_submit';
-
-    public const FORMS_CLASS_BASE_PATH = 'App\\Form\\';
-
-    public const FORMS_PROCESSOR_CLASS_BASE_PATH = 'App\\Service\\FormProcessor\\';
+    public const string CLASS_EXTENSION = 'Processor';
+    public const string FORM_SUBMIT_ROUTE = 'form_processor_submit';
+    public const string FORMS_CLASS_BASE_PATH = 'App\\Form\\';
+    public const string FORMS_PROCESSOR_CLASS_BASE_PATH = 'App\\Service\\FormProcessor\\';
+    public const string VAR_FORM_DATA = 'formData';
+    private const string REQUEST_REDIRECT_PARAM = 'redirect';
+    private const string SESSION_REDIRECT_TARGET = 'app.redirect_target';
+    private const string SESSION_SECURITY_TARGET = '_security.main.target_path';
 
     protected ?Request $request = null;
     protected ?Translator $translator = null;
     protected ?AdaptiveFormResponseService $adaptiveFormResponseService = null;
     protected ?array $successAction = null;
-
-    public const VAR_FORM_DATA = 'formData';
-    private const string REQUEST_REDIRECT_PARAM = 'redirect';
-    private const string SESSION_REDIRECT_TARGET = 'app.redirect_target';
-    private const string SESSION_SECURITY_TARGET = '_security.main.target_path';
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
