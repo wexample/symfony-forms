@@ -25,9 +25,9 @@ abstract class AbstractFormProcessor
     private const string REQUEST_REDIRECT_PARAM = 'redirect';
     private const string SESSION_REDIRECT_TARGET = 'app.redirect_target';
     private const string SESSION_SECURITY_TARGET = '_security.main.target_path';
-    private const string ACTION_REDIRECT = 'redirect';
-    private const string ACTION_RELOAD = 'reload';
-    private const string ACTION_NO_ACTION = 'no_action';
+    public const string ACTION_REDIRECT = 'redirect';
+    public const string ACTION_RELOAD = 'reload';
+    public const string ACTION_NO_ACTION = 'no_action';
 
     protected ?Request $request = null;
     protected ?Translator $translator = null;
