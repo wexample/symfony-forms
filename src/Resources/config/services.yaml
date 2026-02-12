@@ -8,12 +8,19 @@ services:
             tags: ['wexample.symfony_forms.form_processor']
 
     Wexample\SymfonyForms\:
-        resource: '../../{Service,Twig,Controller}'
+        resource: '../../{Service,Twig,Controller,EventSubscriber,ArgumentResolver,Attribute}'
 
     Wexample\SymfonyForms\Controller\:
         resource: '../../Controller'
         tags: ['controller.service_arguments']
 
     Wexample\SymfonyForms\Service\FormProcessor\FormProcessorPostHandler:
+        arguments:
+            $processors: !tagged_locator { tag: 'wexample.symfony_forms.form_processor' }
+
+    Wexample\SymfonyForms\ArgumentResolver\FormProcessorValueResolver:
+        tags: ['controller.argument_value_resolver']
+
+    Wexample\SymfonyForms\EventSubscriber\FormProcessorRequestSubscriber:
         arguments:
             $processors: !tagged_locator { tag: 'wexample.symfony_forms.form_processor' }
