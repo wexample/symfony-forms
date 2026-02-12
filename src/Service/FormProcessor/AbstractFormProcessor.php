@@ -64,7 +64,7 @@ abstract class AbstractFormProcessor
         }
 
         if (!isset($options['action'])) {
-            $action = $this->createFormAction($data, $options);
+            $action = $this->createFormAction($data);
             if ($action) {
                 $options['action'] = $action;
             }
@@ -96,11 +96,10 @@ abstract class AbstractFormProcessor
         return $formClass;
     }
 
-    public function createFormAction($data, array $options = []): ?string
+    public function createFormAction($data): ?string
     {
         $formClass = static::getFormClass();
-        $ajaxEnabled = $options['ajax']
-            ?? (property_exists($formClass, 'ajax') && $formClass::$ajax);
+        $ajaxEnabled = property_exists($formClass, 'ajax') && $formClass::$ajax;
 
         if (!$ajaxEnabled) {
             return null;
