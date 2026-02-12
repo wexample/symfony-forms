@@ -144,6 +144,13 @@ class FormProcessorPostHandler
             $action = $formProcessor->getSuccessAction();
             if (is_array($action)) {
                 $payload['action'] = $action;
+                if (($action['type'] ?? null) === AbstractFormProcessor::ACTION_REDIRECT
+                    && !empty($action['url'])
+                ) {
+                    $payload['redirect'] = [
+                        'url' => $action['url'],
+                    ];
+                }
             }
         }
 
