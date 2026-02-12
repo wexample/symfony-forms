@@ -4,14 +4,14 @@ namespace Wexample\SymfonyForms\ArgumentResolver;
 
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
+use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Wexample\SymfonyForms\Attribute\FormProcessor;
 use Wexample\SymfonyForms\EventSubscriber\FormProcessorRequestSubscriber;
 
-class FormProcessorValueResolver implements ArgumentValueResolverInterface
+class FormProcessorValueResolver implements ValueResolverInterface
 {
-    public function supports(Request $request, ArgumentMetadata $argument): bool
+    private function supports(Request $request, ArgumentMetadata $argument): bool
     {
         if ($argument->getType() !== FormInterface::class) {
             return false;
@@ -47,6 +47,10 @@ class FormProcessorValueResolver implements ArgumentValueResolverInterface
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
+        if (!$this->supports($request, $argument)) {
+            return [];
+        }
+
         $forms = $request->attributes->get(
             FormProcessorRequestSubscriber::REQUEST_FORMS_ATTRIBUTE,
             []
