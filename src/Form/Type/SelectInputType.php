@@ -57,22 +57,7 @@ class SelectInputType extends \Symfony\Component\Form\AbstractType
         $prefix = '@form::field.' . $fieldName . '.choice.';
 
         $applyLabel = static function (ChoiceView $choice) use ($prefix): void {
-            $label = $choice->label ?? '';
-            $value = $choice->value ?? '';
-
-            if (!is_string($label) || !is_string($value)) {
-                return;
-            }
-
-            if ($label === '' || $label[0] === '@') {
-                return;
-            }
-
-            if ($label !== $value) {
-                return;
-            }
-
-            $choice->label = $prefix . $value . '.label';
+            $choice->label = $prefix . $choice->value . '.label';
         };
 
         foreach ($view->vars['choices'] ?? [] as $choice) {
