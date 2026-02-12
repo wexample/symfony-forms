@@ -63,11 +63,11 @@ abstract class AbstractFormProcessor
             );
         }
 
-        if (property_exists($formClass, 'ajax')
-            && $formClass::$ajax
-            && ! isset($options['action'])
-        ) {
-            $options['action'] = $this->createFormAction($data);
+        if (!isset($options['action'])) {
+            $action = $this->createFormAction($data, $options);
+            if ($action) {
+                $options['action'] = $action;
+            }
         }
 
         return $this->formFactory->create(
@@ -96,8 +96,16 @@ abstract class AbstractFormProcessor
         return $formClass;
     }
 
-    public function createFormAction($data): string
+    public function createFormAction($data, array $options = []): ?string
     {
+        $formClass = static::getFormClass();
+        $ajaxEnabled = $options['ajax']
+            ?? (property_exists($formClass, 'ajax') && $formClass::$ajax);
+
+        if (!$ajaxEnabled) {
+            return null;
+        }
+
         return $this->urlGenerator->generate(
             $this->getFormActionRoute(),
             $this->getFormActionArgs($data)
