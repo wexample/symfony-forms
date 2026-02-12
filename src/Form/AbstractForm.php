@@ -49,6 +49,7 @@ class AbstractForm extends \Symfony\Component\Form\AbstractType
     {
         $resolver->setDefaults([
             'translation_domain' => self::transTypeDomain($this),
+            'ajax' => static::$ajax,
         ]);
     }
 
@@ -57,7 +58,7 @@ class AbstractForm extends \Symfony\Component\Form\AbstractType
         FormInterface $form,
         array $options
     ): void {
-        $view->vars['ajax'] = static::$ajax;
+        $view->vars['ajax'] = $options['ajax'] ?? static::$ajax;
     }
 
     protected function builderAddSubmit(
