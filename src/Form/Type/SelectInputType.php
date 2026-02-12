@@ -34,10 +34,6 @@ class SelectInputType extends \Symfony\Component\Form\AbstractType
 
             $map = [];
             foreach ($choices as $choice) {
-                if (!is_string($choice)) {
-                    $map[$choice] = $choice;
-                    continue;
-                }
                 $map[$choice] = $choice;
             }
 
