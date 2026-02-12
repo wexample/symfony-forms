@@ -8,6 +8,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
@@ -130,6 +131,27 @@ abstract class AbstractFormProcessor
         $this->processSubmittedForm($form);
 
         return $form;
+    }
+
+    public function handleSubmissionResponse(Request $request): ?Response
+    {
+        if (!$request->isMethod(Request::METHOD_POST)) {
+            return null;
+        }
+
+        $form = $this->handleSubmission($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $action = $this->getSuccessAction();
+            if (is_array($action)
+                && ($action['type'] ?? null) === self::ACTION_REDIRECT
+                && !empty($action['url'])
+            ) {
+                return new RedirectResponse((string) $action['url']);
+            }
+        }
+
+        return null;
     }
 
     protected function processSubmittedForm(FormInterface $form): void
