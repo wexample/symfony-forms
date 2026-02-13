@@ -101,14 +101,18 @@ abstract class AbstractFormProcessor
         $formClass = static::getFormClass();
         $ajaxEnabled = property_exists($formClass, 'ajax') && $formClass::$ajax;
 
-        if (!$ajaxEnabled) {
-            return null;
+        if ($ajaxEnabled) {
+            return $this->urlGenerator->generate(
+                $this->getFormActionRoute(),
+                $this->getFormActionArgs($data)
+            );
         }
 
-        return $this->urlGenerator->generate(
-            $this->getFormActionRoute(),
-            $this->getFormActionArgs($data)
-        );
+        if ($this->request) {
+            return $this->request->getRequestUri();
+        }
+
+        return null;
     }
 
     public function getFormActionRoute(): string
