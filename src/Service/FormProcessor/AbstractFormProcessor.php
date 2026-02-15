@@ -5,7 +5,6 @@ namespace Wexample\SymfonyForms\Service\FormProcessor;
 use RuntimeException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -13,7 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\SymfonyForms\Form\AbstractForm;
-use Wexample\SymfonyLoader\Service\AdaptiveFormResponseService;
 use Wexample\SymfonyTranslations\Translation\Translator;
 
 abstract class AbstractFormProcessor
@@ -32,19 +30,16 @@ abstract class AbstractFormProcessor
 
     protected ?Request $request = null;
     protected ?Translator $translator = null;
-    protected ?AdaptiveFormResponseService $adaptiveFormResponseService = null;
     protected ?array $successAction = null;
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
         RequestStack $requestStack,
         protected UrlGeneratorInterface $urlGenerator,
-        ?Translator $translator = null,
-        ?AdaptiveFormResponseService $adaptiveFormResponseService = null
+        ?Translator $translator = null
     ) {
         $this->request = $requestStack->getCurrentRequest();
         $this->translator = $translator;
-        $this->adaptiveFormResponseService = $adaptiveFormResponseService;
     }
 
     public function createForm(
@@ -195,38 +190,6 @@ abstract class AbstractFormProcessor
             }
         }
     }
-
-    public function handleStaticFormOrRenderAdaptiveResponse(
-        string $view,
-        array $parameters = [],
-        $formData = null,
-        string $formParameterName = 'form'
-    ): Response {
-        if (! $this->request) {
-            throw new RuntimeException('A request is required to handle form submission.');
-        }
-
-        if (! $this->adaptiveFormResponseService) {
-            throw new RuntimeException('AdaptiveFormResponseService is required to render adaptive responses.');
-        }
-
-        $form = $this->createForm($formData);
-
-        if ($form->handleRequest($this->request) && $this->formIsSubmitted($form)) {
-            $this->processSubmittedForm($form);
-        }
-
-        $this->prepareDisplay($form);
-
-        $this->adaptiveFormResponseService->setViewDefault($view);
-        $this->adaptiveFormResponseService->addParameters(
-            $this->buildViewParameters($form, $formParameterName)
-            + $parameters
-        );
-
-        return $this->adaptiveFormResponseService->render();
-    }
-
     public function createFormSubmitted(
         Request $request
     ): FormInterface {
@@ -256,20 +219,6 @@ abstract class AbstractFormProcessor
     ) {
         // To override by children.
     }
-
-    /**
-     * Create only form when rendering is managed externally (ex: multiple form
-     * in a page).
-     */
-    public function createFormView(
-        $data = null,
-        array $options = []
-    ): FormView {
-        $form = $this->createForm($data, $options);
-
-        return $form->createView();
-    }
-
     public function onInvalid(
         FormInterface $form
     ) {
@@ -309,45 +258,17 @@ abstract class AbstractFormProcessor
     {
         return null;
     }
-
-    public function prepareDisplay(FormInterface $form): void
-    {
-        if (! $this->adaptiveFormResponseService
-            || ! $this->adaptiveFormResponseService->hasAction()
-        ) {
-            $this->onRender($form);
-        }
-    }
-
-    public function onRender(FormInterface $form): void
-    {
-        // To override by children.
-    }
-
-    protected function buildViewParameters(
-        FormInterface $form,
-        string $formParameterName = 'form'
-    ): array {
-        return [
-            self::VAR_FORM_DATA => $form->getData(),
-            $formParameterName => $form->createView(),
-        ];
-    }
-
-    public function render(FormInterface $form, string $formParameterName = 'form'): Response
-    {
-        if (! $this->adaptiveFormResponseService) {
-            throw new RuntimeException('AdaptiveFormResponseService is required to render adaptive responses.');
-        }
-
-        $this->adaptiveFormResponseService->setForm($form, $formParameterName);
-
-        return $this->adaptiveFormResponseService->render();
-    }
-
     public function getRedirectUrl(): ?string
     {
-        return $this->adaptiveFormResponseService?->getRedirectUrl();
+        $action = $this->getSuccessAction();
+        if (is_array($action)
+            && ($action['type'] ?? null) === self::ACTION_REDIRECT
+            && !empty($action['url'])
+        ) {
+            return (string) $action['url'];
+        }
+
+        return null;
     }
 
     public function translateKeys(array $keys): array
@@ -370,6 +291,78 @@ abstract class AbstractFormProcessor
         }
 
         return $translations;
+    }
+
+    public function getRequiredRoles(): array
+    {
+        return ['ROLE_USER'];
+    }
+
+    public function redirectToRoute(
+        string $routeName,
+        array $params = []
+    ): void {
+        $this->redirect(
+            $this->urlGenerator->generate($routeName, $params)
+        );
+    }
+
+    public function redirectToPreviousOrToRoute(
+        string $routeName,
+        array $parameters = []
+    ): void {
+        $target = null;
+
+        if ($this->request) {
+            $candidate = $this->request->get(self::REQUEST_REDIRECT_PARAM);
+            $target = is_string($candidate) ? $candidate : null;
+        }
+
+        $session = $this->request?->getSession();
+
+        if (! $target && $session) {
+            $candidate = $session->get(self::SESSION_REDIRECT_TARGET)
+                ?? $session->get(self::SESSION_SECURITY_TARGET);
+            $target = is_string($candidate) ? $candidate : null;
+        }
+
+        if ($session) {
+            $session->remove(self::SESSION_REDIRECT_TARGET);
+            $session->remove(self::SESSION_SECURITY_TARGET);
+        }
+
+        if ($target && $this->isSafeRedirectTarget($target)) {
+            $this->redirect($target);
+            return;
+        }
+
+        $this->redirect($this->urlGenerator->generate($routeName, $parameters));
+    }
+
+    public function redirect(string $url): void
+    {
+        $this->setSuccessAction([
+            'type' => self::ACTION_REDIRECT,
+            'url' => $url,
+        ]);
+    }
+
+    private function isSafeRedirectTarget(string $target): bool
+    {
+        return str_starts_with($target, '/') && ! str_starts_with($target, '//');
+    }
+
+    protected function getPostedRawData(string $key)
+    {
+        if (! $this->request) {
+            return null;
+        }
+
+        $data = $this->request->get(
+            ClassHelper::getTableizedName(static::getFormClass())
+        );
+
+        return $data[$key] ?? null;
     }
 
     public function getRequiredRoles(): array
