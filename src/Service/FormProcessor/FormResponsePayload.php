@@ -3,11 +3,12 @@
 namespace Wexample\SymfonyForms\Service\FormProcessor;
 
 use Symfony\Component\Form\FormInterface;
+use Wexample\SymfonyLoader\Response\AdaptiveResponse;
 
-final class FormResponsePayload
+final class FormResponsePayload extends AdaptiveResponse
 {
+    protected string $responseType = 'form';
     private array $payload = [
-        'ok' => true,
         'form' => [
             'name' => '',
             'errors' => [
@@ -29,7 +30,7 @@ final class FormResponsePayload
     public function setErrors(array $errors): self
     {
         $count = (int) ($errors['count'] ?? 0);
-        $this->payload['ok'] = $count === 0;
+        $this->ok = $count === 0;
         $this->payload['form']['errors'] = $errors;
 
         return $this;
@@ -60,6 +61,6 @@ final class FormResponsePayload
 
     public function toArray(): array
     {
-        return $this->payload;
+        return parent::toArray() + $this->payload;
     }
 }
