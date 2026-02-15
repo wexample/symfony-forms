@@ -177,11 +177,19 @@ abstract class AbstractFormProcessor
             ) {
                 $url = (string) $action['url'];
                 if ($this->request && RequestHelper::isJsonRequest($this->request)) {
-                    return new JsonResponse([
-                        'redirect' => [
+                    $errors = [
+                        'form' => [],
+                        'fields' => [],
+                        'count' => 0,
+                    ];
+                    $payload = FormResponsePayload::fromForm($form)
+                        ->setErrors($errors)
+                        ->setAction([
+                            'type' => self::ACTION_REDIRECT,
                             'url' => $url,
-                        ],
-                    ]);
+                        ]);
+
+                    return new JsonResponse($payload->toArray());
                 }
 
                 return new RedirectResponse($url);
