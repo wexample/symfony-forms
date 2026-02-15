@@ -60,7 +60,12 @@ class FormProcessorPostHandler
             );
         }
 
-        return $formProcessor->render($form);
+        $response = $formProcessor->handleSubmissionResponseFromForm($form);
+        if ($response) {
+            return $response;
+        }
+
+        return new Response('', Response::HTTP_NO_CONTENT);
     }
 
     private function assertHasAccess(AbstractFormProcessor $formProcessor): void
@@ -118,43 +123,23 @@ class FormProcessorPostHandler
             ++$errors['count'];
         }
 
-        $payload = [
-            'ok' => $errors['count'] === 0,
-            'form' => [
-                'name' => $form->getName(),
-                'errors' => $errors,
-            ],
-        ];
+        $payload = FormResponsePayload::fromForm($form)
+            ->setErrors($errors);
 
         $translations = $formProcessor->translateKeys($translationKeys);
 
         if ($translations) {
             $payload['translations'] = $translations;
+            $payload->setTranslations($translations);
         }
 
-        $redirectUrl = $formProcessor->getRedirectUrl();
-
-        if (is_string($redirectUrl) && $redirectUrl !== '') {
-            $payload['redirect'] = [
-                'url' => $redirectUrl,
-            ];
+        if ($errors['count'] === 0) {
+            $action = $formProcessor->getSuccessAction()
+                ?: ['type' => AbstractFormProcessor::ACTION_NO_ACTION];
+            $payload->setAction($action);
         }
 
-        if ($payload['ok']) {
-            $action = $formProcessor->getSuccessAction();
-            if (is_array($action)) {
-                $payload['action'] = $action;
-                if (($action['type'] ?? null) === AbstractFormProcessor::ACTION_REDIRECT
-                    && !empty($action['url'])
-                ) {
-                    $payload['redirect'] = [
-                        'url' => $action['url'],
-                    ];
-                }
-            }
-        }
-
-        return $payload;
+        return $payload->toArray();
     }
 
     private function buildFullFieldName(FormInterface $field): string
