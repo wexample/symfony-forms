@@ -173,7 +173,16 @@ abstract class AbstractFormProcessor
                 && ($action['type'] ?? null) === self::ACTION_REDIRECT
                 && !empty($action['url'])
             ) {
-                return new RedirectResponse((string) $action['url']);
+                $url = (string) $action['url'];
+                if ($this->request && RequestHelper::isJsonRequest($this->request)) {
+                    return new JsonResponse([
+                        'redirect' => [
+                            'url' => $url,
+                        ],
+                    ]);
+                }
+
+                return new RedirectResponse($url);
             }
         }
 
