@@ -171,6 +171,25 @@ abstract class AbstractFormProcessor
     {
         if ($form->isSubmitted() && $form->isValid()) {
             $action = $this->getSuccessAction();
+            if ($this->request && RequestHelper::isJsonRequest($this->request)) {
+                if (!is_array($action)) {
+                    $action = ['type' => self::ACTION_NO_ACTION];
+                }
+
+                if (($action['type'] ?? null) !== self::ACTION_REDIRECT) {
+                    $errors = [
+                        'form' => [],
+                        'fields' => [],
+                        'count' => 0,
+                    ];
+                    $payload = FormResponsePayload::fromForm($form)
+                        ->setErrors($errors)
+                        ->setAction($action);
+
+                    return new JsonResponse($payload->toArray());
+                }
+            }
+
             if (is_array($action)
                 && ($action['type'] ?? null) === self::ACTION_REDIRECT
                 && !empty($action['url'])
@@ -204,6 +223,7 @@ abstract class AbstractFormProcessor
         $domainSet = false;
 
         if ($this->translator) {
+            // TODO: Revisit translation domain switching when AJAX flow is fully active.
             $this->translator->setDomain(
                 Translator::DOMAIN_TYPE_FORM,
                 AbstractForm::transTypeDomain(static::getFormClass())
@@ -329,6 +349,7 @@ abstract class AbstractFormProcessor
             $translations[$key] = $this->translator->trans($lookupKey);
         }
 
+        // TODO: Reevaluate whether translation should happen here or in response building.
         return $translations;
     }
 
