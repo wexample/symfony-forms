@@ -5,6 +5,7 @@ namespace Wexample\SymfonyForms\Service\FormProcessor;
 use RuntimeException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\SymfonyForms\Form\AbstractForm;
+use Wexample\SymfonyHelpers\Helper\RequestHelper;
 use Wexample\SymfonyTranslations\Translation\Translator;
 
 abstract class AbstractFormProcessor
@@ -393,80 +395,6 @@ abstract class AbstractFormProcessor
 
         return $data[$key] ?? null;
     }
-
-    public function getRequiredRoles(): array
-    {
-        return ['ROLE_USER'];
-    }
-
-    public function redirectToRoute(
-        string $routeName,
-        array $params = []
-    ): void {
-        $this->redirect(
-            $this->urlGenerator->generate($routeName, $params)
-        );
-    }
-
-    public function redirectToPreviousOrToRoute(
-        string $routeName,
-        array $parameters = []
-    ): void {
-        $target = null;
-
-        if ($this->request) {
-            $candidate = $this->request->get(self::REQUEST_REDIRECT_PARAM);
-            $target = is_string($candidate) ? $candidate : null;
-        }
-
-        $session = $this->request?->getSession();
-
-        if (! $target && $session) {
-            $candidate = $session->get(self::SESSION_REDIRECT_TARGET)
-                ?? $session->get(self::SESSION_SECURITY_TARGET);
-            $target = is_string($candidate) ? $candidate : null;
-        }
-
-        if ($session) {
-            $session->remove(self::SESSION_REDIRECT_TARGET);
-            $session->remove(self::SESSION_SECURITY_TARGET);
-        }
-
-        if ($target && $this->isSafeRedirectTarget($target)) {
-            $this->redirect($target);
-            return;
-        }
-
-        $this->redirect($this->urlGenerator->generate($routeName, $parameters));
-    }
-
-    public function redirect(string $url): void
-    {
-        if (! $this->adaptiveFormResponseService) {
-            throw new RuntimeException('AdaptiveFormResponseService is required to render redirects.');
-        }
-
-        $this->adaptiveFormResponseService->setRedirectUrl($url);
-    }
-
-    private function isSafeRedirectTarget(string $target): bool
-    {
-        return str_starts_with($target, '/') && ! str_starts_with($target, '//');
-    }
-
-    protected function getPostedRawData(string $key)
-    {
-        if (! $this->request) {
-            return null;
-        }
-
-        $data = $this->request->get(
-            ClassHelper::getTableizedName(static::getFormClass())
-        );
-
-        return $data[$key] ?? null;
-    }
-
     protected static function guessFormClass(): ?string
     {
         $processorClass = static::class;
