@@ -66,16 +66,10 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
 
             if ($request->isMethod('POST')) {
                 $form = $processor->handleSubmission($request);
-
-                if ($form->isSubmitted() && $form->isValid()) {
-                    $action = $processor->getSuccessAction();
-                    if (is_array($action)
-                        && ($action['type'] ?? null) === AbstractFormProcessor::ACTION_REDIRECT
-                        && !empty($action['url'])
-                    ) {
-                        $event->setResponse(new RedirectResponse((string) $action['url']));
-                        return;
-                    }
+                $response = $processor->handleSubmissionResponseFromForm($form);
+                if ($response) {
+                    $event->setResponse($response);
+                    return;
                 }
             } else {
                 $form = $processor->createForm();
