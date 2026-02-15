@@ -139,14 +139,34 @@ abstract class AbstractFormProcessor
         return $form;
     }
 
-    public function handleSubmissionResponse(Request $request): ?Response
+    public function handleSubmissionWithData(
+        Request $request,
+        $data = null
+    ): FormInterface {
+        $form = $this->createForm($data);
+
+        $form->handleRequest($request);
+
+        $this->processSubmittedForm($form);
+
+        return $form;
+    }
+
+    public function handleSubmissionResponse(Request $request, $data = null): ?Response
     {
         if (!$request->isMethod(Request::METHOD_POST)) {
             return null;
         }
 
-        $form = $this->handleSubmission($request);
+        $form = $data !== null
+            ? $this->handleSubmissionWithData($request, $data)
+            : $this->handleSubmission($request);
 
+        return $this->handleSubmissionResponseFromForm($form);
+    }
+
+    public function handleSubmissionResponseFromForm(FormInterface $form): ?Response
+    {
         if ($form->isSubmitted() && $form->isValid()) {
             $action = $this->getSuccessAction();
             if (is_array($action)
