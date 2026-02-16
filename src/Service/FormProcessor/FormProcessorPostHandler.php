@@ -55,6 +55,7 @@ class FormProcessorPostHandler
         $form = $formProcessor->handleSubmission($request);
 
         if (RequestHelper::isJsonRequest($request)) {
+            // TODO: Confirm JSON payload ownership vs other response pipelines.
             return new JsonResponse(
                 $this->buildFormResponsePayload($formProcessor, $form)
             );
@@ -129,7 +130,7 @@ class FormProcessorPostHandler
         $translations = $formProcessor->translateKeys($translationKeys);
 
         if ($translations) {
-            $payload['translations'] = $translations;
+            // TODO: Decide if translations should be produced here or by a dedicated translation layer.
             $payload->setTranslations($translations);
         }
 
@@ -144,6 +145,7 @@ class FormProcessorPostHandler
 
     private function buildFullFieldName(FormInterface $field): string
     {
+        // TODO: Consider extracting as a shared helper if reused elsewhere.
         $parts = [];
         $current = $field;
 
