@@ -29,6 +29,8 @@ abstract class AbstractFormProcessor
     public const string ACTION_REDIRECT = 'redirect';
     public const string ACTION_RELOAD = 'reload';
     public const string ACTION_DEFAULT = 'default';
+    public const string ACTION_EMBED_STAY = 'embed_stay';
+    public const string ACTION_EMBED_REDIRECT = 'embed_redirect';
 
     protected ?Request $request = null;
     protected ?Translator $translator = null;
