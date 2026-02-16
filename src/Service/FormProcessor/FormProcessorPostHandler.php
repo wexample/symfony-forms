@@ -134,11 +134,9 @@ class FormProcessorPostHandler
             $payload->setTranslations($translations);
         }
 
-        if ($errors['count'] === 0) {
-            $action = $formProcessor->getSuccessAction()
-                ?: ['type' => AbstractFormProcessor::ACTION_NO_ACTION];
-            $payload->setAction($action);
-        }
+        $action = $formProcessor->getSuccessAction()
+            ?: ['type' => AbstractFormProcessor::ACTION_NO_ACTION];
+        $payload->setAction($action);
 
         return $payload->toArray();
     }

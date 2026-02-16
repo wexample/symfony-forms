@@ -4,6 +4,7 @@ namespace Wexample\SymfonyForms\Service\FormProcessor;
 
 use Symfony\Component\Form\FormInterface;
 use Wexample\SymfonyLoader\Response\AdaptiveResponse;
+use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;
 
 final class FormResponsePayload extends AdaptiveResponse
 {
@@ -16,6 +17,9 @@ final class FormResponsePayload extends AdaptiveResponse
                 'fields' => [],
                 'count' => 0,
             ],
+        ],
+        'action' => [
+            'type' => AbstractFormProcessor::ACTION_NO_ACTION,
         ],
     ];
 
