@@ -11,14 +11,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\SymfonyForms\Form\AbstractForm;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 use Wexample\SymfonyHelpers\Helper\RoleHelper;
+use Wexample\SymfonyTranslations\Translation\Translator;
 
 class FormProcessorPostHandler
 {
     public function __construct(
         private readonly ContainerInterface $processors,
-        private readonly AuthorizationCheckerInterface $authorizationChecker
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
+        private readonly Translator $translator
     ) {
     }
 
@@ -127,10 +130,9 @@ class FormProcessorPostHandler
         $payload = FormResponsePayload::fromForm($form)
             ->setErrors($errors);
 
-        $translations = $formProcessor->translateKeys($translationKeys);
+        $translations = $this->translateKeys($translationKeys, $formProcessor);
 
         if ($translations) {
-            // TODO: Decide if translations should be produced here or by a dedicated translation layer.
             $payload->setTranslations($translations);
         }
 
@@ -139,6 +141,39 @@ class FormProcessorPostHandler
         $payload->setAction($action);
 
         return $payload->toArray();
+    }
+
+    private function translateKeys(
+        array $keys,
+        AbstractFormProcessor $formProcessor
+    ): array {
+        $translations = [];
+        $uniqueKeys = array_values(array_unique(array_filter($keys)));
+
+        if (empty($uniqueKeys)) {
+            return $translations;
+        }
+
+        $this->translator->setDomain(
+            Translator::DOMAIN_TYPE_FORM,
+            AbstractForm::transTypeDomain($formProcessor::getFormClass())
+        );
+
+        try {
+            foreach ($uniqueKeys as $key) {
+                $lookupKey = $key;
+
+                if (str_starts_with($lookupKey, Translator::DOMAIN_PREFIX)) {
+                    $lookupKey = substr($lookupKey, strlen(Translator::DOMAIN_PREFIX));
+                }
+
+                $translations[$key] = $this->translator->trans($lookupKey);
+            }
+        } finally {
+            $this->translator->revertDomain(Translator::DOMAIN_TYPE_FORM);
+        }
+
+        return $translations;
     }
 
     private function buildFullFieldName(FormInterface $field): string

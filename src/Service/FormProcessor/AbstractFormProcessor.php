@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
-use Wexample\SymfonyForms\Form\AbstractForm;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
-use Wexample\SymfonyTranslations\Translation\Translator;
 
 abstract class AbstractFormProcessor
 {
@@ -33,17 +31,14 @@ abstract class AbstractFormProcessor
     public const string ACTION_EMBED_REDIRECT = 'embed_redirect';
 
     protected ?Request $request = null;
-    protected ?Translator $translator = null;
     protected ?array $successAction = null;
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
         RequestStack $requestStack,
-        protected UrlGeneratorInterface $urlGenerator,
-        ?Translator $translator = null
+        protected UrlGeneratorInterface $urlGenerator
     ) {
         $this->request = $requestStack->getCurrentRequest();
-        $this->translator = $translator;
     }
 
     public function createForm(
@@ -222,32 +217,15 @@ abstract class AbstractFormProcessor
 
     protected function processSubmittedForm(FormInterface $form): void
     {
-        $domainSet = false;
+        if ($this->formIsSubmitted($form)) {
+            $this->onSubmitted($form);
 
-        if ($this->translator) {
-            // TODO: Revisit translation domain switching when AJAX flow is fully active.
-            $this->translator->setDomain(
-                Translator::DOMAIN_TYPE_FORM,
-                AbstractForm::transTypeDomain(static::getFormClass())
-            );
-            $domainSet = true;
-        }
+            $isValid = $this->formIsValid($form);
 
-        try {
-            if ($this->formIsSubmitted($form)) {
-                $this->onSubmitted($form);
-
-                $isValid = $this->formIsValid($form);
-
-                if ($isValid) {
-                    $this->onValid($form);
-                } else {
-                    $this->onInvalid($form);
-                }
-            }
-        } finally {
-            if ($domainSet) {
-                $this->translator?->revertDomain(Translator::DOMAIN_TYPE_FORM);
+            if ($isValid) {
+                $this->onValid($form);
+            } else {
+                $this->onInvalid($form);
             }
         }
     }
@@ -302,17 +280,8 @@ abstract class AbstractFormProcessor
         string $prefix = 'error.'
     ): void {
         $key = $prefix . $errorKey . '.message';
-        $translationKey = '@' . Translator::DOMAIN_TYPE_FORM
-            . Translator::DOMAIN_SEPARATOR
-            . $key;
-
-        if ($this->translator) {
-            $form->addError(new \Symfony\Component\Form\FormError(
-                $this->translator->trans($translationKey)
-            ));
-        } else {
-            $form->addError(new \Symfony\Component\Form\FormError($translationKey));
-        }
+        $translationKey = '@form::' . $key;
+        $form->addError(new \Symfony\Component\Form\FormError($translationKey));
     }
 
     public function getSuccessRedirectUrl(FormInterface $form): ?string
@@ -330,29 +299,6 @@ abstract class AbstractFormProcessor
         }
 
         return null;
-    }
-
-    public function translateKeys(array $keys): array
-    {
-        if (! $this->translator) {
-            return [];
-        }
-
-        $translations = [];
-        $uniqueKeys = array_values(array_unique(array_filter($keys)));
-
-        foreach ($uniqueKeys as $key) {
-            $lookupKey = $key;
-
-            if (str_starts_with($lookupKey, Translator::DOMAIN_PREFIX)) {
-                $lookupKey = substr($lookupKey, strlen(Translator::DOMAIN_PREFIX));
-            }
-
-            $translations[$key] = $this->translator->trans($lookupKey);
-        }
-
-        // TODO: Reevaluate whether translation should happen here or in response building.
-        return $translations;
     }
 
     public function getRequiredRoles(): array
