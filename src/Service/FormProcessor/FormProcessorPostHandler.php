@@ -59,7 +59,6 @@ class FormProcessorPostHandler
         $form = $formProcessor->handleSubmission($request);
 
         if (RequestHelper::isJsonRequest($request)) {
-            // TODO: Confirm JSON payload ownership vs other response pipelines.
             return new JsonResponse(
                 $this->buildFormResponsePayload($formProcessor, $form)
             );

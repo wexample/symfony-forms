@@ -56,13 +56,6 @@ final class FormResponsePayload extends AdaptiveResponse
         return $this;
     }
 
-    public function setRender(array $render): self
-    {
-        $this->payload['render'] = $render;
-
-        return $this;
-    }
-
     public function toArray(): array
     {
         return parent::toArray() + $this->payload;
