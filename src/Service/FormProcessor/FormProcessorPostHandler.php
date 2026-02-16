@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\SymfonyForms\Helper\FormHelper;
 use Wexample\SymfonyForms\Form\AbstractForm;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 use Wexample\SymfonyHelpers\Helper\RoleHelper;
@@ -116,7 +117,7 @@ class FormProcessorPostHandler
                 continue;
             }
 
-            $fullName = $this->buildFullFieldName($origin);
+            $fullName = FormHelper::buildFullFieldName($origin);
 
             if (! isset($errors['fields'][$fullName])) {
                 $errors['fields'][$fullName] = [];
@@ -176,27 +177,4 @@ class FormProcessorPostHandler
         return $translations;
     }
 
-    private function buildFullFieldName(FormInterface $field): string
-    {
-        // TODO: Consider extracting as a shared helper if reused elsewhere.
-        $parts = [];
-        $current = $field;
-
-        while ($current) {
-            $name = $current->getName();
-            if ($name !== '') {
-                array_unshift($parts, $name);
-            }
-            $current = $current->getParent();
-        }
-
-        $root = array_shift($parts) ?? '';
-        $full = $root;
-
-        foreach ($parts as $part) {
-            $full .= '[' . $part . ']';
-        }
-
-        return $full;
-    }
 }
