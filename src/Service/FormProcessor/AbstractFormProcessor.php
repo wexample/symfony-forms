@@ -28,7 +28,7 @@ abstract class AbstractFormProcessor
     private const string SESSION_SECURITY_TARGET = '_security.main.target_path';
     public const string ACTION_REDIRECT = 'redirect';
     public const string ACTION_RELOAD = 'reload';
-    public const string ACTION_NO_ACTION = 'no_action';
+    public const string ACTION_DEFAULT = 'default';
 
     protected ?Request $request = null;
     protected ?Translator $translator = null;
@@ -173,7 +173,7 @@ abstract class AbstractFormProcessor
             $action = $this->getSuccessAction();
             if ($this->request && RequestHelper::isJsonRequest($this->request)) {
                 if (!is_array($action)) {
-                    $action = ['type' => self::ACTION_NO_ACTION];
+                    $action = ['type' => self::ACTION_DEFAULT];
                 }
 
                 if (($action['type'] ?? null) !== self::ACTION_REDIRECT) {

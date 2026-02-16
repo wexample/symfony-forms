@@ -135,7 +135,7 @@ class FormProcessorPostHandler
         }
 
         $action = $formProcessor->getSuccessAction()
-            ?: ['type' => AbstractFormProcessor::ACTION_NO_ACTION];
+            ?: ['type' => AbstractFormProcessor::ACTION_DEFAULT];
         $payload->setAction($action);
 
         return $payload->toArray();

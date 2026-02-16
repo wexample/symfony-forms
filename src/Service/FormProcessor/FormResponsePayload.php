@@ -19,7 +19,7 @@ final class FormResponsePayload extends AdaptiveResponse
             ],
         ],
         'action' => [
-            'type' => AbstractFormProcessor::ACTION_NO_ACTION,
+            'type' => AbstractFormProcessor::ACTION_DEFAULT,
         ],
     ];
 
