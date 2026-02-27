@@ -9,7 +9,9 @@ class FormProcessor
 {
     public function __construct(
         public string $processorClass,
-        public string $formArgumentName
+        public string $formArgumentName,
+        public ?string $formDataResolverClass = null,
+        public array $formDataResolverOptions = []
     ) {
     }
 }
