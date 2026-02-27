@@ -8,6 +8,7 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Wexample\SymfonyForms\Attribute\FormProcessor;
 use Wexample\SymfonyForms\EventSubscriber\FormProcessorRequestSubscriber;
+use Wexample\SymfonyHelpers\Helper\RouteHelper;
 
 class FormProcessorValueResolver implements ValueResolverInterface
 {
@@ -17,18 +18,14 @@ class FormProcessorValueResolver implements ValueResolverInterface
             return false;
         }
 
-        $controller = $request->attributes->get('_controller');
-        if (!is_string($controller) || !str_contains($controller, '::')) {
+        $reflection = RouteHelper::resolveControllerMethodReflection($request);
+        if (!$reflection) {
             return false;
         }
-
-        [$class, $method] = explode('::', $controller, 2);
-        if (!class_exists($class) || !method_exists($class, $method)) {
-            return false;
-        }
-
-        $reflection = new \ReflectionMethod($class, $method);
-        $attributes = $reflection->getAttributes(FormProcessor::class);
+        $attributes = $reflection->getAttributes(
+            FormProcessor::class,
+            \ReflectionAttribute::IS_INSTANCEOF
+        );
 
         if (empty($attributes)) {
             return false;

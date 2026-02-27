@@ -37,7 +37,10 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $attributes = $reflection->getAttributes(FormProcessor::class);
+        $attributes = $reflection->getAttributes(
+            FormProcessor::class,
+            \ReflectionAttribute::IS_INSTANCEOF
+        );
 
         if (empty($attributes)) {
             return;
