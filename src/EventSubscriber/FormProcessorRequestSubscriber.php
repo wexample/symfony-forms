@@ -7,11 +7,9 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Wexample\SymfonyForms\Attribute\FormProcessor;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;
-use Wexample\SymfonyForms\Service\FormProcessor\FormProcessorDataResolverInterface;
 
 class FormProcessorRequestSubscriber implements EventSubscriberInterface
 {
@@ -57,18 +55,15 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
             /** @var FormProcessor $config */
             $config = $attribute->newInstance();
 
-            if (!$this->processors->has($config->processorClass)) {
-                throw new BadRequestHttpException(
-                    sprintf('Unknown form processor "%s".', $config->processorClass)
-                );
-            }
-
             /** @var AbstractFormProcessor $processor */
             $processor = $this->processors->get($config->processorClass);
-            $formData = $this->resolveFormData($config, $request);
+            $hasFormDataResolver = $config->formDataResolverClass !== null;
+            $formData = $hasFormDataResolver
+                ? $this->resolveFormData($config, $request)
+                : null;
 
             if ($request->isMethod('POST')) {
-                $form = $config->formDataResolverClass
+                $form = $hasFormDataResolver
                     ? $processor->handleSubmissionWithData($request, $formData)
                     : $processor->handleSubmission($request);
                 $response = $processor->handleSubmissionResponseFromForm($form);
@@ -77,7 +72,7 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
                     return;
                 }
             } else {
-                $form = $config->formDataResolverClass
+                $form = $hasFormDataResolver
                     ? $processor->createForm($formData)
                     : $processor->createForm();
             }
@@ -92,29 +87,7 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
         FormProcessor $config,
         Request $request
     ): mixed {
-        $resolverClass = $config->formDataResolverClass;
-        if (! is_string($resolverClass) || $resolverClass === '') {
-            return null;
-        }
-
-        if (! $this->formDataResolvers->has($resolverClass)) {
-            throw new BadRequestHttpException(
-                sprintf('Unknown form data resolver "%s".', $resolverClass)
-            );
-        }
-
-        $resolver = $this->formDataResolvers->get($resolverClass);
-        if (! $resolver instanceof FormProcessorDataResolverInterface) {
-            throw new BadRequestHttpException(
-                sprintf(
-                    'Form data resolver "%s" must implement %s.',
-                    $resolverClass,
-                    FormProcessorDataResolverInterface::class
-                )
-            );
-        }
-
-        return $resolver->resolve(
+        return $this->formDataResolvers->get($config->formDataResolverClass)->resolve(
             $request,
             $config->formDataResolverOptions
         );
