@@ -10,6 +10,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Wexample\SymfonyForms\Attribute\FormProcessor;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;
+use Wexample\SymfonyHelpers\Helper\RouteHelper;
 
 class FormProcessorRequestSubscriber implements EventSubscriberInterface
 {
@@ -31,18 +32,11 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
     public function onRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
-        $controller = $request->attributes->get('_controller');
-
-        if (!is_string($controller) || !str_contains($controller, '::')) {
+        $reflection = RouteHelper::resolveControllerMethodReflection($request);
+        if (!$reflection) {
             return;
         }
 
-        [$class, $method] = explode('::', $controller, 2);
-        if (!class_exists($class) || !method_exists($class, $method)) {
-            return;
-        }
-
-        $reflection = new \ReflectionMethod($class, $method);
         $attributes = $reflection->getAttributes(FormProcessor::class);
 
         if (empty($attributes)) {
