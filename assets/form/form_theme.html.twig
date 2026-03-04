@@ -268,7 +268,7 @@
             <div class="form--errors">
                 <ul>
                     {% for error in errors %}
-                        <li>{{ error.message }}</li>
+                        <li>{{ error.message | trans }}</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -276,7 +276,7 @@
             <div class="form--field-errors">
                 <ul>
                     {% for error in errors %}
-                        <li>{{ error.message }}</li>
+                        <li>{{ error.message | trans }}</li>
                     {% endfor %}
                 </ul>
             </div>
