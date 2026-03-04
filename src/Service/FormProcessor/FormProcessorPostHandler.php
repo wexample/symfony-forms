@@ -11,8 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Wexample\Helpers\Helper\ClassHelper;
-use Wexample\SymfonyForms\Helper\FormHelper;
 use Wexample\SymfonyForms\Form\AbstractForm;
+use Wexample\SymfonyForms\Helper\FormHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 use Wexample\SymfonyHelpers\Helper\RoleHelper;
 use Wexample\SymfonyTranslations\Translation\Translator;
@@ -23,17 +23,19 @@ class FormProcessorPostHandler
         private readonly ContainerInterface $processors,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
         private readonly Translator $translator
-    ) {
+    )
+    {
     }
 
     public function handleSubmission(
         string $formName,
         Request $request
-    ): Response {
+    ): Response
+    {
         $formClass = AbstractFormProcessor::FORMS_CLASS_BASE_PATH
             . ClassHelper::longTableizedNameToClass($formName);
 
-        if (! class_exists($formClass)) {
+        if (!class_exists($formClass)) {
             throw new RuntimeException('Form class not found: ' . $formClass);
         }
 
@@ -45,11 +47,11 @@ class FormProcessorPostHandler
             AbstractFormProcessor::CLASS_EXTENSION
         );
 
-        if (! class_exists($processorClass)) {
+        if (!class_exists($processorClass)) {
             throw new RuntimeException('Form processor class not found: ' . $processorClass);
         }
 
-        if (! $this->processors->has($processorClass)) {
+        if (!$this->processors->has($processorClass)) {
             throw new RuntimeException('Form processor service not found: ' . $processorClass);
         }
 
@@ -96,7 +98,8 @@ class FormProcessorPostHandler
     private function buildFormResponsePayload(
         AbstractFormProcessor $formProcessor,
         FormInterface $form
-    ): array {
+    ): array
+    {
         $errors = [
             'form' => [],
             'fields' => [],
@@ -108,7 +111,7 @@ class FormProcessorPostHandler
             $origin = $error->getOrigin();
             $message = $error->getMessage();
 
-            if (! $origin || $origin === $form) {
+            if (!$origin || $origin === $form) {
                 $errors['form'][] = $message;
                 $translationKeys[] = $message;
                 ++$errors['count'];
@@ -118,7 +121,7 @@ class FormProcessorPostHandler
 
             $fullName = FormHelper::buildFullFieldName($origin);
 
-            if (! isset($errors['fields'][$fullName])) {
+            if (!isset($errors['fields'][$fullName])) {
                 $errors['fields'][$fullName] = [];
             }
 
@@ -146,32 +149,19 @@ class FormProcessorPostHandler
     private function translateKeys(
         array $keys,
         AbstractFormProcessor $formProcessor
-    ): array {
+    ): array
+    {
         $translations = [];
-        $uniqueKeys = array_values(array_unique(array_filter($keys)));
-
-        if (empty($uniqueKeys)) {
-            return $translations;
-        }
-
         $this->translator->setDomain(
             Translator::DOMAIN_TYPE_FORM,
             AbstractForm::transTypeDomain($formProcessor::getFormClass())
         );
 
-        try {
-            foreach ($uniqueKeys as $key) {
-                $lookupKey = $key;
-
-                if (str_starts_with($lookupKey, Translator::DOMAIN_PREFIX)) {
-                    $lookupKey = substr($lookupKey, strlen(Translator::DOMAIN_PREFIX));
-                }
-
-                $translations[$key] = $this->translator->trans($lookupKey);
-            }
-        } finally {
-            $this->translator->revertDomain(Translator::DOMAIN_TYPE_FORM);
+        foreach ($keys as $key) {
+            $translations[$key] = $this->translator->trans($key);
         }
+
+        $this->translator->revertDomain(Translator::DOMAIN_TYPE_FORM);
 
         return $translations;
     }
