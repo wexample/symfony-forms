@@ -264,11 +264,15 @@
 
 {% block form_errors %}
     {% if errors|length > 0 %}
+        {% set error_translation_domain = form.vars.translation_domain is defined
+            ? form.vars.translation_domain
+            : translation_domain
+        %}
         {% if form.parent is null %}
             <div class="form--errors">
                 <ul>
                     {% for error in errors %}
-                        <li>{{ error.message }}</li>
+                        <li>{{ error.message|trans(error.messageParameters, error_translation_domain) }}</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -276,7 +280,7 @@
             <div class="form--field-errors">
                 <ul>
                     {% for error in errors %}
-                        <li>{{ error.message }}</li>
+                        <li>{{ error.message|trans(error.messageParameters, error_translation_domain) }}</li>
                     {% endfor %}
                 </ul>
             </div>
