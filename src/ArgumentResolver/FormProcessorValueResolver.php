@@ -19,7 +19,7 @@ class FormProcessorValueResolver implements ValueResolverInterface
         }
 
         $reflection = RouteHelper::resolveControllerMethodReflection($request);
-        if (!$reflection) {
+        if (! $reflection) {
             return false;
         }
         $attributes = $reflection->getAttributes(
@@ -44,7 +44,7 @@ class FormProcessorValueResolver implements ValueResolverInterface
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        if (!$this->supports($request, $argument)) {
+        if (! $this->supports($request, $argument)) {
             return [];
         }
 

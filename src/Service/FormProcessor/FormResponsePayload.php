@@ -4,7 +4,6 @@ namespace Wexample\SymfonyForms\Service\FormProcessor;
 
 use Symfony\Component\Form\FormInterface;
 use Wexample\SymfonyLoader\Response\AdaptiveResponse;
-use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;
 
 final class FormResponsePayload extends AdaptiveResponse
 {
@@ -42,7 +41,7 @@ final class FormResponsePayload extends AdaptiveResponse
 
     public function setTranslations(array $translations): self
     {
-        if (!empty($translations)) {
+        if (! empty($translations)) {
             $this->payload['translations'] = $translations;
         }
 
