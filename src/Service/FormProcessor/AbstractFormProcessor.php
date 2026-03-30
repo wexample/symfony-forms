@@ -5,44 +5,40 @@ namespace Wexample\SymfonyForms\Service\FormProcessor;
 use RuntimeException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
-use Wexample\SymfonyForms\Form\AbstractForm;
-use Wexample\SymfonyLoader\Service\AdaptiveFormResponseService;
-use Wexample\SymfonyTranslations\Translation\Translator;
+use Wexample\SymfonyHelpers\Helper\RequestHelper;
 
 abstract class AbstractFormProcessor
 {
-    public const CLASS_EXTENSION = 'Processor';
-    public const FORM_SUBMIT_ROUTE = 'form_processor_submit';
-
-    public const FORMS_CLASS_BASE_PATH = 'App\\Form\\';
-
-    public const FORMS_PROCESSOR_CLASS_BASE_PATH = 'App\\Service\\FormProcessor\\';
-
-    protected ?Request $request = null;
-    protected ?Translator $translator = null;
-    protected ?AdaptiveFormResponseService $adaptiveFormResponseService = null;
-
-    public const VAR_FORM_DATA = 'formData';
+    public const string CLASS_EXTENSION = 'Processor';
+    public const string FORM_SUBMIT_ROUTE = 'form_processor_submit';
+    public const string FORMS_CLASS_BASE_PATH = 'App\\Form\\';
+    public const string FORMS_PROCESSOR_CLASS_BASE_PATH = 'App\\Service\\FormProcessor\\';
+    public const string VAR_FORM_DATA = 'formData';
     private const string REQUEST_REDIRECT_PARAM = 'redirect';
     private const string SESSION_REDIRECT_TARGET = 'app.redirect_target';
     private const string SESSION_SECURITY_TARGET = '_security.main.target_path';
+    public const string ACTION_REDIRECT = 'redirect';
+    public const string ACTION_RELOAD = 'reload';
+    public const string ACTION_DEFAULT = 'default';
+    public const string ACTION_EMBED_STAY = 'embed_stay';
+    public const string ACTION_EMBED_REDIRECT = 'embed_redirect';
+
+    protected ?Request $request = null;
+    protected ?array $successAction = null;
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
         RequestStack $requestStack,
-        protected UrlGeneratorInterface $urlGenerator,
-        ?Translator $translator = null,
-        ?AdaptiveFormResponseService $adaptiveFormResponseService = null
+        protected UrlGeneratorInterface $urlGenerator
     ) {
         $this->request = $requestStack->getCurrentRequest();
-        $this->translator = $translator;
-        $this->adaptiveFormResponseService = $adaptiveFormResponseService;
     }
 
     public function createForm(
@@ -61,11 +57,11 @@ abstract class AbstractFormProcessor
             );
         }
 
-        if (property_exists($formClass, 'ajax')
-            && $formClass::$ajax
-            && ! isset($options['action'])
-        ) {
-            $options['action'] = $this->createFormAction($data);
+        if (!isset($options['action'])) {
+            $action = $this->createFormAction($data);
+            if ($action) {
+                $options['action'] = $action;
+            }
         }
 
         return $this->formFactory->create(
@@ -94,12 +90,23 @@ abstract class AbstractFormProcessor
         return $formClass;
     }
 
-    public function createFormAction($data): string
+    public function createFormAction($data): ?string
     {
-        return $this->urlGenerator->generate(
-            $this->getFormActionRoute(),
-            $this->getFormActionArgs($data)
-        );
+        $formClass = static::getFormClass();
+        $ajaxEnabled = property_exists($formClass, 'ajax') && $formClass::$ajax;
+
+        if ($ajaxEnabled) {
+            return $this->urlGenerator->generate(
+                $this->getFormActionRoute(),
+                $this->getFormActionArgs($data)
+            );
+        }
+
+        if ($this->request) {
+            return $this->request->getRequestUri();
+        }
+
+        return null;
     }
 
     public function getFormActionRoute(): string
@@ -126,69 +133,102 @@ abstract class AbstractFormProcessor
 
         $form->handleRequest($request);
 
-        $domainSet = false;
-
-        if ($this->translator) {
-            $this->translator->setDomain(
-                Translator::DOMAIN_TYPE_FORM,
-                AbstractForm::transTypeDomain(static::getFormClass())
-            );
-            $domainSet = true;
-        }
-
-        try {
-            if ($this->formIsSubmitted($form)) {
-                $this->onSubmitted($form);
-
-                $isValid = $this->formIsValid($form);
-
-                if ($isValid) {
-                    $this->onValid($form);
-                } else {
-                    $this->onInvalid($form);
-                }
-            }
-        } finally {
-            if ($domainSet) {
-                $this->translator?->revertDomain(Translator::DOMAIN_TYPE_FORM);
-            }
-        }
+        $this->processSubmittedForm($form);
 
         return $form;
     }
 
-    public function handleStaticFormOrRenderAdaptiveResponse(
-        string $view,
-        array $parameters = [],
-        $formData = null,
-        string $formParameterName = 'form'
-    ): Response {
-        if (! $this->request) {
-            throw new RuntimeException('A request is required to handle form submission.');
-        }
+    public function handleSubmissionWithData(
+        Request $request,
+        $data = null
+    ): FormInterface {
+        $form = $this->createForm($data);
 
-        if (! $this->adaptiveFormResponseService) {
-            throw new RuntimeException('AdaptiveFormResponseService is required to render adaptive responses.');
-        }
+        $form->handleRequest($request);
 
-        $form = $this->createForm($formData);
+        $this->processSubmittedForm($form);
 
-        if ($form->handleRequest($this->request) && $this->formIsSubmitted($form)) {
-            // Override first form by submitted one.
-            $form = $this->handleSubmission($this->request);
-        }
-
-        $this->prepareDisplay($form);
-
-        $this->adaptiveFormResponseService->setViewDefault($view);
-        $this->adaptiveFormResponseService->addParameters(
-            $this->buildViewParameters($form, $formParameterName)
-            + $parameters
-        );
-
-        return $this->adaptiveFormResponseService->render();
+        return $form;
     }
 
+    public function handleSubmissionResponse(Request $request, $data = null): ?Response
+    {
+        if (!$request->isMethod(Request::METHOD_POST)) {
+            return null;
+        }
+
+        $form = $data !== null
+            ? $this->handleSubmissionWithData($request, $data)
+            : $this->handleSubmission($request);
+
+        return $this->handleSubmissionResponseFromForm($form);
+    }
+
+    public function handleSubmissionResponseFromForm(FormInterface $form): ?Response
+    {
+        if ($form->isSubmitted() && $form->isValid()) {
+            $action = $this->getSuccessAction();
+            if ($this->request && RequestHelper::isJsonRequest($this->request)) {
+                if (!is_array($action)) {
+                    $action = ['type' => self::ACTION_DEFAULT];
+                }
+
+                if (($action['type'] ?? null) !== self::ACTION_REDIRECT) {
+                    $errors = [
+                        'form' => [],
+                        'fields' => [],
+                        'count' => 0,
+                    ];
+                    $payload = FormResponsePayload::fromForm($form)
+                        ->setErrors($errors)
+                        ->setAction($action);
+
+                    return new JsonResponse($payload->toArray());
+                }
+            }
+
+            if (is_array($action)
+                && ($action['type'] ?? null) === self::ACTION_REDIRECT
+                && !empty($action['url'])
+            ) {
+                $url = (string) $action['url'];
+                if ($this->request && RequestHelper::isJsonRequest($this->request)) {
+                    $errors = [
+                        'form' => [],
+                        'fields' => [],
+                        'count' => 0,
+                    ];
+                    $payload = FormResponsePayload::fromForm($form)
+                        ->setErrors($errors)
+                        ->setAction([
+                            'type' => self::ACTION_REDIRECT,
+                            'url' => $url,
+                        ]);
+
+                    return new JsonResponse($payload->toArray());
+                }
+
+                return new RedirectResponse($url);
+            }
+        }
+
+        return null;
+    }
+
+    protected function processSubmittedForm(FormInterface $form): void
+    {
+        if ($this->formIsSubmitted($form)) {
+            $this->onSubmitted($form);
+
+            $isValid = $this->formIsValid($form);
+
+            if ($isValid) {
+                $this->onValid($form);
+            } else {
+                $this->onInvalid($form);
+            }
+        }
+    }
     public function createFormSubmitted(
         Request $request
     ): FormInterface {
@@ -218,24 +258,20 @@ abstract class AbstractFormProcessor
     ) {
         // To override by children.
     }
-
-    /**
-     * Create only form when rendering is managed externally (ex: multiple form
-     * in a page).
-     */
-    public function createFormView(
-        $data = null,
-        array $options = []
-    ): FormView {
-        $form = $this->createForm($data, $options);
-
-        return $form->createView();
-    }
-
     public function onInvalid(
         FormInterface $form
     ) {
         // To override by children.
+    }
+
+    public function setSuccessAction(array $action): void
+    {
+        $this->successAction = $action;
+    }
+
+    public function getSuccessAction(): ?array
+    {
+        return $this->successAction;
     }
 
     protected function addFormErrorFromApiKey(
@@ -244,84 +280,25 @@ abstract class AbstractFormProcessor
         string $prefix = 'error.'
     ): void {
         $key = $prefix . $errorKey . '.message';
-        $translationKey = '@' . Translator::DOMAIN_TYPE_FORM
-            . Translator::DOMAIN_SEPARATOR
-            . $key;
-
-        if ($this->translator) {
-            $form->addError(new \Symfony\Component\Form\FormError(
-                $this->translator->trans($translationKey)
-            ));
-        } else {
-            $form->addError(new \Symfony\Component\Form\FormError($translationKey));
-        }
+        $translationKey = '@form::' . $key;
+        $form->addError(new \Symfony\Component\Form\FormError($translationKey));
     }
 
     public function getSuccessRedirectUrl(FormInterface $form): ?string
     {
         return null;
     }
-
-    public function prepareDisplay(FormInterface $form): void
-    {
-        if (! $this->adaptiveFormResponseService
-            || ! $this->adaptiveFormResponseService->hasAction()
-        ) {
-            $this->onRender($form);
-        }
-    }
-
-    public function onRender(FormInterface $form): void
-    {
-        // To override by children.
-    }
-
-    protected function buildViewParameters(
-        FormInterface $form,
-        string $formParameterName = 'form'
-    ): array {
-        return [
-            self::VAR_FORM_DATA => $form->getData(),
-            $formParameterName => $form->createView(),
-        ];
-    }
-
-    public function render(FormInterface $form, string $formParameterName = 'form'): Response
-    {
-        if (! $this->adaptiveFormResponseService) {
-            throw new RuntimeException('AdaptiveFormResponseService is required to render adaptive responses.');
-        }
-
-        $this->adaptiveFormResponseService->setForm($form, $formParameterName);
-
-        return $this->adaptiveFormResponseService->render();
-    }
-
     public function getRedirectUrl(): ?string
     {
-        return $this->adaptiveFormResponseService?->getRedirectUrl();
-    }
-
-    public function translateKeys(array $keys): array
-    {
-        if (! $this->translator) {
-            return [];
+        $action = $this->getSuccessAction();
+        if (is_array($action)
+            && ($action['type'] ?? null) === self::ACTION_REDIRECT
+            && !empty($action['url'])
+        ) {
+            return (string) $action['url'];
         }
 
-        $translations = [];
-        $uniqueKeys = array_values(array_unique(array_filter($keys)));
-
-        foreach ($uniqueKeys as $key) {
-            $lookupKey = $key;
-
-            if (str_starts_with($lookupKey, Translator::DOMAIN_PREFIX)) {
-                $lookupKey = substr($lookupKey, strlen(Translator::DOMAIN_PREFIX));
-            }
-
-            $translations[$key] = $this->translator->trans($lookupKey);
-        }
-
-        return $translations;
+        return null;
     }
 
     public function getRequiredRoles(): array
@@ -372,11 +349,10 @@ abstract class AbstractFormProcessor
 
     public function redirect(string $url): void
     {
-        if (! $this->adaptiveFormResponseService) {
-            throw new RuntimeException('AdaptiveFormResponseService is required to render redirects.');
-        }
-
-        $this->adaptiveFormResponseService->setRedirectUrl($url);
+        $this->setSuccessAction([
+            'type' => self::ACTION_REDIRECT,
+            'url' => $url,
+        ]);
     }
 
     private function isSafeRedirectTarget(string $target): bool
@@ -396,7 +372,6 @@ abstract class AbstractFormProcessor
 
         return $data[$key] ?? null;
     }
-
     protected static function guessFormClass(): ?string
     {
         $processorClass = static::class;

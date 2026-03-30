@@ -12,6 +12,8 @@ class FormRenderingService
     public const string FORM_TYPE_PASSWORD_INPUT = 'password_input';
     public const string FORM_TYPE_HIDDEN_INPUT = 'hidden_input';
     public const string FORM_TYPE_SUBMIT_INPUT = 'submit_input';
+    public const string FORM_TYPE_TEXTAREA_INPUT = 'textarea_input';
+    public const string FORM_TYPE_SELECT_INPUT = 'select_input';
 
     public function validate(array $context, string $type): void
     {

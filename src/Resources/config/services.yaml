@@ -6,9 +6,11 @@ services:
     _instanceof:
         Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor:
             tags: ['wexample.symfony_forms.form_processor']
+        Wexample\SymfonyForms\Service\FormProcessor\FormProcessorDataResolverInterface:
+            tags: ['wexample.symfony_forms.form_processor_data_resolver']
 
     Wexample\SymfonyForms\:
-        resource: '../../{Service,Twig,Controller}'
+        resource: '../../{Service,Twig,Controller,EventSubscriber,ArgumentResolver,Attribute}'
 
     Wexample\SymfonyForms\Controller\:
         resource: '../../Controller'
@@ -17,3 +19,11 @@ services:
     Wexample\SymfonyForms\Service\FormProcessor\FormProcessorPostHandler:
         arguments:
             $processors: !tagged_locator { tag: 'wexample.symfony_forms.form_processor' }
+
+    Wexample\SymfonyForms\ArgumentResolver\FormProcessorValueResolver:
+        tags: ['controller.argument_value_resolver']
+
+    Wexample\SymfonyForms\EventSubscriber\FormProcessorRequestSubscriber:
+        arguments:
+            $processors: !tagged_locator { tag: 'wexample.symfony_forms.form_processor' }
+            $formDataResolvers: !tagged_locator { tag: 'wexample.symfony_forms.form_processor_data_resolver' }
