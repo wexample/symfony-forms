@@ -23,19 +23,17 @@ class FormProcessorPostHandler
         private readonly ContainerInterface $processors,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
         private readonly Translator $translator
-    )
-    {
+    ) {
     }
 
     public function handleSubmission(
         string $formName,
         Request $request
-    ): Response
-    {
+    ): Response {
         $formClass = AbstractFormProcessor::FORMS_CLASS_BASE_PATH
             . ClassHelper::longTableizedNameToClass($formName);
 
-        if (!class_exists($formClass)) {
+        if (! class_exists($formClass)) {
             throw new RuntimeException('Form class not found: ' . $formClass);
         }
 
@@ -47,11 +45,11 @@ class FormProcessorPostHandler
             AbstractFormProcessor::CLASS_EXTENSION
         );
 
-        if (!class_exists($processorClass)) {
+        if (! class_exists($processorClass)) {
             throw new RuntimeException('Form processor class not found: ' . $processorClass);
         }
 
-        if (!$this->processors->has($processorClass)) {
+        if (! $this->processors->has($processorClass)) {
             throw new RuntimeException('Form processor service not found: ' . $processorClass);
         }
 
@@ -98,8 +96,7 @@ class FormProcessorPostHandler
     private function buildFormResponsePayload(
         AbstractFormProcessor $formProcessor,
         FormInterface $form
-    ): array
-    {
+    ): array {
         $errors = [
             'form' => [],
             'fields' => [],
@@ -111,7 +108,7 @@ class FormProcessorPostHandler
             $origin = $error->getOrigin();
             $message = $error->getMessage();
 
-            if (!$origin || $origin === $form) {
+            if (! $origin || $origin === $form) {
                 $errors['form'][] = $message;
                 $translationKeys[] = $message;
                 ++$errors['count'];
@@ -121,7 +118,7 @@ class FormProcessorPostHandler
 
             $fullName = FormHelper::buildFullFieldName($origin);
 
-            if (!isset($errors['fields'][$fullName])) {
+            if (! isset($errors['fields'][$fullName])) {
                 $errors['fields'][$fullName] = [];
             }
 
@@ -149,8 +146,7 @@ class FormProcessorPostHandler
     private function translateKeys(
         array $keys,
         AbstractFormProcessor $formProcessor
-    ): array
-    {
+    ): array {
         $translations = [];
         $this->translator->setDomain(
             Translator::DOMAIN_TYPE_FORM,

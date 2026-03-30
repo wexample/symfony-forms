@@ -2,10 +2,10 @@
 
 namespace Wexample\SymfonyForms\Form\Type;
 
+use Symfony\Component\Form\ChoiceList\View\ChoiceGroupView;
+use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\Form\ChoiceList\View\ChoiceView;
-use Symfony\Component\Form\ChoiceList\View\ChoiceGroupView;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Wexample\SymfonyForms\Form\Traits\FieldOptionsTrait;
@@ -28,7 +28,7 @@ class SelectInputType extends \Symfony\Component\Form\AbstractType
     {
         $resolver->setDefault('auto_translate_choices', true);
         $resolver->setNormalizer('choices', function (Options $options, $choices) {
-            if (!is_array($choices) || !array_is_list($choices)) {
+            if (! is_array($choices) || ! array_is_list($choices)) {
                 return $choices;
             }
 
@@ -63,6 +63,7 @@ class SelectInputType extends \Symfony\Component\Form\AbstractType
                         $applyLabel($groupChoice);
                     }
                 }
+
                 continue;
             }
 
