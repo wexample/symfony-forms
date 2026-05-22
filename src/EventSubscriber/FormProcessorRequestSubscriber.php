@@ -2,12 +2,12 @@
 
 namespace Wexample\SymfonyForms\EventSubscriber;
 
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\DependencyInjection\ServiceLocator;
 use Wexample\SymfonyForms\Attribute\FormProcessor;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;
 use Wexample\SymfonyHelpers\Helper\RouteHelper;
@@ -33,7 +33,7 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         $reflection = RouteHelper::resolveControllerMethodReflection($request);
-        if (!$reflection) {
+        if (! $reflection) {
             return;
         }
 
@@ -66,6 +66,7 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
                 $response = $processor->handleSubmissionResponseFromForm($form);
                 if ($response) {
                     $event->setResponse($response);
+
                     return;
                 }
             } else {
@@ -95,6 +96,7 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
         string $argumentName
     ): ?FormInterface {
         $forms = $event->getRequest()->attributes->get(self::REQUEST_FORMS_ATTRIBUTE, []);
+
         return $forms[$argumentName] ?? null;
     }
 }

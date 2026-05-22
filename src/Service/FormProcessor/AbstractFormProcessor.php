@@ -6,9 +6,9 @@ use RuntimeException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
@@ -57,7 +57,7 @@ abstract class AbstractFormProcessor
             );
         }
 
-        if (!isset($options['action'])) {
+        if (! isset($options['action'])) {
             $action = $this->createFormAction($data);
             if ($action) {
                 $options['action'] = $action;
@@ -153,7 +153,7 @@ abstract class AbstractFormProcessor
 
     public function handleSubmissionResponse(Request $request, $data = null): ?Response
     {
-        if (!$request->isMethod(Request::METHOD_POST)) {
+        if (! $request->isMethod(Request::METHOD_POST)) {
             return null;
         }
 
@@ -169,7 +169,7 @@ abstract class AbstractFormProcessor
         if ($form->isSubmitted() && $form->isValid()) {
             $action = $this->getSuccessAction();
             if ($this->request && RequestHelper::isJsonRequest($this->request)) {
-                if (!is_array($action)) {
+                if (! is_array($action)) {
                     $action = ['type' => self::ACTION_DEFAULT];
                 }
 
@@ -189,7 +189,7 @@ abstract class AbstractFormProcessor
 
             if (is_array($action)
                 && ($action['type'] ?? null) === self::ACTION_REDIRECT
-                && !empty($action['url'])
+                && ! empty($action['url'])
             ) {
                 $url = (string) $action['url'];
                 if ($this->request && RequestHelper::isJsonRequest($this->request)) {
@@ -293,7 +293,7 @@ abstract class AbstractFormProcessor
         $action = $this->getSuccessAction();
         if (is_array($action)
             && ($action['type'] ?? null) === self::ACTION_REDIRECT
-            && !empty($action['url'])
+            && ! empty($action['url'])
         ) {
             return (string) $action['url'];
         }
@@ -341,6 +341,7 @@ abstract class AbstractFormProcessor
 
         if ($target && $this->isSafeRedirectTarget($target)) {
             $this->redirect($target);
+
             return;
         }
 
