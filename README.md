@@ -1,6 +1,6 @@
 # symfony_forms
 
-Version: 1.0.80
+Version: 1.0.81
 
 Forms management for Symfony design system
 
@@ -27,7 +27,7 @@ Visit the [Wexample Suite documentation](https://docs.wexample.com) for the comp
 
 ## Dependencies
 
-- wexample/symfony-design-system: >=3.0.0
+- wexample/symfony-design-system: *
 - syrtis/php-semantic-schema-web: *
 
 ## Versioning & Compatibility Policy

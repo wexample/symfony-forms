@@ -6,7 +6,7 @@ git:
 global:
   name: symfony_forms
   type: app
-  version: 1.0.80
+  version: 1.0.81
 wex:
   migration: 1
-  version: 6.0.90
+  version: 6.0.112
