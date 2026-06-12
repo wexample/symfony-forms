@@ -1,6 +1,6 @@
 # symfony_forms
 
-Version: 1.0.81
+Version: 1.0.82
 
 Forms management for Symfony design system
 
