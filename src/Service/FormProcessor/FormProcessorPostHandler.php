@@ -2,8 +2,8 @@
 
 namespace Wexample\SymfonyForms\Service\FormProcessor;
 
-use Psr\Container\ContainerInterface;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +20,7 @@ use Wexample\SymfonyTranslations\Translation\Translator;
 class FormProcessorPostHandler
 {
     public function __construct(
-        private readonly ContainerInterface $processors,
+        private readonly ServiceLocator $processors,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
         private readonly Translator $translator
     ) {
@@ -30,27 +30,10 @@ class FormProcessorPostHandler
         string $formName,
         Request $request
     ): Response {
-        $formClass = AbstractFormProcessor::FORMS_CLASS_BASE_PATH
-            . ClassHelper::longTableizedNameToClass($formName);
+        $processorClass = $this->resolveProcessorClass($formName);
 
-        if (! class_exists($formClass)) {
-            throw new RuntimeException('Form class not found: ' . $formClass);
-        }
-
-        $processorClass = ClassHelper::getClassCousin(
-            $formClass,
-            AbstractFormProcessor::FORMS_CLASS_BASE_PATH,
-            '',
-            AbstractFormProcessor::FORMS_PROCESSOR_CLASS_BASE_PATH,
-            AbstractFormProcessor::CLASS_EXTENSION
-        );
-
-        if (! class_exists($processorClass)) {
-            throw new RuntimeException('Form processor class not found: ' . $processorClass);
-        }
-
-        if (! $this->processors->has($processorClass)) {
-            throw new RuntimeException('Form processor service not found: ' . $processorClass);
+        if (! $processorClass) {
+            throw new RuntimeException('Form processor not found for form name: ' . $formName);
         }
 
         /** @var AbstractFormProcessor $formProcessor */
@@ -70,6 +53,18 @@ class FormProcessorPostHandler
         }
 
         return new Response('', Response::HTTP_NO_CONTENT);
+    }
+
+    private function resolveProcessorClass(string $formName): ?string
+    {
+        foreach (array_keys($this->processors->getProvidedServices()) as $processorClass) {
+            /** @var class-string<AbstractFormProcessor> $processorClass */
+            if (ClassHelper::longTableized($processorClass::getFormClass()) === $formName) {
+                return $processorClass;
+            }
+        }
+
+        return null;
     }
 
     private function assertHasAccess(AbstractFormProcessor $formProcessor): void
