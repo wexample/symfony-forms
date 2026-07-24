@@ -27,7 +27,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
 
                     return $this->renderTemplate(
                         $twig,
-                        '@WexampleSymfonyFormsBundle/components/text_input.html.twig',
+                        '@WexampleSymfonyDesignSystemBundle/components/form/text_input.html.twig',
                         $context
                     );
                 },
@@ -44,7 +44,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
 
                     return $this->renderTemplate(
                         $twig,
-                        '@WexampleSymfonyFormsBundle/components/password_input.html.twig',
+                        '@WexampleSymfonyDesignSystemBundle/components/form/password_input.html.twig',
                         $context
                     );
                 },
@@ -61,7 +61,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
 
                     return $this->renderTemplate(
                         $twig,
-                        '@WexampleSymfonyFormsBundle/components/hidden_input.html.twig',
+                        '@WexampleSymfonyDesignSystemBundle/components/form/hidden_input.html.twig',
                         $context
                     );
                 },
@@ -78,7 +78,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
 
                     return $this->renderTemplate(
                         $twig,
-                        '@WexampleSymfonyFormsBundle/components/submit_input.html.twig',
+                        '@WexampleSymfonyDesignSystemBundle/components/form/submit_input.html.twig',
                         $context
                     );
                 },
@@ -95,7 +95,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
 
                     return $this->renderTemplate(
                         $twig,
-                        '@WexampleSymfonyFormsBundle/components/textarea_input.html.twig',
+                        '@WexampleSymfonyDesignSystemBundle/components/form/textarea.html.twig',
                         $context
                     );
                 },
