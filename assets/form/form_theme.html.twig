@@ -377,6 +377,44 @@
     ) }}
 {% endblock %}
 
+{% block radio_input_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans({}, form.vars.translation_domain)
+    %}
+    {% set normalized_choices = [] %}
+    {% for choice in form.vars.choices %}
+        {% if choice.choices is defined %}
+            {% set group = {'label': choice.label, 'options': []} %}
+            {% for option in choice.choices %}
+                {% set group = group|merge({'options': group.options|merge([{'value': option.value, 'label': option.label}])}) %}
+            {% endfor %}
+            {% set normalized_choices = normalized_choices|merge([group]) %}
+        {% else %}
+            {% set normalized_choices = normalized_choices|merge([{'value': choice.value, 'label': choice.label}]) %}
+        {% endif %}
+    {% endfor %}
+    {{ component(
+        render_pass,
+        '@WexampleSymfonyDesignSystemBundle/components/form/radio_input',
+        {
+            name: full_name,
+            id: id,
+            label: label_value,
+            required: required,
+            value: value,
+            choices: normalized_choices
+        }
+    ) }}
+{% endblock %}
+
 {% block time_input_widget %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
