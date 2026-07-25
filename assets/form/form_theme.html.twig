@@ -6,6 +6,9 @@
     {% if errors|length > 0 %}
         {% set row_classes = row_classes ~ ' has-error' %}
     {% endif %}
+    {% if required is defined and required %}
+        {% set row_classes = row_classes ~ ' is-required' %}
+    {% endif %}
     {% set row_attr = row_attr|merge({ class: row_classes|trim }) %}
     {% set attr = row_attr %}
     <div {{ block('attributes')|raw }}>
