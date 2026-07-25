@@ -125,7 +125,7 @@ class FormProcessorPostHandler
         $payload = FormResponsePayload::fromForm($form)
             ->setErrors($errors);
 
-        $translations = $this->translateKeys($translationKeys, $formProcessor);
+        $translations = $this->translateKeys($translationKeys, $formProcessor, $form);
 
         if ($translations) {
             $payload->setTranslations($translations);
@@ -140,12 +140,15 @@ class FormProcessorPostHandler
 
     private function translateKeys(
         array $keys,
-        AbstractFormProcessor $formProcessor
+        AbstractFormProcessor $formProcessor,
+        FormInterface $form
     ): array {
         $translations = [];
+        $translationDomain = $form->getConfig()->getOption('translation_domain')
+            ?? AbstractForm::transTypeDomain($formProcessor::getFormClass());
         $this->translator->setDomain(
             Translator::DOMAIN_TYPE_FORM,
-            AbstractForm::transTypeDomain($formProcessor::getFormClass())
+            $translationDomain
         );
 
         foreach ($keys as $key) {
