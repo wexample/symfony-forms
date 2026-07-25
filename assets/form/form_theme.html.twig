@@ -300,30 +300,6 @@
     ) }}
 {% endblock %}
 
-{% block month_input_widget %}
-    {% set label_key = form.vars.label is same as(false)
-        ? form.vars.name
-        : (form.vars.label ?? form.vars.name)
-    %}
-    {% if label_key is same as(true) %}
-        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
-    {% endif %}
-    {% set label_value = form.vars.translation_domain is same as(false)
-        ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
-    %}
-    {{ component(
-        render_pass,
-        '@WexampleSymfonyDesignSystemBundle/components/form/month_input',
-        {
-            name: full_name,
-            id: id,
-            label: label_value,
-            required: required,
-            value: value
-        }
-    ) }}
-{% endblock %}
 
 {% block hidden_widget %}
     {{ component(
