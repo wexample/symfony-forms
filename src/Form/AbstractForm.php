@@ -49,7 +49,9 @@ class AbstractForm extends \Symfony\Component\Form\AbstractType
     {
         $resolver->setDefaults([
             'translation_domain' => self::transTypeDomain($this),
+            'required_mode' => 'optional',
         ]);
+        $resolver->setAllowedValues('required_mode', ['asterisk', 'optional', false]);
     }
 
     public function buildView(
@@ -58,6 +60,7 @@ class AbstractForm extends \Symfony\Component\Form\AbstractType
         array $options
     ): void {
         $view->vars['ajax'] = static::$ajax;
+        $view->vars['required_mode'] = $options['required_mode'];
     }
 
     protected function builderAddSubmit(

@@ -3,11 +3,14 @@
 {% block form_row %}
     {% set row_attr = row_attr|default({}) %}
     {% set row_classes = (row_attr.class ?? '') ~ ' form--group' %}
+    {% set required_mode = form.parent is not null ? (form.parent.vars.required_mode ?? 'optional') : 'optional' %}
     {% if errors|length > 0 %}
         {% set row_classes = row_classes ~ ' has-error' %}
     {% endif %}
-    {% if required is defined and required %}
+    {% if required_mode == 'asterisk' and required is defined and required %}
         {% set row_classes = row_classes ~ ' is-required' %}
+    {% elseif required_mode == 'optional' and (required is not defined or not required) %}
+        {% set row_classes = row_classes ~ ' is-optional' %}
     {% endif %}
     {% set row_attr = row_attr|merge({ class: row_classes|trim }) %}
     {% set attr = row_attr %}
