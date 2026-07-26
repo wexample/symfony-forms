@@ -28,8 +28,10 @@ class SubmitInputType extends AbstractType implements SubmitButtonTypeInterface
     {
         $resolver->setDefaults([
             'icon' => null,
+            'primary' => false,
         ]);
         $resolver->setAllowedTypes('icon', ['null', 'string']);
+        $resolver->setAllowedTypes('primary', 'bool');
     }
 
     public function buildView(
@@ -38,5 +40,6 @@ class SubmitInputType extends AbstractType implements SubmitButtonTypeInterface
         array $options
     ): void {
         $view->vars['icon'] = $options['icon'];
+        $view->vars['primary'] = $options['primary'];
     }
 }
