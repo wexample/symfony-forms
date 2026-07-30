@@ -75,6 +75,7 @@ class AbstractForm extends \Symfony\Component\Form\AbstractType
                 array_merge(
                     [
                         self::FIELD_OPTION_NAME_LABEL => $label,
+                        'primary' => true,
                     ],
                     $options
                 )
