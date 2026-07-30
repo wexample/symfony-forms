@@ -209,6 +209,8 @@ abstract class AbstractFormProcessor
             } else {
                 $this->onInvalid($form);
             }
+
+            $this->resolveNotificationDomain($form);
         }
     }
     public function createFormSubmitted(
@@ -256,18 +258,11 @@ abstract class AbstractFormProcessor
         return $this->successAction;
     }
 
-    /**
-     * The message is stored as an absolute translation key, so it stays
-     * translatable outside of the form translation domain context.
-     */
     public function setNotification(
         string $message,
         string $type = Notification::TYPE_SUCCESS
     ): Notification {
-        return $this->notification = new Notification(
-            $this->resolveTranslationKey($message),
-            $type
-        );
+        return $this->notification = new Notification($message, $type);
     }
 
     public function getNotification(): ?Notification
@@ -275,19 +270,31 @@ abstract class AbstractFormProcessor
         return $this->notification;
     }
 
-    private function resolveTranslationKey(string $key): string
+    /**
+     * Turns a `@form::` prefixed message into an absolute translation key, so
+     * it stays translatable outside of the form translation domain context.
+     */
+    private function resolveNotificationDomain(FormInterface $form): void
     {
+        if (! $this->notification) {
+            return;
+        }
+
         $alias = Translator::DOMAIN_PREFIX
             . Translator::DOMAIN_TYPE_FORM
             . Translator::DOMAIN_SEPARATOR;
 
-        if (! str_starts_with($key, $alias)) {
-            return $key;
+        $message = $this->notification->getMessage();
+
+        if (! str_starts_with($message, $alias)) {
+            return;
         }
 
-        return AbstractForm::transTypeDomain(static::getFormClass())
-            . Translator::DOMAIN_SEPARATOR
-            . substr($key, strlen($alias));
+        $this->notification->setMessage(
+            AbstractForm::transFormDomain($form)
+                . Translator::DOMAIN_SEPARATOR
+                . substr($message, strlen($alias))
+        );
     }
 
     private function dispatchNotificationFlash(): void

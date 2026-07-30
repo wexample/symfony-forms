@@ -30,13 +30,12 @@ class AbstractForm extends \Symfony\Component\Form\AbstractType
     public static function transFormDomain(
         FormInterface $form
     ): string {
-        return self::transTypeDomain(
-            $form
-                ->getRoot()
-                ->getConfig()
-                ->getType()
-                ->getInnerType()
-        );
+        $config = $form->getRoot()->getConfig();
+
+        // Forms living in a bundle declare their own domain, which the
+        // class-name based guess cannot rebuild.
+        return $config->getOption('translation_domain')
+            ?? self::transTypeDomain($config->getType()->getInnerType());
     }
 
     public static function transTypeDomain(
