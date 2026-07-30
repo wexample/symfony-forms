@@ -5,11 +5,14 @@ namespace Wexample\SymfonyForms\EventSubscriber;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Wexample\SymfonyForms\Attribute\FormProcessor;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;
+use Wexample\SymfonyForms\Service\FormProcessor\FormResponsePayloadBuilder;
+use Wexample\SymfonyHelpers\Helper\RequestHelper;
 use Wexample\SymfonyHelpers\Helper\RouteHelper;
 
 class FormProcessorRequestSubscriber implements EventSubscriberInterface
@@ -18,7 +21,8 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
 
     public function __construct(
         private readonly ServiceLocator $processors,
-        private readonly ServiceLocator $formDataResolvers
+        private readonly ServiceLocator $formDataResolvers,
+        private readonly FormResponsePayloadBuilder $payloadBuilder
     ) {
     }
 
@@ -66,6 +70,14 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
                 $response = $processor->handleSubmissionResponseFromForm($form);
                 if ($response) {
                     $event->setResponse($response);
+
+                    return;
+                }
+
+                if ($form->isSubmitted() && RequestHelper::isJsonRequest($request)) {
+                    $event->setResponse(new JsonResponse(
+                        $this->payloadBuilder->build($processor, $form)
+                    ));
 
                     return;
                 }

@@ -168,60 +168,33 @@ abstract class AbstractFormProcessor
         return $this->handleSubmissionResponseFromForm($form);
     }
 
+    /**
+     * Only handles the responses a processor can decide on its own. Building
+     * the JSON payload belongs to the transport layer, which knows whether the
+     * caller expects one.
+     */
     public function handleSubmissionResponseFromForm(FormInterface $form): ?Response
     {
-        if ($form->isSubmitted() && $form->isValid()) {
-            $action = $this->getSuccessAction();
-            if ($this->request && RequestHelper::isJsonRequest($this->request)) {
-                if (! is_array($action)) {
-                    $action = ['type' => self::ACTION_DEFAULT];
-                }
-
-                if (($action['type'] ?? null) !== self::ACTION_REDIRECT) {
-                    $errors = [
-                        'form' => [],
-                        'fields' => [],
-                        'count' => 0,
-                    ];
-                    $payload = FormResponsePayload::fromForm($form)
-                        ->setErrors($errors)
-                        ->setAction($action)
-                        ->setNotification($this->getNotification());
-
-                    return new JsonResponse($payload->toArray());
-                }
-            }
-
-            // Any remaining path ends on a page load, so the notification
-            // travels through the session rather than the response payload.
-            $this->dispatchNotificationFlash();
-
-            if (is_array($action)
-                && ($action['type'] ?? null) === self::ACTION_REDIRECT
-                && ! empty($action['url'])
-            ) {
-                $url = (string) $action['url'];
-                if ($this->request && RequestHelper::isJsonRequest($this->request)) {
-                    $errors = [
-                        'form' => [],
-                        'fields' => [],
-                        'count' => 0,
-                    ];
-                    $payload = FormResponsePayload::fromForm($form)
-                        ->setErrors($errors)
-                        ->setAction([
-                            'type' => self::ACTION_REDIRECT,
-                            'url' => $url,
-                        ]);
-
-                    return new JsonResponse($payload->toArray());
-                }
-
-                return new RedirectResponse($url);
-            }
+        if (! $form->isSubmitted() || ! $form->isValid()) {
+            return null;
         }
 
-        return null;
+        $url = $this->getRedirectUrl();
+
+        // A page load discards anything carried by the response payload,
+        // so the notification travels through the session instead.
+        if ($url || ! $this->expectsJsonResponse()) {
+            $this->dispatchNotificationFlash();
+        }
+
+        return $url && ! $this->expectsJsonResponse()
+            ? new RedirectResponse($url)
+            : null;
+    }
+
+    private function expectsJsonResponse(): bool
+    {
+        return $this->request && RequestHelper::isJsonRequest($this->request);
     }
 
     protected function processSubmittedForm(FormInterface $form): void
@@ -333,6 +306,9 @@ abstract class AbstractFormProcessor
             $this->notification->getType(),
             $this->notification->toArray()
         );
+
+        // Consumed: it must not be carried by a payload built afterwards.
+        $this->notification = null;
     }
 
     protected function addFormErrorFromApiKey(
