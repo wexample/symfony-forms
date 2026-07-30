@@ -32,14 +32,10 @@ abstract class AbstractFormProcessor
     public const string ACTION_DEFAULT = 'default';
     public const string ACTION_EMBED_STAY = 'embed_stay';
     public const string ACTION_EMBED_REDIRECT = 'embed_redirect';
-    public const string NOTIFICATION_SUCCESS = 'success';
-    public const string NOTIFICATION_ERROR = 'error';
-    public const string NOTIFICATION_WARNING = 'warning';
-    public const string NOTIFICATION_INFO = 'info';
 
     protected ?Request $request = null;
     protected ?array $successAction = null;
-    protected ?array $notification = null;
+    protected ?Notification $notification = null;
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
@@ -293,15 +289,15 @@ abstract class AbstractFormProcessor
      */
     public function setNotification(
         string $message,
-        string $type = self::NOTIFICATION_SUCCESS
-    ): void {
-        $this->notification = [
-            'type' => $type,
-            'message' => $this->resolveTranslationKey($message),
-        ];
+        string $type = Notification::TYPE_SUCCESS
+    ): Notification {
+        return $this->notification = new Notification(
+            $this->resolveTranslationKey($message),
+            $type
+        );
     }
 
-    public function getNotification(): ?array
+    public function getNotification(): ?Notification
     {
         return $this->notification;
     }
@@ -334,8 +330,8 @@ abstract class AbstractFormProcessor
         }
 
         $session->getFlashBag()->add(
-            $this->notification['type'],
-            $this->notification['message']
+            $this->notification->getType(),
+            $this->notification->toArray()
         );
     }
 
