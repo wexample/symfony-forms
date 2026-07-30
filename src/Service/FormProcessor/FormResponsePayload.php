@@ -48,10 +48,10 @@ final class FormResponsePayload extends AdaptiveResponse
         return $this;
     }
 
-    public function setToast(?array $toast): self
+    public function setNotification(?array $notification): self
     {
-        if ($toast) {
-            $this->payload['toast'] = $toast;
+        if ($notification) {
+            $this->payload['notification'] = $notification;
         }
 
         return $this;

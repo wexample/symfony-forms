@@ -124,7 +124,7 @@ class FormProcessorPostHandler
 
         $payload = FormResponsePayload::fromForm($form)
             ->setErrors($errors)
-            ->setToast($formProcessor->getSuccessToast());
+            ->setNotification($formProcessor->getNotification());
 
         $translations = $this->translateKeys($translationKeys, $formProcessor, $form);
 

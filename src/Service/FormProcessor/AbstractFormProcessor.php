@@ -10,9 +10,12 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\SymfonyForms\Form\AbstractForm;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
+use Wexample\SymfonyTranslations\Translation\Translator;
 
 abstract class AbstractFormProcessor
 {
@@ -29,10 +32,14 @@ abstract class AbstractFormProcessor
     public const string ACTION_DEFAULT = 'default';
     public const string ACTION_EMBED_STAY = 'embed_stay';
     public const string ACTION_EMBED_REDIRECT = 'embed_redirect';
+    public const string NOTIFICATION_SUCCESS = 'success';
+    public const string NOTIFICATION_ERROR = 'error';
+    public const string NOTIFICATION_WARNING = 'warning';
+    public const string NOTIFICATION_INFO = 'info';
 
     protected ?Request $request = null;
     protected ?array $successAction = null;
-    protected ?array $successToast = null;
+    protected ?array $notification = null;
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
@@ -183,11 +190,15 @@ abstract class AbstractFormProcessor
                     $payload = FormResponsePayload::fromForm($form)
                         ->setErrors($errors)
                         ->setAction($action)
-                        ->setToast($this->getSuccessToast());
+                        ->setNotification($this->getNotification());
 
                     return new JsonResponse($payload->toArray());
                 }
             }
+
+            // Any remaining path ends on a page load, so the notification
+            // travels through the session rather than the response payload.
+            $this->dispatchNotificationFlash();
 
             if (is_array($action)
                 && ($action['type'] ?? null) === self::ACTION_REDIRECT
@@ -276,19 +287,56 @@ abstract class AbstractFormProcessor
         return $this->successAction;
     }
 
-    public function setSuccessToast(
+    /**
+     * The message is stored as an absolute translation key, so it stays
+     * translatable outside of the form translation domain context.
+     */
+    public function setNotification(
         string $message,
-        string $type = 'success'
+        string $type = self::NOTIFICATION_SUCCESS
     ): void {
-        $this->successToast = [
+        $this->notification = [
             'type' => $type,
-            'message' => $message,
+            'message' => $this->resolveTranslationKey($message),
         ];
     }
 
-    public function getSuccessToast(): ?array
+    public function getNotification(): ?array
     {
-        return $this->successToast;
+        return $this->notification;
+    }
+
+    private function resolveTranslationKey(string $key): string
+    {
+        $alias = Translator::DOMAIN_PREFIX
+            . Translator::DOMAIN_TYPE_FORM
+            . Translator::DOMAIN_SEPARATOR;
+
+        if (! str_starts_with($key, $alias)) {
+            return $key;
+        }
+
+        return AbstractForm::transTypeDomain(static::getFormClass())
+            . Translator::DOMAIN_SEPARATOR
+            . substr($key, strlen($alias));
+    }
+
+    private function dispatchNotificationFlash(): void
+    {
+        if (! $this->notification || ! $this->request?->hasSession()) {
+            return;
+        }
+
+        $session = $this->request->getSession();
+
+        if (! $session instanceof FlashBagAwareSessionInterface) {
+            return;
+        }
+
+        $session->getFlashBag()->add(
+            $this->notification['type'],
+            $this->notification['message']
+        );
     }
 
     protected function addFormErrorFromApiKey(
