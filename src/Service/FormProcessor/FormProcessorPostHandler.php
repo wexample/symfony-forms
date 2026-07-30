@@ -123,7 +123,8 @@ class FormProcessorPostHandler
         }
 
         $payload = FormResponsePayload::fromForm($form)
-            ->setErrors($errors);
+            ->setErrors($errors)
+            ->setToast($formProcessor->getSuccessToast());
 
         $translations = $this->translateKeys($translationKeys, $formProcessor, $form);
 

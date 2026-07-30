@@ -32,6 +32,7 @@ abstract class AbstractFormProcessor
 
     protected ?Request $request = null;
     protected ?array $successAction = null;
+    protected ?array $successToast = null;
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
@@ -181,7 +182,8 @@ abstract class AbstractFormProcessor
                     ];
                     $payload = FormResponsePayload::fromForm($form)
                         ->setErrors($errors)
-                        ->setAction($action);
+                        ->setAction($action)
+                        ->setToast($this->getSuccessToast());
 
                     return new JsonResponse($payload->toArray());
                 }
@@ -272,6 +274,21 @@ abstract class AbstractFormProcessor
     public function getSuccessAction(): ?array
     {
         return $this->successAction;
+    }
+
+    public function setSuccessToast(
+        string $message,
+        string $type = 'success'
+    ): void {
+        $this->successToast = [
+            'type' => $type,
+            'message' => $message,
+        ];
+    }
+
+    public function getSuccessToast(): ?array
+    {
+        return $this->successToast;
     }
 
     protected function addFormErrorFromApiKey(
