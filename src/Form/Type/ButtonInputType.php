@@ -6,9 +6,9 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\SubmitButtonTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Wexample\SymfonyForms\Form\Traits\FieldOptionsTrait;
-use Symfony\Component\Form\SubmitButtonTypeInterface;
 
 class ButtonInputType extends AbstractType implements SubmitButtonTypeInterface
 {

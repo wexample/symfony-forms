@@ -1,19 +1,3 @@
-# symfony_forms
-
-Version: 2.0.0
-
-`wexample/symfony-forms` is a Symfony bundle that binds the Symfony Form component to the Wexample design system: its form types (`TextInputType`, `SelectInputType`, `SwitchInputType`, `EmojiPickerType`…) carry block prefixes such as `text_input` that resolve to the design-system Twig components, and its Twig functions render those same components directly, validating the context against a JSON schema before output. Around them sits a processor layer — an `AbstractFormProcessor` paired with a form class by naming convention, the `#[FormProcessor]` attribute on a controller method, and the `_forms/submit/{name}` route — which handles submission, redirection, flash notifications and AJAX responses without repeating the `handleRequest` / `isValid` dance in every controller. It targets applications already built on `wexample/symfony-design-system` that want their forms styled, translated and processed the same way across the whole project.
-
-## Table of Contents
-
-- [Architecture](#architecture)
-- [Integration in the Suite](#integration-in-the-suite)
-- [Dependencies](#dependencies)
-- [Versioning & Compatibility Policy](#versioning--compatibility-policy)
-- [License](#license)
-- [About us](#about-us)
-- [Migration Notes](#migration-notes)
-
 ## Architecture
 
 The bundle holds two layers that only meet through the form object. A **rendering** layer turns Symfony form types into design-system components (`src/Form/Type/*`, the form theme, the Twig extension). A **processing** layer takes the submission off the controller's hands (`AbstractFormProcessor`, the `#[FormProcessor]` attribute, a kernel subscriber, an argument resolver and a submit route). A form type works without a processor; a processor always names a form class.
@@ -60,6 +44,7 @@ class TextInputType extends \Symfony\Component\Form\AbstractType
 
 That block prefix is the whole contract with assets/form/form_theme.html.twig, which starts from `form_div_layout.html.twig` and replaces each widget block by a call to a design-system component:
 
+
 ```twig
 {% block switch_input_widget %}
     ...
@@ -70,6 +55,7 @@ That block prefix is the whole contract with assets/form/form_theme.html.twig, w
     ) }}
 {% endblock %}
 ```
+
 
 Each widget block resolves its label the same way: a label left at `true` becomes the key `field.<name>.label` (`action.<name>` for submit and button widgets), a placeholder at `true` becomes `field.<name>.placeholder`, both translated in the form's own domain. `form_row` adds `form--group` plus `has-error`, `is-required` or `is-optional` depending on errors and the `required_mode` option.
 
@@ -152,48 +138,3 @@ The bundle ships one: `EntityEditFormDataResolver` reads the `secureId` route at
 A new field type means two edits that must agree: a class in src/Form/Type using `FieldOptionsTrait`, and a `<prefix>_widget` block in assets/form/form_theme.html.twig rendering the matching design-system component. The prefix is the link — get it wrong and Symfony silently falls back to `form_div_layout`. A new Twig function additionally needs a `FORM_TYPE_*` constant in `FormRenderingService` and a schema resolvable by `SchemaLoaderHelper::loadSchema()`.
 
 A new processor needs no registration: `_instanceof` in the services file tags every `AbstractFormProcessor` subclass, and the same holds for resolvers implementing `FormProcessorDataResolverInterface`.
-
-## Integration in the Suite
-
-This package is part of the Wexample Suite — a collection of high-quality, modular tools designed to work seamlessly together across multiple languages and environments.
-
-### Related Packages
-
-The suite includes packages for configuration management, file handling, prompts, and more. Each package can be used independently or as part of the integrated suite.
-
-Visit the [Wexample Suite documentation](https://docs.wexample.com) for the complete package ecosystem.
-
-## Dependencies
-
-- wexample/symfony-design-system: >=6.0.0
-- syrtis/php-semantic-schema-web: >=0.0.19
-
-## Versioning & Compatibility Policy
-
-Wexample packages follow **Semantic Versioning** (SemVer):
-
-- **MAJOR**: Breaking changes
-- **MINOR**: New features, backward compatible
-- **PATCH**: Bug fixes, backward compatible
-
-We maintain backward compatibility within major versions and provide clear migration guides for breaking changes.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Free to use in both personal and commercial projects.
-
-## About us
-
-[Wexample](https://wexample.com) stands as a cornerstone of the digital ecosystem — a collective of seasoned engineers, researchers, and creators driven by a relentless pursuit of technological excellence. More than a media platform, it has grown into a vibrant community where innovation meets craftsmanship, and where every line of code reflects a commitment to clarity, durability, and shared intelligence.
-
-This packages suite embodies this spirit. Trusted by professionals and enthusiasts alike, it delivers a consistent, high-quality foundation for modern development — open, elegant, and battle-tested. Its reputation is built on years of collaboration, refinement, and rigorous attention to detail, making it a natural choice for those who demand both robustness and beauty in their tools.
-
-Wexample cultivates a culture of mastery. Each package, each contribution carries the mark of a community that values precision, ethics, and innovation — a community proud to shape the future of digital craftsmanship.
-
-## Migration Notes
-
-When upgrading between major versions, refer to the migration guides in the documentation.
-
-Breaking changes are clearly documented with upgrade paths and examples.

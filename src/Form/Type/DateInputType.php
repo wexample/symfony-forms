@@ -15,7 +15,7 @@ class DateInputType extends DateType
         parent::configureOptions($resolver);
         $resolver->setDefaults([
             'widget' => 'single_text',
-            'html5'  => true,
+            'html5' => true,
         ]);
     }
 }
