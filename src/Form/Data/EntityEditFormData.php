@@ -6,7 +6,7 @@ final class EntityEditFormData
 {
     public function __construct(
         private string $entityType,
-        private string $secureId,
+        private string $id,
         private ?array $formData = null,
         private ?object $entity = null
     ) {
@@ -17,9 +17,9 @@ final class EntityEditFormData
         return $this->entityType;
     }
 
-    public function getSecureId(): string
+    public function getId(): string
     {
-        return $this->secureId;
+        return $this->id;
     }
 
     public function getFormData(): ?array

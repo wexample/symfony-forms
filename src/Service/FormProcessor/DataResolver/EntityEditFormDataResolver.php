@@ -9,7 +9,7 @@ use Wexample\SymfonyForms\Service\FormProcessor\FormProcessorDataResolverInterfa
 class EntityEditFormDataResolver implements FormProcessorDataResolverInterface
 {
     private const string OPTION_ENTITY_TYPE = 'entityType';
-    private const string ROUTE_PARAM_SECURE_ID = 'secureId';
+    private const string ROUTE_PARAM_ID = 'id';
 
     public function resolve(
         Request $request,
@@ -17,7 +17,7 @@ class EntityEditFormDataResolver implements FormProcessorDataResolverInterface
     ): mixed {
         return new EntityEditFormData(
             $options[self::OPTION_ENTITY_TYPE],
-            $request->attributes->get(self::ROUTE_PARAM_SECURE_ID)
+            $request->attributes->get(self::ROUTE_PARAM_ID)
         );
     }
 }
