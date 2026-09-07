@@ -68,7 +68,7 @@ $resolver->setDefaults([
 ]);
 ```
 
-`transTypeDomain()` builds `'front.forms.' . ClassHelper::longTableized($type, '.')`, so the domain follows the form class name. `transFormDomain()` reads the root form's `translation_domain` option first, because a form shipped in a bundle declares a domain the class-name guess cannot rebuild. `AbstractForm` also exposes `public static bool $ajax`, pushed to the view as `vars['ajax']` and read by the processor when it computes the form action.
+`transTypeDomain()` cuts the class name at its `\Form\` segment: what follows becomes the domain path, snake-cased and dot-joined, and what precedes it says whose assets those are — `front` for an application, the bundle's own alias otherwise. `App\Form\WidgetForm` reads `front.forms.widget_form`, `Wexample\SymfonyWex\Form\AppForm` reads `WexampleSymfonyWexBundle.forms.app_form`; either way the domain restates the `assets/forms/` path of the yaml file. `transFormDomain()` still reads the root form's `translation_domain` option first, so a form may override the derivation. `AbstractForm` also exposes `public static bool $ajax`, pushed to the view as `vars['ajax']` and read by the processor when it computes the form action.
 
 ### Rendering without a form object
 
@@ -156,7 +156,7 @@ Three points decide whether the pair works:
 
 - **The form declares `data_class`**, which is what makes the processor receive the entity from `$form->getData()` instead of an array.
 - **`getFormClass()` is never declared.** `guessFormClass()` reads only the `Service\FormProcessor` segment and the `Processor` suffix, keeping whatever stands before them — `App` in an application, the bundle's own prefix in a bundle — so the pair resolves the same way on both sides.
-- **The translation domain is guessed from the class name** by `transTypeDomain()`, again only for an application. A bundle declares it: `'WexampleSymfonyWexBundle.forms.app_form'`.
+- **The translation domain is never declared.** `transTypeDomain()` derives it from the class name, in a bundle as in an application: `Wexample\SymfonyWex\Form\AppForm` reads `WexampleSymfonyWexBundle.forms.app_form`.
 
 There is deliberately **no data resolver per entity**: loading an entity by its route id is the same code every time, so `EntityFormDataResolver` does it once for all of them and `#[EntityFormProcessor]` wires it by default. The controller method declares the entity and nothing else:
 

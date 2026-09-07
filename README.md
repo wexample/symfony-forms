@@ -82,7 +82,7 @@ $resolver->setDefaults([
 ]);
 ```
 
-`transTypeDomain()` builds `'front.forms.' . ClassHelper::longTableized($type, '.')`, so the domain follows the form class name. `transFormDomain()` reads the root form's `translation_domain` option first, because a form shipped in a bundle declares a domain the class-name guess cannot rebuild. `AbstractForm` also exposes `public static bool $ajax`, pushed to the view as `vars['ajax']` and read by the processor when it computes the form action.
+`transTypeDomain()` cuts the class name at its `\Form\` segment: what follows becomes the domain path, snake-cased and dot-joined, and what precedes it says whose assets those are — `front` for an application, the bundle's own alias otherwise. `App\Form\WidgetForm` reads `front.forms.widget_form`, `Wexample\SymfonyWex\Form\AppForm` reads `WexampleSymfonyWexBundle.forms.app_form`; either way the domain restates the `assets/forms/` path of the yaml file. `transFormDomain()` still reads the root form's `translation_domain` option first, so a form may override the derivation. `AbstractForm` also exposes `public static bool $ajax`, pushed to the view as `vars['ajax']` and read by the processor when it computes the form action.
 
 ### Rendering without a form object
 
