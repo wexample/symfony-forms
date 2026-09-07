@@ -131,7 +131,7 @@ Both transports — subscriber and post handler — call this same builder.
 
 A processor whose form needs data built from the request declares a resolver implementing {{ path("src/Service/FormProcessor/FormProcessorDataResolverInterface.php") }}, a single `resolve(Request $request, array $options = []): mixed`. The subscriber calls it before creating the form and passes the result to `createForm()` or `handleSubmissionWithData()`.
 
-The bundle ships one: `EntityEditFormDataResolver` reads the `id` route attribute and returns an `EntityEditFormData` — entity type, secure id, plus mutable `formData` and `entity` slots the processor fills in. `#[ApiEntityFormProcessor]` ({{ path("src/Attribute/ApiEntityFormProcessor.php") }}) is a `FormProcessor` pre-wired to it: it defaults the resolver, injects `'entityType' => $processorClass::getEntityClass()` into the options, and guesses the argument name from the form's short name, turning a `…EntityForm` suffix into `…Form` and lowercasing the first letter. Note that `getEntityClass()` is called on the processor class but not declared by `AbstractFormProcessor` — a processor used with this attribute must provide it.
+The bundle ships two. `EntityEditFormDataResolver` reads the `id` route attribute and returns an `EntityEditFormData` — entity type, secure id, plus mutable `formData` and `entity` slots the processor fills in. `#[ApiEntityFormProcessor]` ({{ path("src/Attribute/ApiEntityFormProcessor.php") }}) is a `FormProcessor` pre-wired to it: it defaults the resolver, injects `'entityType' => $processorClass::getEntityClass()` into the options, and guesses the argument name from the form's short name, turning a `…EntityForm` suffix into `…Form` and lowercasing the first letter. Note that `getEntityClass()` is called on the processor class but not declared by `AbstractFormProcessor` — a processor used with this attribute must provide it.
 
 ### Editing an entity: the convention
 
@@ -158,7 +158,13 @@ Three points decide whether the pair works:
 - **`getFormClass()` is free inside an application.** `guessFormClass()` swaps `App\Service\FormProcessor\` for `App\Form\` and drops the `Processor` suffix. A form shipped **in a bundle** falls outside that prefix and must override it — as `CurrencyFormProcessor` and `AppFormProcessor` do.
 - **The translation domain is guessed from the class name** by `transTypeDomain()`, again only for an application. A bundle declares it: `'WexampleSymfonyWexBundle.forms.app_form'`.
 
-There is deliberately **no data resolver per entity**. `CurrencyFormDataResolver` — a `findOneBy()` on a route id — is the shape not to repeat; loading an entity by id is the same code for every entity and belongs in one parameterised resolver, the way `EntityEditFormDataResolver` already serves the API path. Which resolver a form uses is declared on the controller method, not by naming.
+There is deliberately **no data resolver per entity**: loading an entity by its route id is the same code every time, so `EntityFormDataResolver` does it once for all of them and `#[EntityFormProcessor]` wires it by default. The controller method declares the entity and nothing else:
+
+```php
+#[Route('/app/{id}/edit', name: 'app_edit')]
+#[EntityFormProcessor(AppFormProcessor::class, App::class)]
+public function edit(FormInterface $appForm): Response
+```
 
 The field list is the part no convention can supply, but it is not arbitrary either: it follows the ORM column types, `Types::TEXT` calling for a `TextareaInputType`, a `length`-bounded string for a `TextInputType`, a nullable column for `required: false`.
 
