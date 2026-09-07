@@ -143,7 +143,7 @@ An entity edited through a form declares it, and the two classes that follow are
 class App extends AbstractEntity
 ```
 
-{{ path("src/Attribute/EntityForm.php") }} takes an optional name, prefixing both classes — `#[EntityForm('create')]` gives `CreateAppForm` and `CreateAppFormProcessor`. It is repeatable, but a bare `#[EntityForm]` is the ordinary case: a form bound by `data_class` already binds an existing record and a new one, so a second form is worth a class only when the *fields* differ, not when the outcome does.
+{{ path("src/Attribute/EntityForm.php") }} takes an optional name, prefixing both classes — `#[EntityForm('create')]` gives `CreateAppForm` and `CreateAppFormProcessor`. It is repeatable, but a bare `#[EntityForm]` is the ordinary case: a form bound by `data_class` already binds an existing record and a new one, so a second form is worth a class only when the *fields* differ, not when the outcome does — and only the first attribute is scaffolded, a repetition being a hand-written second form.
 
 | What | Where | What is in it |
 |---|---|---|
@@ -167,6 +167,8 @@ public function edit(FormInterface $appForm): Response
 ```
 
 The field list is the part no convention can supply, but it is not arbitrary either: it follows the ORM column types, `Types::TEXT` calling for a `TextareaInputType`, a `length`-bounded string for a `TextInputType`, a nullable column for `required: false`.
+
+Neither file is written by hand: `wexample-filestate-symfony` reads the attribute off the entity source and creates both under `src/Form/` and `src/Service/FormProcessor/` when they are missing, the form empty but for its `data_class`, the processor persisting and flushing. It only ever creates them — an existing file is left exactly as it is, so the field list added afterwards is never touched again.
 
 ### Adding to the bundle
 
