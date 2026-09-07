@@ -135,40 +135,11 @@ The bundle ships two. `EntityEditFormDataResolver` reads the `id` route attribut
 
 ### Editing an entity: the convention
 
-An entity edited through a form declares it, and the two classes that follow are named after it rather than chosen:
+An entity edited through a form declares `#[EntityForm]` ({{ path("src/Attribute/EntityForm.php") }}), and the two classes that follow are named after it rather than chosen: `{Name}{Entity}Form` under `Form\` holds the field list, `{Name}{Entity}FormProcessor` under `Service\FormProcessor\` holds `onValid()`. Neither is written by hand — `wexample-filestate-symfony` reads the attribute off the entity source and creates both when they are missing, never touching a file that already exists.
 
-```php
-#[ORM\Entity(repositoryClass: AppRepository::class)]
-#[EntityForm]
-class App extends AbstractEntity
-```
+Three things make the pair work, and all three are silences: the form declares `data_class` and nothing else, `getFormClass()` is never declared because `guessFormClass()` keeps whatever stands before the `Service\FormProcessor` segment, and `translation_domain` is never declared because `transTypeDomain()` derives it the same way. There is likewise no data resolver per entity: `EntityFormDataResolver` loads by route id once for all of them, and `#[EntityFormProcessor]` wires it by default.
 
-{{ path("src/Attribute/EntityForm.php") }} takes an optional name, prefixing both classes — `#[EntityForm('create')]` gives `CreateAppForm` and `CreateAppFormProcessor`. It is repeatable, but a bare `#[EntityForm]` is the ordinary case: a form bound by `data_class` already binds an existing record and a new one, so a second form is worth a class only when the *fields* differ, not when the outcome does — and only the first attribute is scaffolded, a repetition being a hand-written second form.
-
-| What | Where | What is in it |
-|---|---|---|
-| `{Name}{Entity}Form` | `Form\` | the field list — the only real content |
-| `{Name}{Entity}FormProcessor` | `Service\FormProcessor\` | `onValid()`, often a persist and a flush |
-
-The processor exists even when it says almost nothing, because that is where the rule lands the day there is one — `CurrencyFormProcessor` rejects a currency code already taken, and nothing in the form could have.
-
-Three points decide whether the pair works:
-
-- **The form declares `data_class`**, which is what makes the processor receive the entity from `$form->getData()` instead of an array.
-- **`getFormClass()` is never declared.** `guessFormClass()` reads only the `Service\FormProcessor` segment and the `Processor` suffix, keeping whatever stands before them — `App` in an application, the bundle's own prefix in a bundle — so the pair resolves the same way on both sides.
-- **The translation domain is never declared.** `transTypeDomain()` derives it from the class name, in a bundle as in an application: `Wexample\SymfonyWex\Form\AppForm` reads `WexampleSymfonyWexBundle.forms.app_form`.
-
-There is deliberately **no data resolver per entity**: loading an entity by its route id is the same code every time, so `EntityFormDataResolver` does it once for all of them and `#[EntityFormProcessor]` wires it by default. The controller method declares the entity and nothing else:
-
-```php
-#[Route('/app/{id}/edit', name: 'app_edit')]
-#[EntityFormProcessor(AppFormProcessor::class, App::class)]
-public function edit(FormInterface $appForm): Response
-```
-
-The field list is the part no convention can supply, but it is not arbitrary either: it follows the ORM column types, `Types::TEXT` calling for a `TextareaInputType`, a `length`-bounded string for a `TextInputType`, a nullable column for `required: false`.
-
-Neither file is written by hand: `wexample-filestate-symfony` reads the attribute off the entity source and creates both under `src/Form/` and `src/Service/FormProcessor/` when they are missing, the form empty but for its `data_class`, the processor persisting and flushing. It only ever creates them — an existing file is left exactly as it is, so the field list added afterwards is never touched again.
+The step-by-step recipe, including the front assets the scaffolding does not write, is in the cookbook: `create-a-form`.
 
 ### Adding to the bundle
 
