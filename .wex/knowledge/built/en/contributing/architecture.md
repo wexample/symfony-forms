@@ -131,7 +131,36 @@ Both transports — subscriber and post handler — call this same builder.
 
 A processor whose form needs data built from the request declares a resolver implementing src/Service/FormProcessor/FormProcessorDataResolverInterface.php, a single `resolve(Request $request, array $options = []): mixed`. The subscriber calls it before creating the form and passes the result to `createForm()` or `handleSubmissionWithData()`.
 
-The bundle ships one: `EntityEditFormDataResolver` reads the `secureId` route attribute and returns an `EntityEditFormData` — entity type, secure id, plus mutable `formData` and `entity` slots the processor fills in. `#[ApiEntityFormProcessor]` (src/Attribute/ApiEntityFormProcessor.php) is a `FormProcessor` pre-wired to it: it defaults the resolver, injects `'entityType' => $processorClass::getEntityClass()` into the options, and guesses the argument name from the form's short name, turning a `…EntityForm` suffix into `…Form` and lowercasing the first letter. Note that `getEntityClass()` is called on the processor class but not declared by `AbstractFormProcessor` — a processor used with this attribute must provide it.
+The bundle ships one: `EntityEditFormDataResolver` reads the `id` route attribute and returns an `EntityEditFormData` — entity type, secure id, plus mutable `formData` and `entity` slots the processor fills in. `#[ApiEntityFormProcessor]` (src/Attribute/ApiEntityFormProcessor.php) is a `FormProcessor` pre-wired to it: it defaults the resolver, injects `'entityType' => $processorClass::getEntityClass()` into the options, and guesses the argument name from the form's short name, turning a `…EntityForm` suffix into `…Form` and lowercasing the first letter. Note that `getEntityClass()` is called on the processor class but not declared by `AbstractFormProcessor` — a processor used with this attribute must provide it.
+
+### Editing an entity: the convention
+
+An entity edited through a form declares it, and the two classes that follow are named after it rather than chosen:
+
+```php
+#[ORM\Entity(repositoryClass: AppRepository::class)]
+#[EntityForm]
+class App extends AbstractEntity
+```
+
+src/Attribute/EntityForm.php takes an optional name, prefixing both classes — `#[EntityForm('create')]` gives `CreateAppForm` and `CreateAppFormProcessor`. It is repeatable, but a bare `#[EntityForm]` is the ordinary case: a form bound by `data_class` already binds an existing record and a new one, so a second form is worth a class only when the *fields* differ, not when the outcome does.
+
+| What | Where | What is in it |
+|---|---|---|
+| `{Name}{Entity}Form` | `App\Form\` | the field list — the only real content |
+| `{Name}{Entity}FormProcessor` | `App\Service\FormProcessor\` | `onValid()`, often a persist and a flush |
+
+The processor exists even when it says almost nothing, because that is where the rule lands the day there is one — `CurrencyFormProcessor` rejects a currency code already taken, and nothing in the form could have.
+
+Three points decide whether the pair works:
+
+- **The form declares `data_class`**, which is what makes the processor receive the entity from `$form->getData()` instead of an array.
+- **`getFormClass()` is free inside an application.** `guessFormClass()` swaps `App\Service\FormProcessor\` for `App\Form\` and drops the `Processor` suffix. A form shipped **in a bundle** falls outside that prefix and must override it — as `CurrencyFormProcessor` and `AppFormProcessor` do.
+- **The translation domain is guessed from the class name** by `transTypeDomain()`, again only for an application. A bundle declares it: `'WexampleSymfonyWexBundle.forms.app_form'`.
+
+There is deliberately **no data resolver per entity**. `CurrencyFormDataResolver` — a `findOneBy()` on a route id — is the shape not to repeat; loading an entity by id is the same code for every entity and belongs in one parameterised resolver, the way `EntityEditFormDataResolver` already serves the API path. Which resolver a form uses is declared on the controller method, not by naming.
+
+The field list is the part no convention can supply, but it is not arbitrary either: it follows the ORM column types, `Types::TEXT` calling for a `TextareaInputType`, a `length`-bounded string for a `TextInputType`, a nullable column for `required: false`.
 
 ### Adding to the bundle
 
