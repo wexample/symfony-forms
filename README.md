@@ -96,7 +96,7 @@ JsonSchemaValidationHelper::validateOrThrow($schema, $data, $type.' context');
 
 ### Processing: the processor
 
-src/Service/FormProcessor/AbstractFormProcessor.php is what an application subclasses. It pairs itself with a form class by convention — `guessFormClass()` swaps `App\Service\FormProcessor\` for `App\Form\` and drops the `Processor` suffix — and throws if the result does not exist, telling the developer to override `getFormClass()`.
+src/Service/FormProcessor/AbstractFormProcessor.php is what an application subclasses. It pairs itself with a form class by convention — `guessFormClass()` swaps the `Service\FormProcessor` segment of its own name for `Form` and drops the `Processor` suffix — and throws if the result does not exist, telling the developer to override `getFormClass()`.
 
 It owns four groups of behaviour:
 

@@ -20,9 +20,9 @@ abstract class AbstractFormProcessor
 {
     public const string CLASS_EXTENSION = 'Processor';
     public const string FORM_SUBMIT_ROUTE = 'form_processor_submit';
-    public const string FORMS_CLASS_BASE_PATH = 'App\\Form\\';
-    public const string FORMS_PROCESSOR_CLASS_BASE_PATH = 'App\\Service\\FormProcessor\\';
     public const string VAR_FORM_DATA = 'formData';
+    private const string FORM_NAMESPACE_SEGMENT = '\\Form\\';
+    private const string PROCESSOR_NAMESPACE_SEGMENT = '\\Service\\FormProcessor\\';
     private const string REQUEST_REDIRECT_PARAM = 'redirect';
     private const string SESSION_REDIRECT_TARGET = 'app.redirect_target';
     private const string SESSION_SECURITY_TARGET = '_security.main.target_path';
@@ -416,24 +416,34 @@ abstract class AbstractFormProcessor
 
         return $data[$key] ?? null;
     }
+    /**
+     * The form paired with this processor by name alone.
+     *
+     * Only the `Service\FormProcessor` segment and the `Processor` suffix are
+     * read, so whatever stands before them is kept: `App` in an application,
+     * a bundle's own prefix in a bundle. Both then resolve without an override.
+     */
     protected static function guessFormClass(): ?string
     {
         $processorClass = static::class;
-        $base = static::FORMS_PROCESSOR_CLASS_BASE_PATH;
         $suffix = static::CLASS_EXTENSION;
 
-        if (! str_starts_with($processorClass, $base)) {
+        if (! str_ends_with($processorClass, $suffix)) {
             return null;
         }
 
-        $relative = substr($processorClass, strlen($base));
+        $position = strrpos($processorClass, self::PROCESSOR_NAMESPACE_SEGMENT);
 
-        if (! str_ends_with($relative, $suffix)) {
+        if ($position === false) {
             return null;
         }
 
-        $formRelative = substr($relative, 0, -strlen($suffix));
-
-        return static::FORMS_CLASS_BASE_PATH . $formRelative;
+        return substr($processorClass, 0, $position)
+            . self::FORM_NAMESPACE_SEGMENT
+            . substr(
+                $processorClass,
+                $position + strlen(self::PROCESSOR_NAMESPACE_SEGMENT),
+                -strlen($suffix)
+            );
     }
 }

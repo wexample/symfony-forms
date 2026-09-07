@@ -82,7 +82,7 @@ JsonSchemaValidationHelper::validateOrThrow($schema, $data, $type.' context');
 
 ### Processing: the processor
 
-src/Service/FormProcessor/AbstractFormProcessor.php is what an application subclasses. It pairs itself with a form class by convention — `guessFormClass()` swaps `App\Service\FormProcessor\` for `App\Form\` and drops the `Processor` suffix — and throws if the result does not exist, telling the developer to override `getFormClass()`.
+src/Service/FormProcessor/AbstractFormProcessor.php is what an application subclasses. It pairs itself with a form class by convention — `guessFormClass()` swaps the `Service\FormProcessor` segment of its own name for `Form` and drops the `Processor` suffix — and throws if the result does not exist, telling the developer to override `getFormClass()`.
 
 It owns four groups of behaviour:
 
@@ -147,15 +147,15 @@ src/Attribute/EntityForm.php takes an optional name, prefixing both classes — 
 
 | What | Where | What is in it |
 |---|---|---|
-| `{Name}{Entity}Form` | `App\Form\` | the field list — the only real content |
-| `{Name}{Entity}FormProcessor` | `App\Service\FormProcessor\` | `onValid()`, often a persist and a flush |
+| `{Name}{Entity}Form` | `Form\` | the field list — the only real content |
+| `{Name}{Entity}FormProcessor` | `Service\FormProcessor\` | `onValid()`, often a persist and a flush |
 
 The processor exists even when it says almost nothing, because that is where the rule lands the day there is one — `CurrencyFormProcessor` rejects a currency code already taken, and nothing in the form could have.
 
 Three points decide whether the pair works:
 
 - **The form declares `data_class`**, which is what makes the processor receive the entity from `$form->getData()` instead of an array.
-- **`getFormClass()` is free inside an application.** `guessFormClass()` swaps `App\Service\FormProcessor\` for `App\Form\` and drops the `Processor` suffix. A form shipped **in a bundle** falls outside that prefix and must override it — as `CurrencyFormProcessor` and `AppFormProcessor` do.
+- **`getFormClass()` is never declared.** `guessFormClass()` reads only the `Service\FormProcessor` segment and the `Processor` suffix, keeping whatever stands before them — `App` in an application, the bundle's own prefix in a bundle — so the pair resolves the same way on both sides.
 - **The translation domain is guessed from the class name** by `transTypeDomain()`, again only for an application. A bundle declares it: `'WexampleSymfonyWexBundle.forms.app_form'`.
 
 There is deliberately **no data resolver per entity**: loading an entity by its route id is the same code every time, so `EntityFormDataResolver` does it once for all of them and `#[EntityFormProcessor]` wires it by default. The controller method declares the entity and nothing else:
