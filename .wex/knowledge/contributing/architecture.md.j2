@@ -139,7 +139,7 @@ An entity edited through a form declares `#[EntityForm]` ({{ path("src/Attribute
 
 Three things make the pair work, and all three are silences: the form declares `data_class` and nothing else, `getFormClass()` is never declared because `guessFormClass()` keeps whatever stands before the `Service\FormProcessor` segment, and `translation_domain` is never declared because `transTypeDomain()` derives it the same way. There is likewise no data resolver per entity: `EntityFormDataResolver` loads by route id once for all of them, and `#[EntityFormProcessor]` wires it by default.
 
-The step-by-step recipe, including the front assets the scaffolding does not write, is in the cookbook: `create-a-form`.
+The step-by-step recipe, front assets included, is in the cookbook: `create-a-form`. What the attribute makes filestate write, next to every other entity attribute, is in `wexample-filestate-symfony`, cookbook `create-an-entity`.
 
 ### Adding to the bundle
 
