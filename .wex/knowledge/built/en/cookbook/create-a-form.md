@@ -1,6 +1,6 @@
 ## Create a form
 
-Five steps, of which only two are written by hand. Everything else follows from the entity name, so the same form is never named twice.
+Four steps, of which only two are written by hand. Everything else follows from the entity name, so the same form is never named twice.
 
 ### 1. Declare the attribute on the entity
 
@@ -12,22 +12,30 @@ class App extends AbstractEntity
 
 src/Attribute/EntityForm.php takes an optional name prefixing both generated classes — `#[EntityForm('create')]` gives `CreateAppForm` and `CreateAppFormProcessor`. A bare attribute is the ordinary case: a form bound by `data_class` binds an existing record and a new one alike, so a second form is worth a class only when the *fields* differ, not when the outcome does. The attribute is repeatable, but only the first one is scaffolded; a repetition means a second form written by hand.
 
-### 2. Let filestate write the pair
+### 2. Let filestate write the rest
 
 ```bash
 wex app::state/rectify
 ```
 
-`wexample-filestate-symfony` reads the attribute off the entity source and creates two files when they are missing:
+`wexample-filestate-symfony` reads the attribute off the entity source and creates what is missing:
 
 | What | Where | What is in it |
 |---|---|---|
 | `{Name}{Entity}Form` | `Form\` | the field list — the only real content |
 | `{Name}{Entity}FormProcessor` | `Service\FormProcessor\` | `onValid()`, often a persist and a flush |
+| `{Entity}Controller` | `Controller\Pages\Entity\` | the route prefix, then an `edit` method grafted on the next pass |
+| `{name}_{entity}_form.{en.yml,html.twig,scss,ts}` | `<front>/forms/` | the four faces of one form |
+| `edit.{en.yml,html.twig,scss}` | `<front>/pages/entity/{entity}/` | the page holding it |
+| `{Segment}BundleClassTrait` | `Traits\` | in a bundle only — see below |
 
-It only ever creates them. An existing file is left exactly as it is, so the field list added at step 3 is never touched again.
+`<front>` is `assets/` in a bundle and `front/` in an application, read off the PSR-4 prefix mapped to `src/` in `composer.json`. The same reading decides the twig alias the page addresses its form through, `@WexampleSymfonyWexBundle` against `@front`.
+
+It only ever creates. An existing file is left exactly as it is, so the field list of step 3 and the labels of step 4 are never touched again.
 
 The processor exists even when it says almost nothing, because that is where the rule lands the day there is one — `CurrencyFormProcessor` in `wexample/symfony-money` rejects a currency code already taken, and nothing in the form could have.
+
+Two things are rewritten rather than created. The controller's `edit` method is grafted by the PHP acolyte, which alone can read the attribute's arguments, so it appears on the pass *after* the controller does. And a bundle's `services.yaml` has its `resource:` glob widened to cover the directories just scaffolded — a class in a directory the glob does not name is autoloaded and never registered, which fails at the first injection rather than at build time.
 
 ### 3. Write the field list
 
@@ -48,17 +56,11 @@ $this->builderAddSubmit($builder);
 
 `label => true` means "take the label from the translation domain", which is step 4.
 
-### 4. Write the front assets
+The scaffolded twig renders every field the builder declares and puts the submit last, so it needs no edit to follow: it is worth rewriting only once the fields want an order or a grouping of their own.
 
-Not scaffolded, and the form renders without them only as a bare Symfony form. Three files named after the form class in snake case, under the front path — `assets/forms/` in a bundle, `front/forms/` in an application:
+### 4. Name the fields
 
-```
-app_form.en.yml      labels, help texts, error keys, the submit label
-app_form.html.twig   extends '@WexampleSymfonyLoaderBundle/bases/form.html.twig'
-app_form.ts          extends '@wexample/symfony-loader/js/Class/Form'
-```
-
-The yaml mirrors the field names, plus what the processor asks for by key:
+The scaffolded `en.yml` carries the submit label and the success message; the field keys are the half that depends on the field list:
 
 ```yaml
 field:
@@ -72,23 +74,23 @@ success:
 
 That directory is read only because the front path is registered: a bundle implements `LoaderBundleInterface::getLoaderFrontPaths()` returning `assets/`, an application declares `wexample_symfony_loader.front_paths`. The same registration is what gives a bundle's translations their `WexampleSymfonyWexBundle` prefix and an application's their `front` one.
 
-### 5. Wire the controller
-
-```php
-#[Route('/app/{id}/edit', name: 'app_edit')]
-#[EntityFormProcessor(AppFormProcessor::class, App::class)]
-public function edit(FormInterface $appForm): Response
-```
-
-There is deliberately **no data resolver per entity**: loading an entity by its route id is the same code every time, so `EntityFormDataResolver` does it once for all of them and `#[EntityFormProcessor]` wires it by default. Neither the processor nor a resolver needs registering — `_instanceof` in the services file tags them.
-
 ### What is never declared
 
 - **`getFormClass()`** — `guessFormClass()` reads only the `Service\FormProcessor` segment and the `Processor` suffix, keeping whatever stands before them, so the pair resolves in a bundle exactly as in an application.
 - **`translation_domain`** — `transTypeDomain()` derives it from the class name: `Wexample\SymfonyWex\Form\AppForm` reads `WexampleSymfonyWexBundle.forms.app_form`, which is also where the yaml of step 4 sits.
+- **The route** — `routing.controllers` imports `#[Route]` from every class tagged `controller.service_arguments`, which autoconfiguration does for any `AbstractController`. A bundle listing its `Controller` directory in `services.yaml` needs no route file, and the application importing it needs none either.
+- **The stylesheet import** — a layout imports no shape it does not use itself, so the form and the page each bring their own `@use`. That is the whole content of the two scaffolded `.scss`, and the reason a form left without one renders unpainted.
 
 `data_class` is the exception, and the form does declare it: it is what makes the processor receive the entity from `$form->getData()` instead of an array.
 
+### The bundle trait
+
+`renderPage()` resolves a template under the *bundle*'s front path only if the controller says which bundle it belongs to, and it says so through a trait naming the bundle class. Without it the lookup falls back to the application's `front` prefix and finds nothing. The trait is one per bundle rather than one per entity, so filestate writes it once into `Traits\`, named after the last namespace segment — `Wexample\SymfonyWex` gives `SymfonyWexBundleClassTrait`. An application's controllers need none: the fallback is already where their templates are.
+
+### The layout
+
+The scaffolded page extends `@front/layouts/private/layout.html.twig` — the host application's built entry, by convention and for now. Extending a design-system layout directly would bring the markup and none of the paint: those layouts ship their stylesheets as partials, so nothing is built for them.
+
 ### A form with no entity behind it
 
-The same, minus the attribute and minus `data_class`. Write the form extending `AbstractForm` and the processor extending `AbstractFormProcessor` under the matching name, add the three assets, and put `#[FormProcessor]` on the controller method instead of `#[EntityFormProcessor]`.
+The same, minus the attribute, minus `data_class` and minus the scaffolding. Write the form extending `AbstractForm` and the processor extending `AbstractFormProcessor` under the matching name, add the four front assets by hand, and put `#[FormProcessor]` on the controller method instead of `#[EntityFormProcessor]`.
