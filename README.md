@@ -145,7 +145,15 @@ Both transports — subscriber and post handler — call this same builder.
 
 A processor whose form needs data built from the request declares a resolver implementing src/Service/FormProcessor/FormProcessorDataResolverInterface.php, a single `resolve(Request $request, array $options = []): mixed`. The subscriber calls it before creating the form and passes the result to `createForm()` or `handleSubmissionWithData()`.
 
-The bundle ships one: `EntityEditFormDataResolver` reads the `secureId` route attribute and returns an `EntityEditFormData` — entity type, secure id, plus mutable `formData` and `entity` slots the processor fills in. `#[ApiEntityFormProcessor]` (src/Attribute/ApiEntityFormProcessor.php) is a `FormProcessor` pre-wired to it: it defaults the resolver, injects `'entityType' => $processorClass::getEntityClass()` into the options, and guesses the argument name from the form's short name, turning a `…EntityForm` suffix into `…Form` and lowercasing the first letter. Note that `getEntityClass()` is called on the processor class but not declared by `AbstractFormProcessor` — a processor used with this attribute must provide it.
+The bundle ships two. `EntityEditFormDataResolver` reads the `id` route attribute and returns an `EntityEditFormData` — entity type, secure id, plus mutable `formData` and `entity` slots the processor fills in. `#[ApiEntityFormProcessor]` (src/Attribute/ApiEntityFormProcessor.php) is a `FormProcessor` pre-wired to it: it defaults the resolver, injects `'entityType' => $processorClass::getEntityClass()` into the options, and guesses the argument name from the form's short name, turning a `…EntityForm` suffix into `…Form` and lowercasing the first letter. Note that `getEntityClass()` is called on the processor class but not declared by `AbstractFormProcessor` — a processor used with this attribute must provide it.
+
+### Editing an entity: the convention
+
+An entity edited through a form declares `#[EntityForm]` (src/Attribute/EntityForm.php), and the two classes that follow are named after it rather than chosen: `{Name}{Entity}Form` under `Form\` holds the field list, `{Name}{Entity}FormProcessor` under `Service\FormProcessor\` holds `onValid()`. Neither is written by hand — `wexample-filestate-symfony` reads the attribute off the entity source and creates both when they are missing, never touching a file that already exists.
+
+Three things make the pair work, and all three are silences: the form declares `data_class` and nothing else, `getFormClass()` is never declared because `guessFormClass()` keeps whatever stands before the `Service\FormProcessor` segment, and `translation_domain` is never declared because `transTypeDomain()` derives it the same way. There is likewise no data resolver per entity: `EntityFormDataResolver` loads by route id once for all of them, and `#[EntityFormProcessor]` wires it by default.
+
+The step-by-step recipe, front assets included, is in the cookbook: `create-a-form`. What the attribute makes filestate write, next to every other entity attribute, is in `wexample-filestate-symfony`, cookbook `create-an-entity`.
 
 ### Adding to the bundle
 
@@ -165,6 +173,7 @@ Visit the [Wexample Suite documentation](https://docs.wexample.com) for the comp
 
 ## Dependencies
 
+- doctrine/orm: ^3.0
 - wexample/symfony-design-system: >=10.0.0
 - syrtis/php-semantic-schema-web: >=0.0.19
 
