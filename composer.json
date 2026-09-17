@@ -25,5 +25,8 @@
     "install": {
       "bundle_env": "all"
     }
+  },
+  "suggest": {
+    "wexample/symfony-search": "To use EntitySearchInputType, whose field searches records through the search API"
   }
 }
