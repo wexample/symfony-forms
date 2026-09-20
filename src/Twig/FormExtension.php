@@ -4,13 +4,16 @@ namespace Wexample\SymfonyForms\Twig;
 
 use Twig\Environment;
 use Twig\TwigFunction;
+use Wexample\SymfonyLoader\Twig\ComponentsExtension;
 use Wexample\SymfonyForms\Service\FormRenderingService;
 
 class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateExtension
 {
     public function __construct(
-        private readonly FormRenderingService $contextService
+        ComponentsExtension $componentsExtension,
+        private readonly FormRenderingService $contextService,
     ) {
+        parent::__construct($componentsExtension);
     }
 
     public function getFunctions(): array
@@ -20,14 +23,16 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 FormRenderingService::FORM_TYPE_TEXT_INPUT,
                 function (
                     Environment $twig,
+                    $twigContext,
                     array $context = []
                 ) {
                     $context['type'] = 'text';
                     $this->contextService->validate($context, FormRenderingService::FORM_TYPE_TEXT_INPUT);
 
-                    return $this->renderTemplate(
+                    return $this->renderComponent(
                         $twig,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/text_input.html.twig',
+                        $twigContext,
+                        '@WexampleSymfonyDesignSystemBundle/components/form/text-input',
                         $context
                     );
                 },
@@ -37,14 +42,16 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 FormRenderingService::FORM_TYPE_PASSWORD_INPUT,
                 function (
                     Environment $twig,
+                    $twigContext,
                     array $context = []
                 ) {
                     $context['type'] = 'password';
                     $this->contextService->validate($context, FormRenderingService::FORM_TYPE_PASSWORD_INPUT);
 
-                    return $this->renderTemplate(
+                    return $this->renderComponent(
                         $twig,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/password_input.html.twig',
+                        $twigContext,
+                        '@WexampleSymfonyDesignSystemBundle/components/form/password-input',
                         $context
                     );
                 },
@@ -54,14 +61,16 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 FormRenderingService::FORM_TYPE_HIDDEN_INPUT,
                 function (
                     Environment $twig,
+                    $twigContext,
                     array $context = []
                 ) {
                     $context['type'] = 'hidden';
                     $this->contextService->validate($context, FormRenderingService::FORM_TYPE_HIDDEN_INPUT);
 
-                    return $this->renderTemplate(
+                    return $this->renderComponent(
                         $twig,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/hidden_input.html.twig',
+                        $twigContext,
+                        '@WexampleSymfonyDesignSystemBundle/components/form/hidden-input',
                         $context
                     );
                 },
@@ -71,14 +80,16 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 FormRenderingService::FORM_TYPE_SUBMIT_INPUT,
                 function (
                     Environment $twig,
+                    $twigContext,
                     array $context = []
                 ) {
                     $context['type'] = 'submit';
                     $this->contextService->validate($context, FormRenderingService::FORM_TYPE_SUBMIT_INPUT);
 
-                    return $this->renderTemplate(
+                    return $this->renderComponent(
                         $twig,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/submit_input.html.twig',
+                        $twigContext,
+                        '@WexampleSymfonyDesignSystemBundle/components/form/submit-input',
                         $context
                     );
                 },
@@ -88,14 +99,16 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 FormRenderingService::FORM_TYPE_TEXTAREA_INPUT,
                 function (
                     Environment $twig,
+                    $twigContext,
                     array $context = []
                 ) {
                     $context['type'] = 'textarea';
                     $this->contextService->validate($context, FormRenderingService::FORM_TYPE_TEXTAREA_INPUT);
 
-                    return $this->renderTemplate(
+                    return $this->renderComponent(
                         $twig,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/textarea.html.twig',
+                        $twigContext,
+                        '@WexampleSymfonyDesignSystemBundle/components/form/textarea',
                         $context
                     );
                 },
@@ -105,14 +118,16 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                 FormRenderingService::FORM_TYPE_SELECT_INPUT,
                 function (
                     Environment $twig,
+                    $twigContext,
                     array $context = []
                 ) {
                     $context['type'] = 'select';
                     $this->contextService->validate($context, FormRenderingService::FORM_TYPE_SELECT_INPUT);
 
-                    return $this->renderTemplate(
+                    return $this->renderComponent(
                         $twig,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/select_input.html.twig',
+                        $twigContext,
+                        '@WexampleSymfonyDesignSystemBundle/components/form/select-input',
                         $context
                     );
                 },

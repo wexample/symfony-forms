@@ -65,7 +65,7 @@ That block prefix is the whole contract with assets/form/form_theme.html.twig, w
     ...
     {{ component(
         render_pass,
-        '@WexampleSymfonyDesignSystemBundle/components/form/switch_input',
+        '@WexampleSymfonyDesignSystemBundle/components/form/switch-input',
         { name: full_name, id: id, label: label_value, required: required, ... }
     ) }}
 {% endblock %}
