@@ -108,7 +108,7 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
                     return $this->renderComponent(
                         $twig,
                         $twigContext,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/textarea',
+                        '@WexampleSymfonyDesignSystemBundle/components/form/textarea-input',
                         $context
                     );
                 },
