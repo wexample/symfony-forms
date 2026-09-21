@@ -4,8 +4,8 @@ namespace Wexample\SymfonyForms\Twig;
 
 use Twig\Environment;
 use Twig\TwigFunction;
-use Wexample\SymfonyLoader\Twig\ComponentsExtension;
 use Wexample\SymfonyForms\Service\FormRenderingService;
+use Wexample\SymfonyLoader\Twig\ComponentsExtension;
 
 class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateExtension
 {
