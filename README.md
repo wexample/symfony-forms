@@ -1,6 +1,6 @@
 # symfony_forms
 
-Version: 7.0.1
+Version: 7.0.2
 
 `wexample/symfony-forms` is a Symfony bundle that binds the Symfony Form component to the Wexample design system: its form types (`TextInputType`, `SelectInputType`, `SwitchInputType`, `EmojiPickerType`…) carry block prefixes such as `text_input` that resolve to the design-system Twig components, and its Twig functions render those same components directly, validating the context against a JSON schema before output. Around them sits a processor layer — an `AbstractFormProcessor` paired with a form class by naming convention, the `#[FormProcessor]` attribute on a controller method, and the `_forms/submit/{name}` route — which handles submission, redirection, flash notifications and AJAX responses without repeating the `handleRequest` / `isValid` dance in every controller. It targets applications already built on `wexample/symfony-design-system` that want their forms styled, translated and processed the same way across the whole project.
 
@@ -175,7 +175,7 @@ Visit the [Wexample Suite documentation](https://docs.wexample.com) for the comp
 
 - php: >=8.5
 - doctrine/orm: ^3.0
-- wexample/symfony-design-system: >=14.0.0
+- wexample/symfony-design-system: >=15.0.0
 - syrtis/php-semantic-schema-web: >=0.0.19
 
 ## Versioning & Compatibility Policy
