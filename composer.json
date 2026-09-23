@@ -3,7 +3,7 @@
   "description": "Forms management for Symfony design system",
   "type": "library",
   "license": "MIT",
-  "version": "7.0.4",
+  "version": "7.0.5",
   "autoload": {
     "psr-4": {
       "Wexample\\SymfonyForms\\": "src/"
@@ -18,7 +18,7 @@
   "require": {
     "php": ">=8.5",
     "doctrine/orm": "^3.0",
-    "wexample/symfony-design-system": ">=18.0.0",
+    "wexample/symfony-design-system": ">=19.0.0",
     "syrtis/php-semantic-schema-web": ">=0.0.19"
   },
   "extra": {
