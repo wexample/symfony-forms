@@ -107,7 +107,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% set placeholder_key = attr.placeholder ?? null %}
     {% if placeholder_key is same as(true) %}
@@ -153,7 +153,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% set placeholder_key = attr.placeholder ?? null %}
     {% if placeholder_key is same as(true) %}
@@ -189,7 +189,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% set placeholder_key = attr.placeholder ?? null %}
     {% if placeholder_key is same as(true) %}
@@ -231,7 +231,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% set placeholder_key = attr.placeholder ?? null %}
     {% if placeholder_key is same as(true) %}
@@ -271,7 +271,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% set placeholder_key = form.vars.placeholder ?? null %}
     {% if placeholder_key is same as(true) %}
@@ -325,7 +325,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% if form.vars.disabled ?? false %}
         {% set frozen_label = label_value %}
@@ -364,7 +364,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {{ component(
         render_pass,
@@ -391,7 +391,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {{ component(
         render_pass,
@@ -417,7 +417,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% if form.vars.disabled ?? false %}
         {% set frozen_label = label_value %}
@@ -450,7 +450,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% set placeholder_key = attr.placeholder ?? null %}
     {% if placeholder_key is same as(true) %}
@@ -486,7 +486,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% set placeholder_key = attr.placeholder ?? null %}
     {% if placeholder_key is same as(true) %}
@@ -539,7 +539,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% set placeholder_key = attr.placeholder ?? null %}
     {% if placeholder_key is same as(true) %}
@@ -574,7 +574,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% set normalized_choices = [] %}
     {% for choice in form.vars.choices %}
@@ -618,7 +618,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {% if form.vars.disabled ?? false %}
         {% set frozen_label = label_value %}
@@ -651,7 +651,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {{ component(
         render_pass,
@@ -690,7 +690,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {{ component(
         render_pass,
@@ -715,7 +715,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {{ component(
         render_pass,
@@ -741,7 +741,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     {{ component(
         render_pass,
@@ -771,7 +771,7 @@
     {% endif %}
     {% set label_value = form.vars.translation_domain is same as(false)
         ? label_key
-        : label_key|trans({}, form.vars.translation_domain)
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
     %}
     <div class="form--group form--group--display" id="{{ id }}">
         <span class="form--label">{{ label_value }}</span>
