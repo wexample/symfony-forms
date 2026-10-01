@@ -3,13 +3,9 @@
 namespace Wexample\SymfonyForms\Tests\Integration;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\HttpFoundation\Request;
 use Wexample\SymfonyForms\Tests\Fixtures\App\Form\RecordForm;
 use Wexample\SymfonyForms\Tests\Fixtures\App\Model\Record;
-use Wexample\SymfonyLoader\Helper\AdaptiveRequestHelper;
-use Wexample\SymfonyLoader\Rendering\RenderNode\InitialLayoutRenderNode;
-use Wexample\SymfonyLoader\Rendering\RenderPass;
-use Wexample\SymfonyLoader\Service\AdaptiveRendererService;
+use Wexample\SymfonyForms\Tests\Traits\RendersFormsTrait;
 
 /**
  * How a frozen field looks, which is the half the server does not settle.
@@ -22,7 +18,7 @@ use Wexample\SymfonyLoader\Service\AdaptiveRendererService;
  */
 class FrozenFieldRenderTest extends KernelTestCase
 {
-    private const string VIEW = 'test';
+    use RendersFormsTrait;
 
     /**
      * The fields HTML can freeze in place, which keep their own element.
@@ -144,76 +140,22 @@ class FrozenFieldRenderTest extends KernelTestCase
         );
     }
 
-    /**
-     * The element carrying a field's id, whatever its tag.
-     */
     private function tag(
         string $html,
         string $field
     ): string {
-        $id = 'record_form_' . $field;
-
-        $this->assertMatchesRegularExpression(
-            '/<[a-z]+[^>]*\bid="' . preg_quote($id, '/') . '"[^>]*>/',
-            $html,
-            'No element carries the id ' . $id
-        );
-
-        preg_match('/<[a-z]+[^>]*\bid="' . preg_quote($id, '/') . '"[^>]*>/', $html, $matches);
-
-        return $matches[0];
+        return $this->tagWithId($html, 'record_form_' . $field);
     }
 
     private function render(bool $frozen): string
     {
         self::bootKernel();
-        $container = self::getContainer();
 
-        $twig = $container->get('twig');
-        // What `AdaptiveRendererService` does on a real page: the components
-        // read the render pass as a twig global, not as a form variable, and
-        // they write into the layout node it opens.
-        $twig->addGlobal('render_pass', $this->renderPass());
-
-        $form = $container
-            ->get('form.factory')
-            ->create(RecordForm::class, $this->record(), ['frozen' => $frozen]);
-
-        return $twig
-            ->createTemplate('{{ form_widget(form) }}')
-            ->render(['form' => $form->createView()]);
-    }
-
-    /**
-     * A render pass built the way a page builds one, so the components are
-     * given the registry, the usages and the layout node they read.
-     */
-    private function renderPass(): RenderPass
-    {
-        $container = self::getContainer();
-
-        // A render pass reads the output type off the current request, where a
-        // page gets it from the adaptive response subscriber.
-        $request = Request::create('/');
-        $request->attributes->set(
-            AdaptiveRequestHelper::REQUEST_ATTR_OUTPUT_TYPE,
-            RenderPass::OUTPUT_TYPE_RESPONSE_HTML
+        return $this->renderForm(
+            self::getContainer()
+                ->get('form.factory')
+                ->create(RecordForm::class, $this->record(), ['frozen' => $frozen])
         );
-        $request->attributes->set(
-            AdaptiveRequestHelper::REQUEST_ATTR_LAYOUT_BASE,
-            RenderPass::BASE_DEFAULT
-        );
-        $container->get('request_stack')->push($request);
-
-        $renderPass = $container
-            ->get(AdaptiveRendererService::class)
-            ->createRenderPass(self::VIEW);
-
-        $layout = new InitialLayoutRenderNode('test');
-        $renderPass->setLayoutRenderNode($layout);
-        $layout->init($renderPass, self::VIEW);
-
-        return $renderPass;
     }
 
     private function record(): Record

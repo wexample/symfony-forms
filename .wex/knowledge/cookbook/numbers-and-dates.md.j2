@@ -1,0 +1,47 @@
+## Numbers and dates in the reader's locale
+
+### A decimal number
+
+`FloatType` and `NumberInputType` are Symfony's `NumberType`, and read what the reader's locale
+writes. In French, `72,5` and `72.5` are both taken as 72.5 — the point is never read as a
+thousands separator, since grouping is off by default — and the value is shown back as `72,5`.
+
+The rendered input follows Symfony's `html5` option:
+
+| `html5` | Element | Value written | Why |
+|---|---|---|---|
+| `false`, the default | `<input type="text" inputmode="decimal">` | in the locale, `72,5` | `<input type="number">` holds no decimal comma: a French value written into one shows an empty field, and a browser refuses the comma typed in it. `inputmode` still brings up a numeric keyboard on a phone. |
+| `true` | `<input type="number" step="any">` | with a point, `72.5`, whatever the locale | the browser's own number field, its own arrows and its own validation. `step="any"`: without it the field refuses every decimal. |
+
+`scale: 0` asks for a numeric keyboard instead of a decimal one.
+
+### A Doctrine `DECIMAL`
+
+Doctrine hands a `DECIMAL` to PHP as a string. Keep it one, with the scale of the column, so
+the value never goes through a float:
+
+```php
+$builder->add('weight', NumberInputType::class, [
+    'input' => 'string',
+    'scale' => 2,
+]);
+```
+
+`72.30` is then shown as `72,30`, and `72,3` typed is stored as `72.30`.
+
+### A date
+
+`DateInputType` sends and reads a plain `YYYY-MM-DD`, so the browser's time zone plays no part,
+and the day typed is the day stored whatever the server's zone.
+
+It also ignores `view_timezone`: a day has no time, so it has no zone to be shown in, and
+converting it from the model zone to the reader's moves midnight across a date line — the 3rd
+typed in Paris stored as the 2nd in UTC. An application setting `view_timezone` to show its
+times in the reader's zone can do so on `DatetimeInputType` and `TimeInputType`; its date
+fields stay on the day.
+
+### Bounds, precision, past-only dates
+
+Ordinary Symfony constraints on the entity or the field — `Range`, `LessThanOrEqual('today')`,
+`Unique…`. Their messages render through the form's own error display; there is nothing to
+add for them.

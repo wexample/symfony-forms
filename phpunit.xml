@@ -4,9 +4,9 @@
          bootstrap="tests/bootstrap.php"
          colors="true"
          executionOrder="default"
+         failOnDeprecation="true"
          failOnNotice="true"
          failOnWarning="true"
-         displayDetailsOnTestsThatTriggerDeprecations="false"
 >
     <php>
         <env name="APP_ENV" value="test"/>

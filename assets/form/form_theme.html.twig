@@ -14,6 +14,16 @@
     sent the field. -#}
 {% block wex_frozen_attributes %}{% if form.vars.disabled ?? false %}readonly aria-readonly="true"{% endif %}{% endblock %}
 
+{#- The attributes an input element carries besides its value: the ones Symfony
+    computes for the type and the browser needs to take the input — `inputmode`
+    for the keyboard of a localized number, `step` for an HTML5 one, which
+    refuses every decimal without it — then the frozen ones. -#}
+{% block wex_input_attributes %}
+    {%- for attribute in ['inputmode', 'step'] -%}
+        {%- if attr[attribute] is defined %} {{ attribute }}="{{ attr[attribute] }}"{% endif -%}
+    {%- endfor %} {{ block('wex_frozen_attributes') -}}
+{% endblock %}
+
 {#- A control HTML cannot freeze — a select, a radio group, a switch, a file
     field — shown as the value it holds, in a field that is read and not
     written. It carries no `name`, so nothing of it reaches the server at all. -#}
@@ -111,13 +121,14 @@
         render_pass,
         '@WexampleSymfonyDesignSystemBundle/components/form/text-input',
         {
+            type: type ?? 'text',
             name: full_name,
             id: id,
             label: label_value,
             placeholder: frozen ? null : placeholder_value,
             required: frozen ? false : required,
             value: value,
-            input_attr: block('wex_frozen_attributes')
+            input_attr: block('wex_input_attributes')
         }
     ) }}
 {% endblock %}
@@ -153,7 +164,7 @@
             placeholder: frozen ? null : placeholder_value,
             required: frozen ? false : required,
             value: value,
-            input_attr: block('wex_frozen_attributes')
+            input_attr: block('wex_input_attributes')
         }
     ) }}
 {% endblock %}
@@ -192,7 +203,7 @@
             rows: form.vars.rows ?? null,
             max_rows: form.vars.max_rows ?? null,
             auto_resize: form.vars.auto_resize ?? false,
-            input_attr: block('wex_frozen_attributes')
+            input_attr: block('wex_input_attributes')
         }
     ) }}
 {% endblock %}
@@ -355,7 +366,7 @@
             label: label_value,
             required: frozen ? false : required,
             value: value,
-            input_attr: block('wex_frozen_attributes')
+            input_attr: block('wex_input_attributes')
         }
     ) }}
 {% endblock %}
@@ -382,7 +393,7 @@
             label: label_value,
             required: frozen ? false : required,
             value: value,
-            input_attr: block('wex_frozen_attributes')
+            input_attr: block('wex_input_attributes')
         }
     ) }}
 {% endblock %}
@@ -450,7 +461,7 @@
             placeholder: frozen ? null : placeholder_value,
             required: frozen ? false : required,
             value: value,
-            input_attr: block('wex_frozen_attributes')
+            input_attr: block('wex_input_attributes')
         }
     ) }}
 {% endblock %}
@@ -476,17 +487,25 @@
     {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
         {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
     {% endif %}
+    {#- `<input type="number">` holds no decimal comma: a French `72,5` written into
+        one shows an empty field, and a browser refuses the comma typed in it.
+        So the number field is kept for `html5: true`, where Symfony writes and
+        reads a point whatever the locale, and a localized number is a text
+        input asking for a decimal keyboard. -#}
+    {% set html5_number = (type ?? null) == 'number' %}
     {{ component(
         render_pass,
-        '@WexampleSymfonyDesignSystemBundle/components/form/number-input',
+        '@WexampleSymfonyDesignSystemBundle/components/form/'
+            ~ (html5_number ? 'number-input' : 'text-input'),
         {
+            type: html5_number ? 'number' : 'text',
             name: full_name,
             id: id,
             label: label_value,
             placeholder: frozen ? null : placeholder_value,
             required: frozen ? false : required,
             value: value,
-            input_attr: block('wex_frozen_attributes')
+            input_attr: block('wex_input_attributes')
         }
     ) }}
 {% endblock %}
@@ -522,7 +541,7 @@
             placeholder: frozen ? null : placeholder_value,
             required: frozen ? false : required,
             value: value,
-            input_attr: block('wex_frozen_attributes')
+            input_attr: block('wex_input_attributes')
         }
     ) }}
 {% endblock %}
@@ -625,7 +644,7 @@
             label: label_value,
             required: frozen ? false : required,
             value: value,
-            input_attr: block('wex_frozen_attributes')
+            input_attr: block('wex_input_attributes')
         }
     ) }}
 {% endblock %}
