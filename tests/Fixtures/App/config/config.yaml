@@ -1,0 +1,24 @@
+framework:
+  test: true
+  secret: "test"
+
+twig:
+  strict_variables: true
+
+wexample_symfony_loader:
+  front_paths:
+    front: '%kernel.project_dir%/../front/'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: true
+
+  Wexample\SymfonyForms\Tests\Fixtures\App\Form\:
+    resource: '../Form/'
+
+  # symfony-testing registers it with the string '@kernel' instead of a
+  # reference, which only YAML turns into the kernel service.
+  Wexample\SymfonyHelpers\Service\BundleService:
+    arguments: ['@kernel']

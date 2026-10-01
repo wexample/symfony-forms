@@ -177,6 +177,7 @@ Visit the [Wexample Suite documentation](https://docs.wexample.com) for the comp
 - doctrine/orm: ^3.0
 - wexample/symfony-design-system: >=23.0.0
 - syrtis/php-semantic-schema-web: >=0.0.19
+- symfony/form: ^7.4 || ^8.0
 
 ## Versioning & Compatibility Policy
 

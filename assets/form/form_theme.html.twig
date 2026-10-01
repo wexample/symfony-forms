@@ -1,5 +1,55 @@
 {% use 'form_div_layout.html.twig' %}
 
+{#- The attributes of a field someone may read but not change.
+
+    `readonly`, and not `disabled`, although it is Symfony's `disabled` option
+    that decides it. `disabled` greys the control, takes it out of the tab order
+    and is passed over by most screen readers: it says "unavailable" where the
+    truth is "settled". `readonly` leaves the field focusable, readable and
+    selectable.
+
+    Nothing is lost by rendering the gentler attribute, because neither of them
+    is what protects the value: Symfony ignores whatever is submitted for a
+    disabled field, so a forged post changes nothing even though the browser
+    sent the field. -#}
+{% block wex_frozen_attributes %}{% if form.vars.disabled ?? false %}readonly aria-readonly="true"{% endif %}{% endblock %}
+
+{#- A control HTML cannot freeze — a select, a radio group, a switch, a file
+    field — shown as the value it holds, in a field that is read and not
+    written. It carries no `name`, so nothing of it reaches the server at all. -#}
+{% block wex_frozen_value_widget %}
+    {{ component(
+        render_pass,
+        '@WexampleSymfonyDesignSystemBundle/components/form/text-input',
+        {
+            id: id,
+            label: frozen_label,
+            value: frozen_value,
+            input_attr: 'readonly aria-readonly="true"'
+        }
+    ) }}
+{% endblock %}
+
+{#- What a frozen choice field says: the labels of what is selected, read from
+    the same `choices` the editable rendering walks, so a label translated in
+    one is translated in the other. -#}
+{% block wex_frozen_choice_label %}
+{%- set selected = form.vars.value is iterable ? form.vars.value : [form.vars.value] -%}
+{%- set labels = [] -%}
+{%- for choice in form.vars.choices -%}
+    {%- if choice.choices is defined -%}
+        {%- for option in choice.choices -%}
+            {%- if option.value in selected -%}
+                {%- set labels = labels|merge([option.label|trans]) -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- elseif choice.value in selected -%}
+        {%- set labels = labels|merge([choice.label|trans]) -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- labels|join(', ') -}}
+{% endblock %}
+
 {% block form_row %}
     {% set row_attr = row_attr|default({}) %}
     {% set row_classes = (row_attr.class ?? '') ~ ' form--group' %}
@@ -37,6 +87,7 @@
 {% endblock %}
 
 {% block form_widget_simple %}
+    {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
@@ -63,14 +114,16 @@
             name: full_name,
             id: id,
             label: label_value,
-            placeholder: placeholder_value,
-            required: required,
-            value: value
+            placeholder: frozen ? null : placeholder_value,
+            required: frozen ? false : required,
+            value: value,
+            input_attr: block('wex_frozen_attributes')
         }
     ) }}
 {% endblock %}
 
 {% block password_widget %}
+    {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
@@ -97,14 +150,16 @@
             name: full_name,
             id: id,
             label: label_value,
-            placeholder: placeholder_value,
-            required: required,
-            value: value
+            placeholder: frozen ? null : placeholder_value,
+            required: frozen ? false : required,
+            value: value,
+            input_attr: block('wex_frozen_attributes')
         }
     ) }}
 {% endblock %}
 
 {% block textarea_widget %}
+    {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
@@ -131,12 +186,13 @@
             name: full_name,
             id: id,
             label: label_value,
-            placeholder: placeholder_value,
-            required: required,
+            placeholder: frozen ? null : placeholder_value,
+            required: frozen ? false : required,
             value: value,
             rows: form.vars.rows ?? null,
             max_rows: form.vars.max_rows ?? null,
-            auto_resize: form.vars.auto_resize ?? false
+            auto_resize: form.vars.auto_resize ?? false,
+            input_attr: block('wex_frozen_attributes')
         }
     ) }}
 {% endblock %}
@@ -165,18 +221,24 @@
     {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
         {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
     {% endif %}
-    {{ component(
-        render_pass,
-        '@WexampleSymfonyDesignSystemBundle/components/form/emoji-picker',
-        {
-            name: full_name,
-            id: id,
-            label: label_value,
-            placeholder: placeholder_value,
-            required: required,
-            value: value
-        }
-    ) }}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {% set frozen_value = value %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/emoji-picker',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                placeholder: placeholder_value,
+                required: required,
+                value: value
+            }
+        ) }}
+    {% endif %}
 {% endblock %}
 
 {% block select_input_widget %}
@@ -211,20 +273,26 @@
             {% set normalized_choices = normalized_choices|merge([{'value': choice.value, 'label': choice.label}]) %}
         {% endif %}
     {% endfor %}
-    {{ component(
-        render_pass,
-        '@WexampleSymfonyDesignSystemBundle/components/form/select-input',
-        {
-            name: full_name,
-            id: id,
-            label: label_value,
-            placeholder: placeholder_value,
-            required: required,
-            multiple: form.vars.multiple ?? false,
-            selected: value,
-            choices: normalized_choices
-        }
-    ) }}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {% set frozen_value = block('wex_frozen_choice_label') %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/select-input',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                placeholder: placeholder_value,
+                required: required,
+                multiple: form.vars.multiple ?? false,
+                selected: value,
+                choices: normalized_choices
+            }
+        ) }}
+    {% endif %}
 {% endblock %}
 
 {% block otp_input_widget %}
@@ -239,20 +307,26 @@
         ? label_key
         : label_key|trans({}, form.vars.translation_domain)
     %}
-    {{ component(
-        render_pass,
-        '@WexampleSymfonyDesignSystemBundle/components/form/otp-input',
-        {
-            name: full_name,
-            id: id,
-            label: label_value,
-            required: required,
-            value: value,
-            length: length,
-            alphanumeric: alphanumeric,
-            auto_submit: auto_submit
-        }
-    ) }}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {% set frozen_value = value %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/otp-input',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                required: required,
+                value: value,
+                length: length,
+                alphanumeric: alphanumeric,
+                auto_submit: auto_submit
+            }
+        ) }}
+    {% endif %}
 {% endblock %}
 
 {% block password_input_widget %}
@@ -260,6 +334,7 @@
 {% endblock %}
 
 {% block date_input_widget %}
+    {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
@@ -278,13 +353,15 @@
             name: full_name,
             id: id,
             label: label_value,
-            required: required,
-            value: value
+            required: frozen ? false : required,
+            value: value,
+            input_attr: block('wex_frozen_attributes')
         }
     ) }}
 {% endblock %}
 
 {% block datetime_input_widget %}
+    {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
@@ -303,8 +380,9 @@
             name: full_name,
             id: id,
             label: label_value,
-            required: required,
-            value: value
+            required: frozen ? false : required,
+            value: value,
+            input_attr: block('wex_frozen_attributes')
         }
     ) }}
 {% endblock %}
@@ -321,21 +399,28 @@
         ? label_key
         : label_key|trans({}, form.vars.translation_domain)
     %}
-    {{ component(
-        render_pass,
-        '@WexampleSymfonyDesignSystemBundle/components/form/file-input',
-        {
-            name: full_name,
-            id: id,
-            label: label_value,
-            required: required,
-            multiple: form.vars.multiple ?? false,
-            accept: attr.accept ?? null
-        }
-    ) }}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {% set frozen_value = form.vars.data is iterable ? '' : (form.vars.data ?? '') %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/file-input',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                required: required,
+                multiple: form.vars.multiple ?? false,
+                accept: attr.accept ?? null
+            }
+        ) }}
+    {% endif %}
 {% endblock %}
 
 {% block email_input_widget %}
+    {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
@@ -362,14 +447,16 @@
             name: full_name,
             id: id,
             label: label_value,
-            placeholder: placeholder_value,
-            required: required,
-            value: value
+            placeholder: frozen ? null : placeholder_value,
+            required: frozen ? false : required,
+            value: value,
+            input_attr: block('wex_frozen_attributes')
         }
     ) }}
 {% endblock %}
 
 {% block number_input_widget %}
+    {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
@@ -396,14 +483,16 @@
             name: full_name,
             id: id,
             label: label_value,
-            placeholder: placeholder_value,
-            required: required,
-            value: value
+            placeholder: frozen ? null : placeholder_value,
+            required: frozen ? false : required,
+            value: value,
+            input_attr: block('wex_frozen_attributes')
         }
     ) }}
 {% endblock %}
 
 {% block url_input_widget %}
+    {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
@@ -430,9 +519,10 @@
             name: full_name,
             id: id,
             label: label_value,
-            placeholder: placeholder_value,
-            required: required,
-            value: value
+            placeholder: frozen ? null : placeholder_value,
+            required: frozen ? false : required,
+            value: value,
+            input_attr: block('wex_frozen_attributes')
         }
     ) }}
 {% endblock %}
@@ -461,18 +551,24 @@
             {% set normalized_choices = normalized_choices|merge([{'value': choice.value, 'label': choice.label}]) %}
         {% endif %}
     {% endfor %}
-    {{ component(
-        render_pass,
-        '@WexampleSymfonyDesignSystemBundle/components/form/radio-input',
-        {
-            name: full_name,
-            id: id,
-            label: label_value,
-            required: required,
-            value: value,
-            choices: normalized_choices
-        }
-    ) }}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {% set frozen_value = block('wex_frozen_choice_label') %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/radio-input',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                required: required,
+                value: value,
+                choices: normalized_choices
+            }
+        ) }}
+    {% endif %}
 {% endblock %}
 
 {% block switch_input_widget %}
@@ -487,21 +583,28 @@
         ? label_key
         : label_key|trans({}, form.vars.translation_domain)
     %}
-    {{ component(
-        render_pass,
-        '@WexampleSymfonyDesignSystemBundle/components/form/switch-input',
-        {
-            name: full_name,
-            id: id,
-            label: label_value,
-            required: required,
-            checked: form.vars.checked ?? false,
-            value: form.vars.value ?? '1'
-        }
-    ) }}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {% set frozen_value = ('@form::field.' ~ form.vars.name ~ '.choice.' ~ (form.vars.checked ? '1' : '0') ~ '.label')|trans %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/switch-input',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                required: required,
+                checked: form.vars.checked ?? false,
+                value: form.vars.value ?? '1'
+            }
+        ) }}
+    {% endif %}
 {% endblock %}
 
 {% block time_input_widget %}
+    {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)
@@ -520,8 +623,9 @@
             name: full_name,
             id: id,
             label: label_value,
-            required: required,
-            value: value
+            required: frozen ? false : required,
+            value: value,
+            input_attr: block('wex_frozen_attributes')
         }
     ) }}
 {% endblock %}
@@ -613,6 +717,33 @@
             icon: form.vars.icon ?? null
         }
     ) }}
+{% endblock %}
+
+{#- A value shown among the fields without being one: `DisplayValueType` renders
+    no element a browser submits and binds nothing to the model, so there is no
+    field to forge. An empty one is said with a dash — a blank space reads as
+    something missing from the page, a dash as something missing from the thing
+    described. -#}
+{% block display_value_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans({}, form.vars.translation_domain)
+    %}
+    <div class="form--group form--group--display" id="{{ id }}">
+        <span class="form--label">{{ label_value }}</span>
+        {% if value is empty %}
+            <span class="form--display-value form--display-value--empty">&mdash;</span>
+        {% else %}
+            <span class="form--display-value">{{ value }}</span>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block form_errors %}
