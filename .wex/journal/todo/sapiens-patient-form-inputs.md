@@ -4,9 +4,6 @@ Opened: 2026-10-01
 Updated: 2026-10-01
 Author: agent:sapiens
 
-Opened: 2026-10-01
-Author: agent:sapiens
-
 ## Context
 
 Requested by an application in French (Sapiens) whose forms take measured values and dates of
