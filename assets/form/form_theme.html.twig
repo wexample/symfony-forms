@@ -117,6 +117,13 @@
     {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
         {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
     {% endif %}
+    {% set addon_domain = form.vars.translation_domain %}
+    {% set prefix = form.vars.prefix ?? null %}
+    {% set suffix = form.vars.suffix ?? null %}
+    {% if addon_domain is not same as(false) %}
+        {% set prefix = prefix is null ? null : prefix|trans({}, addon_domain) %}
+        {% set suffix = suffix is null ? null : suffix|trans({}, addon_domain) %}
+    {% endif %}
     {{ component(
         render_pass,
         '@WexampleSymfonyDesignSystemBundle/components/form/text-input',
@@ -128,7 +135,9 @@
             placeholder: frozen ? null : placeholder_value,
             required: frozen ? false : required,
             value: value,
-            input_attr: block('wex_input_attributes')
+            input_attr: block('wex_input_attributes'),
+            prefix: prefix,
+            suffix: suffix
         }
     ) }}
 {% endblock %}
@@ -487,6 +496,13 @@
     {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
         {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
     {% endif %}
+    {% set addon_domain = form.vars.translation_domain %}
+    {% set prefix = form.vars.prefix ?? null %}
+    {% set suffix = form.vars.suffix ?? null %}
+    {% if addon_domain is not same as(false) %}
+        {% set prefix = prefix is null ? null : prefix|trans({}, addon_domain) %}
+        {% set suffix = suffix is null ? null : suffix|trans({}, addon_domain) %}
+    {% endif %}
     {#- `<input type="number">` holds no decimal comma: a French `72,5` written into
         one shows an empty field, and a browser refuses the comma typed in it.
         So the number field is kept for `html5: true`, where Symfony writes and
@@ -505,7 +521,9 @@
             placeholder: frozen ? null : placeholder_value,
             required: frozen ? false : required,
             value: value,
-            input_attr: block('wex_input_attributes')
+            input_attr: block('wex_input_attributes'),
+            prefix: prefix,
+            suffix: suffix
         }
     ) }}
 {% endblock %}

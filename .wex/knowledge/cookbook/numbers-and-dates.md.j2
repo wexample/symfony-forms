@@ -29,6 +29,23 @@ $builder->add('weight', NumberInputType::class, [
 
 `72.30` is then shown as `72,30`, and `72,3` typed is stored as `72.30`.
 
+### A unit beside the value
+
+`prefix` and `suffix`, on `TextInputType`, `NumberInputType` and `FloatType`: a fixed word the
+design-system input draws inside the field's frame — a unit, a currency — and announces with
+the field through `aria-describedby`.
+
+```php
+$builder->add('weight', NumberInputType::class, [
+    'suffix' => 'kg',
+]);
+```
+
+It is printed, never submitted: `72,5` typed is stored as 72.5, not as a string to parse. A
+frozen field keeps it. It is translated like a label, through the field's domain, so it may be a
+key (`unit.kilogram`) when the unit has to change with the language; a string with no
+translation is printed as given.
+
 ### A date
 
 `DateInputType` sends and reads a plain `YYYY-MM-DD`, so the browser's time zone plays no part,
