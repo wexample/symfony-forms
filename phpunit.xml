@@ -4,6 +4,7 @@
          bootstrap="tests/bootstrap.php"
          colors="true"
          executionOrder="default"
+         failOnDeprecation="true"
          failOnNotice="true"
          failOnWarning="true"
 >
