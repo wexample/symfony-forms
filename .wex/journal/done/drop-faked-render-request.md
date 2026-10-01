@@ -2,6 +2,7 @@
 
 Opened: 2026-10-01
 Updated: 2026-10-01
+Closed: 2026-10-01 — faked request and attributes removed from `tests/Traits/RendersFormsTrait.php`; suite green on PHP 8.5 from an empty cache (26 tests)
 Author: agent:sapiens
 
 ## Context

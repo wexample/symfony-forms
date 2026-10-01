@@ -3,8 +3,6 @@
 namespace Wexample\SymfonyForms\Tests\Traits;
 
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Wexample\SymfonyLoader\Helper\AdaptiveRequestHelper;
 use Wexample\SymfonyLoader\Rendering\RenderNode\InitialLayoutRenderNode;
 use Wexample\SymfonyLoader\Rendering\RenderPass;
 use Wexample\SymfonyLoader\Service\AdaptiveRendererService;
@@ -52,19 +50,6 @@ trait RendersFormsTrait
     private function renderPass(): RenderPass
     {
         $container = self::getContainer();
-
-        // A render pass reads the output type off the current request, where a
-        // page gets it from the adaptive response subscriber.
-        $request = Request::create('/');
-        $request->attributes->set(
-            AdaptiveRequestHelper::REQUEST_ATTR_OUTPUT_TYPE,
-            RenderPass::OUTPUT_TYPE_RESPONSE_HTML
-        );
-        $request->attributes->set(
-            AdaptiveRequestHelper::REQUEST_ATTR_LAYOUT_BASE,
-            RenderPass::BASE_DEFAULT
-        );
-        $container->get('request_stack')->push($request);
 
         $renderPass = $container
             ->get(AdaptiveRendererService::class)
