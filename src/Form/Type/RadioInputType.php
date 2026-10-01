@@ -33,8 +33,17 @@ class RadioInputType extends \Symfony\Component\Form\AbstractType
         ]);
 
         $resolver->setNormalizer('choices', function (Options $options, $choices) {
+            // A list of scalars is keyed by itself, so each value is also its
+            // label key. A list holding objects (entities, enums) is left to
+            // ChoiceType, which reads it with `choice_value` / `choice_label`.
             if (! is_array($choices) || ! array_is_list($choices)) {
                 return $choices;
+            }
+
+            foreach ($choices as $choice) {
+                if (! is_scalar($choice)) {
+                    return $choices;
+                }
             }
 
             $map = [];
