@@ -17,9 +17,10 @@
 {#- The attributes an input element carries besides its value: the ones Symfony
     computes for the type and the browser needs to take the input — `inputmode`
     for the keyboard of a localized number, `step` for an HTML5 one, which
-    refuses every decimal without it — then the frozen ones. -#}
+    refuses every decimal without it —, the bounds a form may set on what is
+    typed (`min`, `max`, `maxlength`, `pattern`), then the frozen ones. -#}
 {% block wex_input_attributes %}
-    {%- for attribute in ['inputmode', 'step'] -%}
+    {%- for attribute in ['inputmode', 'step', 'min', 'max', 'maxlength', 'pattern'] -%}
         {%- if attr[attribute] is defined %} {{ attribute }}="{{ attr[attribute] }}"{% endif -%}
     {%- endfor %} {{ block('wex_frozen_attributes') -}}
 {% endblock %}
@@ -726,7 +727,8 @@
             label: label_value,
             value: value,
             icon: form.vars.icon ?? null,
-            primary: form.vars.primary ?? false
+            primary: form.vars.primary ?? false,
+            target_form: attr.form ?? null
         }
     ) }}
 {% endblock %}
