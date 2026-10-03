@@ -74,7 +74,9 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
                     return;
                 }
 
-                if ($form->isSubmitted() && RequestHelper::isJsonRequest($request)) {
+                // Answered by the page itself when the processor says so: the
+                // controller renders it as on any other load.
+                if ($form->isSubmitted() && RequestHelper::isJsonRequest($request) && ! $processor->answersWithPage()) {
                     $event->setResponse(new JsonResponse(
                         $this->payloadBuilder->build($processor, $form)
                     ));

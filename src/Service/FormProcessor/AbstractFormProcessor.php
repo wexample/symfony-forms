@@ -344,6 +344,19 @@ abstract class AbstractFormProcessor
         return null;
     }
 
+    /**
+     * Whether a submission sent by a script — from a modal, an embed — is
+     * answered by the page itself, rendered as on any other load, rather than
+     * by the json payload: for what only the page answering this very
+     * submission can show, a secret issued once. Without a redirect, the page
+     * holding the form takes it where the page asks to keep its navigation
+     * (`data-page-navigation="contained"`).
+     */
+    public function answersWithPage(): bool
+    {
+        return false;
+    }
+
     public function getRequiredRoles(): array
     {
         return ['ROLE_USER'];
