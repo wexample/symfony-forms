@@ -90,6 +90,10 @@
 
 {% block form_start %}
     {% set attr = attr|merge({ class: (attr.class ?? '') ~ ' form' }) %}
+    {#- Read by the loader's form, which holds the submit button meanwhile. -#}
+    {% if submit_when_valid ?? false %}
+        {% set attr = attr|merge({ 'data-submit-when-valid': '' }) %}
+    {% endif %}
     {{ parent() }}
 {% endblock %}
 

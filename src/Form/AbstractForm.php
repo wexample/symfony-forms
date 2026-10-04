@@ -110,8 +110,13 @@ class AbstractForm extends \Symfony\Component\Form\AbstractType
         $resolver->setDefaults([
             'translation_domain' => self::transTypeDomain($this),
             'required_mode' => 'optional',
+            // Its submit button held until every field holds a valid value —
+            // what the browser itself checks: required, pattern, type. Off by
+            // default: most forms say what is missing once sent.
+            'submit_when_valid' => false,
         ]);
         $resolver->setAllowedValues('required_mode', ['asterisk', 'optional', false]);
+        $resolver->setAllowedTypes('submit_when_valid', 'bool');
     }
 
     public function buildView(
@@ -121,6 +126,7 @@ class AbstractForm extends \Symfony\Component\Form\AbstractType
     ): void {
         $view->vars['ajax'] = static::$ajax;
         $view->vars['required_mode'] = $options['required_mode'];
+        $view->vars['submit_when_valid'] = $options['submit_when_valid'];
     }
 
     protected function builderAddSubmit(
