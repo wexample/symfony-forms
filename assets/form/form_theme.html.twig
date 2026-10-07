@@ -628,7 +628,11 @@
     %}
     {% if form.vars.disabled ?? false %}
         {% set frozen_label = label_value %}
-        {% set frozen_value = ('@form::field.' ~ form.vars.name ~ '.choice.' ~ (form.vars.checked ? '1' : '0') ~ '.label')|trans %}
+        {#- A switch has no choices to read a label from, so it reads the two
+            keys a radio group would have had. Translated as the label above
+            it is, and left as the key when the form declares no domain. -#}
+        {% set state_key = '@form::field.' ~ form.vars.name ~ '.choice.' ~ (form.vars.checked ? '1' : '0') ~ '.label' %}
+        {% set frozen_value = form.vars.translation_domain is same as(false) ? state_key : state_key|trans %}
         {{ block('wex_frozen_value_widget') }}
     {% else %}
         {{ component(
