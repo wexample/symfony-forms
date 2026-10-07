@@ -389,6 +389,33 @@
     ) }}
 {% endblock %}
 
+{% block week_input_widget %}
+    {% set frozen = form.vars.disabled ?? false %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
+    %}
+    {{ component(
+        render_pass,
+        '@WexampleSymfonyDesignSystemBundle/components/form/week-input',
+        {
+            name: full_name,
+            id: id,
+            label: label_value,
+            required: frozen ? false : required,
+            value: value,
+            input_attr: block('wex_input_attributes')
+        }
+    ) }}
+{% endblock %}
+
 {% block datetime_input_widget %}
     {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
