@@ -30,7 +30,12 @@ class RadioInputType extends \Symfony\Component\Form\AbstractType
             'expanded' => false,
             'multiple' => false,
             'auto_translate_choices' => true,
+            // The options as a strip of segments, for a few short ones — a
+            // window of 3 or 6 months. The same radios, the same value sent.
+            'segmented' => false,
         ]);
+
+        $resolver->setAllowedTypes('segmented', 'bool');
 
         $resolver->setNormalizer('choices', function (Options $options, $choices) {
             // A list of scalars is keyed by itself, so each value is also its
@@ -58,6 +63,8 @@ class RadioInputType extends \Symfony\Component\Form\AbstractType
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         parent::buildView($view, $form, $options);
+
+        $view->vars['segmented'] = $options['segmented'];
 
         if (empty($options['auto_translate_choices'])) {
             return;

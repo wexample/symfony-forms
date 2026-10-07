@@ -607,7 +607,8 @@
                 label: label_value,
                 required: required,
                 value: value,
-                choices: normalized_choices
+                choices: normalized_choices,
+                segmented: form.vars.segmented ?? false
             }
         ) }}
     {% endif %}
@@ -640,6 +641,46 @@
                 required: required,
                 checked: form.vars.checked ?? false,
                 value: form.vars.value ?? '1'
+            }
+        ) }}
+    {% endif %}
+{% endblock %}
+
+{#- A value taken along a scale, its value said beside the label as it moves.
+    Frozen, the value it holds and its suffix, in a field read and not written. -#}
+{% block range_input_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
+    %}
+    {% set suffix = form.vars.suffix ?? null %}
+    {% if suffix is not null and form.vars.translation_domain is not same as(false) %}
+        {% set suffix = suffix|trans({}, form.vars.translation_domain) %}
+    {% endif %}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {% set frozen_value = value ~ (suffix ? ' ' ~ suffix : '') %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/range-input',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                value: value,
+                min: form.vars.min,
+                max: form.vars.max,
+                step: form.vars.step,
+                suffix: suffix
             }
         ) }}
     {% endif %}
