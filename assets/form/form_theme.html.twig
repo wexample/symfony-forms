@@ -94,6 +94,10 @@
     {% if submit_when_valid ?? false %}
         {% set attr = attr|merge({ 'data-submit-when-valid': '' }) %}
     {% endif %}
+    {#- Read by the loader's form, which sends it on every settled change. -#}
+    {% if submit_on_change ?? false %}
+        {% set attr = attr|merge({ 'data-submit-on-change': '' }) %}
+    {% endif %}
     {{ parent() }}
 {% endblock %}
 

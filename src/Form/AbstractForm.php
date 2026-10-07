@@ -114,9 +114,16 @@ class AbstractForm extends \Symfony\Component\Form\AbstractType
             // what the browser itself checks: required, pattern, type. Off by
             // default: most forms say what is missing once sent.
             'submit_when_valid' => false,
+            // Sent as soon as a control settles on a new value, for a form
+            // that steers a view rather than records anything — a window, a
+            // coefficient, a switch. `change` and not `input`: a range fires
+            // once released, which is one request per move instead of one per
+            // step. A form saying so needs no submit button.
+            'submit_on_change' => false,
         ]);
         $resolver->setAllowedValues('required_mode', ['asterisk', 'optional', false]);
         $resolver->setAllowedTypes('submit_when_valid', 'bool');
+        $resolver->setAllowedTypes('submit_on_change', 'bool');
     }
 
     public function buildView(
@@ -127,6 +134,7 @@ class AbstractForm extends \Symfony\Component\Form\AbstractType
         $view->vars['ajax'] = static::$ajax;
         $view->vars['required_mode'] = $options['required_mode'];
         $view->vars['submit_when_valid'] = $options['submit_when_valid'];
+        $view->vars['submit_on_change'] = $options['submit_on_change'];
     }
 
     protected function builderAddSubmit(
