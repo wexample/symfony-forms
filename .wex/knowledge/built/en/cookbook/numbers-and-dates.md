@@ -46,6 +46,24 @@ frozen field keeps it. It is translated like a label, through the field's domain
 key (`unit.kilogram`) when the unit has to change with the language; a string with no
 translation is printed as given.
 
+### A value along a scale
+
+`RangeInputType` draws the design system's `range-input`: a scale the thumb moves along, its
+value said beside the label as it goes. `min`, `max` and `step` (0, 100 and 1 by default),
+and `suffix`, a word after the value shown, translated in the field's domain and never
+submitted.
+
+```php
+$builder->add('coverage', RangeInputType::class, ['min' => 0.5, 'max' => 2, 'step' => 0.05]);
+```
+
+It is a `NumberType` read with a point whatever the locale — what a range input sends —, so
+the data is a figure. Frozen, it shows its value and its suffix in a field read and not
+written.
+
+One choice among a few short ones — a window of 3 or 6 months — is a `RadioInputType` with
+`segmented: true`: the same radios, drawn as a strip of segments.
+
 ### A date
 
 `DateInputType` sends and reads a plain `YYYY-MM-DD`, so the browser's time zone plays no part,
