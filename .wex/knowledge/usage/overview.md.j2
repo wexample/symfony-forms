@@ -31,6 +31,10 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 {% block page_actions %}{{ form_footer(form) }}{% endblock %}
 ```
 
+## Choosing an entity
+
+`EntitySelectInputType` offers every row of a short table at once, as a select — a team among ten —, with Doctrine's EntityType options (`class`, `choice_label`, `query_builder`); the labels are the data, not translated. A long table is searched rather than listed: symfony-search's `EntitySearchInputType`.
+
 ## Checkbox or switch
 
 `CheckboxInputType` and `SwitchInputType` hold the same boolean, drawn as a box or as a switch; the application picks. `TelInputType` is the text input typed `tel`, for a phone's keypad.

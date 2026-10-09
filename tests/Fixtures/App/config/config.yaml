@@ -22,3 +22,12 @@ services:
   # reference, which only YAML turns into the kernel service.
   Wexample\SymfonyHelpers\Service\BundleService:
     arguments: ['@kernel']
+
+doctrine:
+  orm:
+    mappings:
+      FormsFixtures:
+        type: attribute
+        is_bundle: false
+        dir: '%kernel.project_dir%/Entity'
+        prefix: 'Wexample\SymfonyForms\Tests\Fixtures\App\Entity'

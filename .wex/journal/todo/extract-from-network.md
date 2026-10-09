@@ -49,5 +49,5 @@ Issues: `/home/weeger/Desktop/WIP/WEB/WEXAMPLE/NETWORK/archeo/gitlab/issues/315.
 - Étape 8 : `TelInputType`, `CheckboxInputType` (gardé à côté du switch, le client choisit), composants `tel-input` et `checkbox-input` dans le design system.
 - Abandonnés : étape 6 (raccourcis Title / Save / Status / Url), étape 9 (`onRender` ; plusieurs formulaires par page marchent déjà).
 - Étape 2 : `symfony-coding` `HtmlInputType` (textarea, HtmlSanitizer de Symfony plutôt que HTMLPurifier), pas de WYSIWYG.
-- En attente : le select d'entité pour une liste courte (question posée au propriétaire). Étape 1 : voir `extract-from-network-testing.md`.
+- `EntitySelectInputType` : une table courte en select (le propriétaire l'a voulu), à côté de la recherche distante de symfony-search. Étape 1 : voir `extract-from-network-testing.md`.
 
