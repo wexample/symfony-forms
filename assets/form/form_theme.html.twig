@@ -82,6 +82,16 @@
     </div>
 {% endblock %}
 
+{#- A submit kept for the foot (`in_footer`) is left out of the body:
+    `form_footer(form)` draws it where the page puts it. -#}
+{% block button_row %}
+    {%- if not (in_footer ?? false) -%}
+        <div{% with {attr: row_attr} %}{{ block('attributes') }}{% endwith %}>
+            {{- form_widget(form) -}}
+        </div>
+    {%- endif -%}
+{% endblock %}
+
 {% block form_widget_compound %}
     {{ form_errors(form) }}
     {{ block('form_rows') }}
@@ -90,6 +100,11 @@
 
 {% block form_start %}
     {% set attr = attr|merge({ class: (attr.class ?? '') ~ ' form' }) %}
+    {#- Named, when some of its buttons stand at the foot of the modal or the
+        page (`in_footer`), out of the tag, and send it by this id. -#}
+    {% if attr.id is not defined and form.children|filter(child => child.vars.in_footer ?? false)|length > 0 %}
+        {% set attr = attr|merge({ id: id }) %}
+    {% endif %}
     {#- Read by the loader's form, which holds the submit button meanwhile. -#}
     {% if submit_when_valid ?? false %}
         {% set attr = attr|merge({ 'data-submit-when-valid': '' }) %}

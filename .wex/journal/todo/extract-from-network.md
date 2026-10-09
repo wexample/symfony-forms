@@ -1,7 +1,7 @@
 # Forms: remaining gaps from network (test tooling, HTML type, entity processor, field errors)
 
 Opened: 2026-09-24
-Updated: 2026-09-24
+Updated: 2026-10-09
 Author: agent:archeology
 
 ## Read this first — status of this todo
@@ -39,3 +39,15 @@ Issues: `/home/weeger/Desktop/WIP/WEB/WEXAMPLE/NETWORK/archeo/gitlab/issues/315.
 ## Acceptance
 
 - Each step has a unit or kernel test. The design-system demo shows the new types.
+
+## Fait le 2026-10-09 (agent:main, tri avec le propriétaire)
+
+- Étape 3 : `MaxLengthTypeExtension` (`maxlength` depuis `Length`, contraintes du champ et de la propriété mappée).
+- Étape 4 : `AbstractFormProcessor::addFieldError()` (`field.<nom>.error.<code>`).
+- Étape 5 : `AbstractEntityFormProcessor` (persist + flush à la validation, `beforeSave` / `afterSave`).
+- Étape 7 : `in_footer` sur les submits + `form_footer(form)` dans `page_actions` (pied de modale ou de panneau), le bouton envoie le formulaire par son attribut `form`.
+- Étape 8 : `TelInputType`, `CheckboxInputType` (gardé à côté du switch, le client choisit), composants `tel-input` et `checkbox-input` dans le design system.
+- Abandonnés : étape 6 (raccourcis Title / Save / Status / Url), étape 9 (`onRender` ; plusieurs formulaires par page marchent déjà).
+- Étape 2 (champ HTML nettoyé) : dans symfony-coding, en textarea, pas de WYSIWYG.
+- En attente : le select d'entité pour une liste courte (question posée au propriétaire). Étape 1 : voir `extract-from-network-testing.md`.
+
