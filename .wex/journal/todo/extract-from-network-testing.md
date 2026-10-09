@@ -1,8 +1,10 @@
 # Form test driver and brute-force form tests from network
 
 Opened: 2026-09-24
-Updated: 2026-09-24
+Updated: 2026-10-09
 Author: agent:archeology
+
+> **2026-10-09 (revue de l'extraction)** : `symfony-scenario` ne sera pas créé. Les scénarios multi-acteurs sont dans symfony-testing (`.wex/knowledge/usage/scenarios.md.j2`) et envoient déjà les formulaires eux-mêmes (`ScenarioContext::submit()`, champs non rendus compris). Le driver de formulaire décrit ici aurait pour consommateurs ces scénarios et les tests de package ; à rediscuter avec le propriétaire avant de le construire.
 
 ## Read this first — status of this todo
 
