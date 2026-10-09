@@ -511,6 +511,42 @@
     ) }}
 {% endblock %}
 
+{% block tel_input_widget %}
+    {% set frozen = form.vars.disabled ?? false %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
+    %}
+    {% set placeholder_key = attr.placeholder ?? null %}
+    {% if placeholder_key is same as(true) %}
+        {% set placeholder_key = 'field.' ~ form.vars.name ~ '.placeholder' %}
+    {% endif %}
+    {% set placeholder_value = placeholder_key %}
+    {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
+        {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
+    {% endif %}
+    {{ component(
+        render_pass,
+        '@WexampleSymfonyDesignSystemBundle/components/form/tel-input',
+        {
+            name: full_name,
+            id: id,
+            label: label_value,
+            placeholder: frozen ? null : placeholder_value,
+            required: frozen ? false : required,
+            value: value,
+            input_attr: block('wex_input_attributes')
+        }
+    ) }}
+{% endblock %}
+
 {% block number_input_widget %}
     {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
@@ -669,6 +705,41 @@
         {{ component(
             render_pass,
             '@WexampleSymfonyDesignSystemBundle/components/form/switch-input',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                required: required,
+                checked: form.vars.checked ?? false,
+                value: form.vars.value ?? '1'
+            }
+        ) }}
+    {% endif %}
+{% endblock %}
+
+{% block checkbox_input_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
+    %}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {#- Frozen, as a frozen switch: the two keys a radio group would have
+            had. -#}
+        {% set state_key = '@form::field.' ~ form.vars.name ~ '.choice.' ~ (form.vars.checked ? '1' : '0') ~ '.label' %}
+        {% set frozen_value = form.vars.translation_domain is same as(false) ? state_key : state_key|trans %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/checkbox-input',
             {
                 name: full_name,
                 id: id,

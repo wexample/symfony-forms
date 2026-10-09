@@ -327,6 +327,21 @@ abstract class AbstractFormProcessor
         $form->addError(new \Symfony\Component\Form\FormError($translationKey));
     }
 
+    /**
+     * An error on one field, shown beside it rather than above the form:
+     * `field.<name>.error.<code>` in the form's domain, as its label is.
+     */
+    protected function addFieldError(
+        FormInterface $form,
+        string $field,
+        string $code,
+        array $parameters = []
+    ): void {
+        $form->get($field)->addError(
+            new \Symfony\Component\Form\FormError('@form::field.' . $field . '.error.' . $code, null, $parameters)
+        );
+    }
+
     public function getSuccessRedirectUrl(FormInterface $form): ?string
     {
         return null;
