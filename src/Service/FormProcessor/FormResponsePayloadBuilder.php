@@ -22,7 +22,7 @@ class FormResponsePayloadBuilder
 
         $payload = FormResponsePayload::fromForm($form)
             ->setErrors($errors)
-            ->setNotification($formProcessor->getNotification())
+            ->setNotification($this->translateNotification($formProcessor->getNotification()))
             ->setAction(
                 $formProcessor->getSuccessAction()
                     ?: ['type' => AbstractFormProcessor::ACTION_DEFAULT]
@@ -94,5 +94,16 @@ class FormResponsePayloadBuilder
         $this->translator->revertDomain(Translator::DOMAIN_TYPE_FORM);
 
         return $translations;
+    }
+
+    /**
+     * Said in words before it leaves: the page showing it may not hold the
+     * form's translations — a form drawn by a component, sent from a panel.
+     */
+    private function translateNotification(?Notification $notification): ?Notification
+    {
+        return $notification
+            ? new Notification($this->translator->trans($notification->getMessage()), $notification->getType())
+            : null;
     }
 }
