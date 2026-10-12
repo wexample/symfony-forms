@@ -20,7 +20,7 @@ Issues: `/home/weeger/Desktop/WIP/WEB/WEXAMPLE/NETWORK/archeo/gitlab/issues/315.
 
 ## Steps
 
-1. **Form test tooling.** Covered by the sibling todo `extract-from-network-testing.md` (FormTestCaseTrait, TestFormBuilder, brute-force tests). Do that one first: it also fixes `symfony-testing` `SearchableFormTestsTrait::formFind()`.
+1. **Form test tooling.** Covered by the sibling todo `form-test-driver-and-required-fields.md` (FormTestCaseTrait, TestFormBuilder, brute-force tests). Do that one first: it also fixes `symfony-testing` `SearchableFormTestsTrait::formFind()`.
 2. **`HtmlInputType`.** Source: `/home/weeger/Desktop/WIP/WEB/WEXAMPLE/NETWORK/archeo/trees/develop-131-fos-user/src/Wex/BaseBundle/Form/HtmlType.php`. Sanitise with HTMLPurifier (optional dependency). Tests: script tags stripped, allowed tags kept.
 3. **maxlength from the `Length` constraint.** Source: `/home/weeger/Desktop/WIP/WEB/WEXAMPLE/NETWORK/archeo/trees/develop-131-fos-user/src/Wex/BaseBundle/Form/Traits/StringTypeTrait.php` (`stringRestrictLength`, which reads annotations). Rewrite it as a form type extension that reads validator metadata. Test.
 4. **Field errors in the form domain.** Source: `/home/weeger/Desktop/WIP/WEB/WEXAMPLE/NETWORK/archeo/trees/develop-131-fos-user/src/Wex/BaseBundle/Form/FormError/FormErrorTranslated.php` + `/home/weeger/Desktop/WIP/WEB/WEXAMPLE/NETWORK/archeo/trees/develop-131-fos-user/src/Wex/BaseBundle/Service/FormProcessor/AbstractFormProcessor.php` lines 309–345 (`addFieldError`, `setFieldError`, `transField`). Key format: `field.<name>.error.<code>`. Test.
@@ -49,5 +49,5 @@ Issues: `/home/weeger/Desktop/WIP/WEB/WEXAMPLE/NETWORK/archeo/gitlab/issues/315.
 - Étape 8 : `TelInputType`, `CheckboxInputType` (gardé à côté du switch, le client choisit), composants `tel-input` et `checkbox-input` dans le design system.
 - Abandonnés : étape 6 (raccourcis Title / Save / Status / Url), étape 9 (`onRender` ; plusieurs formulaires par page marchent déjà).
 - Étape 2 : `symfony-coding` `HtmlInputType` (textarea, HtmlSanitizer de Symfony plutôt que HTMLPurifier), pas de WYSIWYG.
-- `EntitySelectInputType` : une table courte en select (le propriétaire l'a voulu), à côté de la recherche distante de symfony-search. Étape 1 : voir `extract-from-network-testing.md`.
+- `EntitySelectInputType` : une table courte en select (le propriétaire l'a voulu), à côté de la recherche distante de symfony-search. Étape 1 : voir `form-test-driver-and-required-fields.md`.
 
