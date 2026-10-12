@@ -102,8 +102,16 @@ class FormResponsePayloadBuilder
      */
     private function translateNotification(?Notification $notification): ?Notification
     {
-        return $notification
-            ? new Notification($this->translator->trans($notification->getMessage()), $notification->getType())
-            : null;
+        if (! $notification) {
+            return null;
+        }
+
+        $action = $notification->getAction();
+
+        return new Notification(
+            $this->translator->trans($notification->getMessage()),
+            $notification->getType(),
+            $action ? ['label' => $this->translator->trans($action['label'])] + $action : null
+        );
     }
 }

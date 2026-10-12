@@ -259,9 +259,10 @@ abstract class AbstractFormProcessor
 
     public function setNotification(
         string $message,
-        string $type = Notification::TYPE_SUCCESS
+        string $type = Notification::TYPE_SUCCESS,
+        ?array $action = null
     ): Notification {
-        return $this->notification = new Notification($message, $type);
+        return $this->notification = new Notification($message, $type, $action);
     }
 
     public function getNotification(): ?Notification
@@ -283,17 +284,17 @@ abstract class AbstractFormProcessor
             . Translator::DOMAIN_TYPE_FORM
             . Translator::DOMAIN_SEPARATOR;
 
-        $message = $this->notification->getMessage();
+        $resolve = static fn (string $key): string => str_starts_with($key, $alias)
+            ? AbstractForm::transFormDomain($form) . Translator::DOMAIN_SEPARATOR . substr($key, strlen($alias))
+            : $key;
 
-        if (! str_starts_with($message, $alias)) {
-            return;
+        $this->notification->setMessage($resolve($this->notification->getMessage()));
+
+        // The label of its action is a key of the same form.
+        $action = $this->notification->getAction();
+        if ($action) {
+            $this->notification->setAction(['label' => $resolve($action['label'])] + $action);
         }
-
-        $this->notification->setMessage(
-            AbstractForm::transFormDomain($form)
-                . Translator::DOMAIN_SEPARATOR
-                . substr($message, strlen($alias))
-        );
     }
 
     private function dispatchNotificationFlash(): void

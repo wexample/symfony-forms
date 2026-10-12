@@ -9,9 +9,15 @@ class Notification
     public const string TYPE_WARNING = 'warning';
     public const string TYPE_INFO = 'info';
 
+    /**
+     * @param array{label: string, href: string, icon?: string, target?: string}|null $action
+     *   What to do next, drawn as a button in the toast: `target` opens `href`
+     *   where a target button would — `panel`, `modal` —, beside the page.
+     */
     public function __construct(
         private string $message,
-        private string $type = self::TYPE_SUCCESS
+        private string $type = self::TYPE_SUCCESS,
+        private ?array $action = null
     ) {
     }
 
@@ -39,11 +45,24 @@ class Notification
         return $this;
     }
 
+    public function getAction(): ?array
+    {
+        return $this->action;
+    }
+
+    public function setAction(?array $action): self
+    {
+        $this->action = $action;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
-        return [
+        return array_filter([
             'type' => $this->type,
             'message' => $this->message,
-        ];
+            'action' => $this->action,
+        ], fn ($value) => $value !== null);
     }
 }
