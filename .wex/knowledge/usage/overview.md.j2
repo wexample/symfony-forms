@@ -18,6 +18,10 @@ class ArticleFormProcessor extends AbstractEntityFormProcessor
 
 `$this->addFieldError($form, 'email', 'taken')` in a processor puts the error beside the field, read from the form's domain as `field.email.error.taken`, as its label is.
 
+## Sent here by a gate
+
+A form a `symfony-check` gate redirected to — the `RouteRemedy` of an action stopped for missing data — points at what is missing by itself: `createForm()` reads the findings in the url, puts « Fill in the highlighted fields to continue » above the form and « This field is required to continue » beside each field a finding names by its `path`, dotted into embedded forms (`address.city`). A finding other than a missing field keeps the text of the package that raised it, a path the form does not hold goes above it. Once the form is valid, `onValid()` runs and the processor sends back to the stopped action, which checks again. Nothing to write in the processor; the texts are in `assets/common/gate.trans.yml`.
+
 ## Lengths
 
 A text field (and every type built on it: email, tel, url, textarea, password) carries `maxlength` from the shortest `Length(max:)` among its own `constraints` and those of the property it is mapped to. An explicit `attr.maxlength` wins.

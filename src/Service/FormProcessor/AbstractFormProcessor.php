@@ -12,7 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\SymfonyCheck\Helper\GateHelper;
 use Wexample\SymfonyForms\Form\AbstractForm;
+use Wexample\SymfonyForms\Helper\FormGateHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 use Wexample\SymfonyTranslations\Translation\Translator;
 
@@ -67,11 +69,19 @@ abstract class AbstractFormProcessor
             }
         }
 
-        return $this->formFactory->create(
+        $form = $this->formFactory->create(
             $formClass,
             $data,
             $options
         );
+
+        // Sent here by a gate: point at what it is waiting for, until the
+        // submission validates the form again.
+        if ($this->request?->isMethodSafe()) {
+            FormGateHelper::addFindingErrors($form, GateHelper::getFindings($this->request));
+        }
+
+        return $form;
     }
 
     /**
@@ -101,7 +111,7 @@ abstract class AbstractFormProcessor
         if ($ajaxEnabled) {
             return $this->urlGenerator->generate(
                 $this->getFormActionRoute(),
-                $this->getFormActionArgs($data)
+                $this->getFormActionArgs($data) + $this->getGateQuery()
             );
         }
 
@@ -110,6 +120,22 @@ abstract class AbstractFormProcessor
         }
 
         return null;
+    }
+
+    /**
+     * What a gate passed in the url, carried to the submit route so the
+     * saved form still knows where to go back.
+     */
+    private function getGateQuery(): array
+    {
+        if (! $this->request || [] === GateHelper::getFindings($this->request)) {
+            return [];
+        }
+
+        return array_filter([
+            GateHelper::QUERY_FINDINGS => $this->request->query->all(GateHelper::QUERY_FINDINGS),
+            GateHelper::QUERY_DESTINATION => $this->request->query->get(GateHelper::QUERY_DESTINATION),
+        ]);
     }
 
     public function getFormActionRoute(): string
@@ -205,6 +231,7 @@ abstract class AbstractFormProcessor
 
             if ($isValid) {
                 $this->onValid($form);
+                $this->redirectToGateDestination();
             } else {
                 $this->onInvalid($form);
             }
@@ -212,6 +239,20 @@ abstract class AbstractFormProcessor
             $this->resolveNotificationDomain($form);
         }
     }
+    /**
+     * Back to the action a gate stopped, once its form is saved: the action
+     * checks again, and sends to the next form if something is still missing.
+     */
+    private function redirectToGateDestination(): void
+    {
+        if ($this->request
+            && [] !== GateHelper::getFindings($this->request)
+            && $destination = GateHelper::getDestination($this->request)
+        ) {
+            $this->redirect($destination);
+        }
+    }
+
     public function createFormSubmitted(
         Request $request
     ): FormInterface {

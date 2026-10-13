@@ -21,7 +21,8 @@
     "wexample/symfony-design-system": ">=32.0.0",
     "syrtis/php-semantic-schema-web": ">=0.0.19",
     "symfony/form": "^7.4 || ^8.0",
-    "symfony/doctrine-bridge": "^7.4 || ^8.0"
+    "symfony/doctrine-bridge": "^7.4 || ^8.0",
+    "wexample/symfony-check": ">=3.0.0"
   },
   "autoload-dev": {
     "psr-4": {
