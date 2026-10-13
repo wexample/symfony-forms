@@ -30,10 +30,10 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 
 `'in_footer' => true` on a `SubmitInputType` leaves the button out of the form's body; `form_footer(form)` draws it, pointing at the form through its `form` attribute, wherever the page puts it — its `page_actions` block, which a modal and a panel keep at their foot:
 
-```twig
+{% raw %}```twig
 {% block page_body %}{{ form(form) }}{% endblock %}
 {% block page_actions %}{{ form_footer(form) }}{% endblock %}
-```
+```{% endraw %}
 
 ## Choosing an entity
 
