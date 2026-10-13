@@ -1,11 +1,61 @@
 # symfony_forms
 
-Version: 11.0.0
+Version: 12.0.0
 
 `wexample/symfony-forms` is a Symfony bundle that binds the Symfony Form component to the Wexample design system: its form types (`TextInputType`, `SelectInputType`, `SwitchInputType`, `EmojiPickerType`…) carry block prefixes such as `text_input` that resolve to the design-system Twig components, and its Twig functions render those same components directly, validating the context against a JSON schema before output. Around them sits a processor layer — an `AbstractFormProcessor` paired with a form class by naming convention, the `#[FormProcessor]` attribute on a controller method, and the `_forms/submit/{name}` route — which handles submission, redirection, flash notifications and AJAX responses without repeating the `handleRequest` / `isValid` dance in every controller. It targets applications already built on `wexample/symfony-design-system` that want their forms styled, translated and processed the same way across the whole project.
 
+## Saving an entity
+
+A processor for a form editing a Doctrine entity extends `AbstractEntityFormProcessor`: valid, the entity the form holds — the one `#[EntityFormProcessor]` loaded, or a new one — is persisted and flushed. `beforeSave($entity, $form)` sets what the form does not; `afterSave()` defaults to staying on the page with the success notification.
+
+```php
+class ArticleFormProcessor extends AbstractEntityFormProcessor
+{
+    protected function beforeSave(object $entity, FormInterface $form): void
+    {
+        $entity->setDateUpdated(new DateTimeImmutable());
+    }
+}
+```
+
+## Errors on one field
+
+`$this->addFieldError($form, 'email', 'taken')` in a processor puts the error beside the field, read from the form's domain as `field.email.error.taken`, as its label is.
+
+## Sent here by a gate
+
+A form a `symfony-check` gate redirected to — the `RouteRemedy` of an action stopped for missing data — points at what is missing by itself: `createForm()` reads the findings in the url, puts « Fill in the highlighted fields to continue » above the form and « This field is required to continue » beside each field a finding names by its `path`, dotted into embedded forms (`address.city`). A finding other than a missing field keeps the text of the package that raised it, a path the form does not hold goes above it. Once the form is valid, `onValid()` runs and the processor sends back to the stopped action, which checks again. Nothing to write in the processor; the texts are in `assets/common/gate.trans.yml`.
+
+## Lengths
+
+A text field (and every type built on it: email, tel, url, textarea, password) carries `maxlength` from the shortest `Length(max:)` among its own `constraints` and those of the property it is mapped to. An explicit `attr.maxlength` wins.
+
+## Buttons at the foot of a modal or a panel
+
+`'in_footer' => true` on a `SubmitInputType` leaves the button out of the form's body; `form_footer(form)` draws it, pointing at the form through its `form` attribute, wherever the page puts it — its `page_actions` block, which a modal and a panel keep at their foot:
+
+```twig
+{% block page_body %}{{ form(form) }}{% endblock %}
+{% block page_actions %}{{ form_footer(form) }}{% endblock %}
+```
+
+## Choosing an entity
+
+`EntitySelectInputType` offers every row of a short table at once, as a select — a team among ten —, with Doctrine's EntityType options (`class`, `choice_label`, `query_builder`); the labels are the data, not translated. A long table is searched rather than listed: symfony-search's `EntitySearchInputType`.
+
+## Checkbox or switch
+
+`CheckboxInputType` and `SwitchInputType` hold the same boolean, drawn as a box or as a switch; the application picks. `TelInputType` is the text input typed `tel`, for a phone's keypad.
+
 ## Table of Contents
 
+- [Saving an entity](#saving-an-entity)
+- [Errors on one field](#errors-on-one-field)
+- [Sent here by a gate](#sent-here-by-a-gate)
+- [Lengths](#lengths)
+- [Buttons at the foot of a modal or a panel](#buttons-at-the-foot-of-a-modal-or-a-panel)
+- [Choosing an entity](#choosing-an-entity)
+- [Checkbox or switch](#checkbox-or-switch)
 - [Architecture](#architecture)
 - [Integration in the Suite](#integration-in-the-suite)
 - [Dependencies](#dependencies)
@@ -175,9 +225,11 @@ Visit the [Wexample Suite documentation](https://docs.wexample.com) for the comp
 
 - php: >=8.5
 - doctrine/orm: ^3.0
-- wexample/symfony-design-system: >=32.0.0
+- wexample/symfony-design-system: >=34.0.0
 - syrtis/php-semantic-schema-web: >=0.0.19
 - symfony/form: ^7.4 || ^8.0
+- symfony/doctrine-bridge: ^7.4 || ^8.0
+- wexample/symfony-check: >=4.0.0
 
 ## Versioning & Compatibility Policy
 

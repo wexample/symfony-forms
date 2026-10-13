@@ -48,6 +48,7 @@ class FormFooterExtension extends AbstractExtension
                     $html .= $this->formRenderer->renderBlock($child, $prefix . '_widget', [
                         'attr' => [...$child->vars['attr'], 'form' => $formId],
                     ]);
+
                     break;
                 }
             }
