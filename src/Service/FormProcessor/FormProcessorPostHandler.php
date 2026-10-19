@@ -2,12 +2,12 @@
 
 namespace Wexample\SymfonyForms\Service\FormProcessor;
 
-use RuntimeException;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
@@ -28,8 +28,9 @@ class FormProcessorPostHandler
     ): Response {
         $processorClass = $this->resolveProcessorClass($formName);
 
+        // A name no form answers to is an address that does not exist.
         if (! $processorClass) {
-            throw new RuntimeException('Form processor not found for form name: ' . $formName);
+            throw new NotFoundHttpException('Form processor not found for form name: ' . $formName);
         }
 
         /** @var AbstractFormProcessor $formProcessor */
