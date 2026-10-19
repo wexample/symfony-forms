@@ -5,6 +5,7 @@ namespace Wexample\SymfonyForms\Tests\Fixtures\App;
 use Wexample\SymfonyDesignSystem\WexampleSymfonyDesignSystemBundle;
 use Wexample\SymfonyForms\WexampleSymfonyFormsBundle;
 use Wexample\SymfonyLoader\WexampleSymfonyLoaderBundle;
+use Wexample\SymfonyPreference\WexampleSymfonyPreferenceBundle;
 use Wexample\SymfonyRouting\WexampleSymfonyRoutingBundle;
 use Wexample\SymfonyTemplate\WexampleSymfonyTemplateBundle;
 use Wexample\SymfonyTesting\Tests\Fixtures\AbstractFixtureKernel;
@@ -24,6 +25,7 @@ class AppKernel extends AbstractFixtureKernel
             new WexampleSymfonyTemplateBundle(),
             new WexampleSymfonyTranslationsBundle(),
             new WexampleSymfonyLoaderBundle(),
+            new WexampleSymfonyPreferenceBundle(),
             new WexampleSymfonyDesignSystemBundle(),
             new WexampleSymfonyFormsBundle(),
         ];
