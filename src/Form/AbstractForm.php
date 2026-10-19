@@ -9,9 +9,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\Helpers\Helper\TextHelper;
 use Wexample\SymfonyForms\Form\Type\SubmitInputType;
+use Wexample\SymfonyHelpers\Attribute\WorkerSafe;
 use Wexample\SymfonyLoader\Helper\LoaderHelper;
 use Wexample\SymfonyTranslations\Translation\Translator;
-use Wexample\SymfonyHelpers\Attribute\WorkerSafe;
 
 class AbstractForm extends \Symfony\Component\Form\AbstractType
 {

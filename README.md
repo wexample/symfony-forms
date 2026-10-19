@@ -1,6 +1,6 @@
 # symfony_forms
 
-Version: 12.0.2
+Version: 13.0.0
 
 `wexample/symfony-forms` is a Symfony bundle that binds the Symfony Form component to the Wexample design system: its form types (`TextInputType`, `SelectInputType`, `SwitchInputType`, `EmojiPickerType`…) carry block prefixes such as `text_input` that resolve to the design-system Twig components, and its Twig functions render those same components directly, validating the context against a JSON schema before output. Around them sits a processor layer — an `AbstractFormProcessor` paired with a form class by naming convention, the `#[FormProcessor]` attribute on a controller method, and the `_forms/submit/{name}` route — which handles submission, redirection, flash notifications and AJAX responses without repeating the `handleRequest` / `isValid` dance in every controller. It targets applications already built on `wexample/symfony-design-system` that want their forms styled, translated and processed the same way across the whole project.
 
@@ -219,13 +219,11 @@ This package is part of the Wexample Suite — a collection of high-quality, mod
 
 The suite includes packages for configuration management, file handling, prompts, and more. Each package can be used independently or as part of the integrated suite.
 
-Visit the [Wexample Suite documentation](https://docs.wexample.com) for the complete package ecosystem.
-
 ## Dependencies
 
 - php: >=8.5
 - doctrine/orm: ^3.0
-- wexample/symfony-design-system: >=35.0.0
+- wexample/symfony-design-system: >=37.0.0
 - syrtis/php-semantic-schema-web: >=0.0.19
 - symfony/form: ^7.4 || ^8.0
 - symfony/doctrine-bridge: ^7.4 || ^8.0
@@ -254,6 +252,8 @@ Free to use in both personal and commercial projects.
 This packages suite embodies this spirit. Trusted by professionals and enthusiasts alike, it delivers a consistent, high-quality foundation for modern development — open, elegant, and battle-tested. Its reputation is built on years of collaboration, refinement, and rigorous attention to detail, making it a natural choice for those who demand both robustness and beauty in their tools.
 
 Wexample cultivates a culture of mastery. Each package, each contribution carries the mark of a community that values precision, ethics, and innovation — a community proud to shape the future of digital craftsmanship.
+
+Built and maintained by [Romain Weeger](https://weeger.io).
 
 ## Migration Notes
 
