@@ -9,6 +9,196 @@
             "engine": "syrtis"
         }
     },
+    "common/gate.bn.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.de.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.es.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.fa.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.fi.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.he.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.hi.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.id.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.it.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.ja.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.ko.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.nl.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.pl.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.pt_BR.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.ru.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.th.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.tr.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.ur.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
+    "common/gate.vi.yml": {
+        "complete_to_continue": {
+            "hash": "9bbe8f728ce393171a41245c32681c69",
+            "engine": "syrtis"
+        },
+        "field_required": {
+            "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
+            "engine": "syrtis"
+        }
+    },
     "common/gate.zh.yml": {
         "complete_to_continue": {
             "hash": "9bbe8f728ce393171a41245c32681c69",

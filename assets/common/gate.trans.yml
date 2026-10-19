@@ -13,3 +13,79 @@ zh:
 ar:
   complete_to_continue: 'املأ الحقول المميزة للمتابعة.'
   field_required: 'هذا الحقل مطلوب للمتابعة.'
+
+hi:
+  complete_to_continue: 'जारी रखने के लिए हाइलाइट किए गए फील्ड भरें।'
+  field_required: 'जारी रखने के लिए यह फील्ड आवश्यक है।'
+
+he:
+  complete_to_continue: 'מלא את השדות המודגשים כדי להמשיך.'
+  field_required: 'שדה זה נדרש כדי להמשיך.'
+
+fa:
+  complete_to_continue: 'فیلدهای هایلایت شده را پر کنید تا ادامه دهید.'
+  field_required: 'این فیلد برای ادامه لازم است.'
+
+ur:
+  complete_to_continue: 'جاری رکھنے کے لیے نمایاں کردہ خانوں کو بھریں۔'
+  field_required: 'جاری رکھنے کے لیے یہ خانہ ضروری ہے۔'
+
+ja:
+  complete_to_continue: 続行するには、ハイライトされたフィールドに入力してください。
+  field_required: このフィールドは続行するために必要です。
+
+ko:
+  complete_to_continue: '계속하려면 강조된 필드를 입력하세요.'
+  field_required: '계속하려면 이 필드가 필요합니다.'
+
+bn:
+  complete_to_continue: 'অগ্রসর হতে হাইলাইট করা ক্ষেত্রগুলো পূরণ করুন।'
+  field_required: 'অগ্রসর হতে এই ক্ষেত্রটি আবশ্যক।'
+
+th:
+  complete_to_continue: กรอกข้อมูลในฟิลด์ที่เน้นเพื่อดำเนินการต่อ
+  field_required: ฟิลด์นี้จำเป็นต้องกรอกเพื่อดำเนินการต่อ
+
+de:
+  complete_to_continue: 'Füllen Sie die hervorgehobenen Felder aus, um fortzufahren.'
+  field_required: 'Dieses Feld ist erforderlich, um fortzufahren.'
+
+fi:
+  complete_to_continue: 'Täytä korostetut kentät jatkaaksesi.'
+  field_required: 'Tämä kenttä on pakollinen jatkaaksesi.'
+
+ru:
+  complete_to_continue: 'Заполните выделенные поля, чтобы продолжить.'
+  field_required: 'Это поле обязательно для продолжения.'
+
+pl:
+  complete_to_continue: 'Wypełnij zaznaczone pola, aby kontynuować.'
+  field_required: 'To pole jest wymagane, aby kontynuować.'
+
+es:
+  complete_to_continue: 'Complete los campos resaltados para continuar.'
+  field_required: 'Este campo es obligatorio para continuar.'
+
+it:
+  complete_to_continue: 'Compila i campi evidenziati per continuare.'
+  field_required: 'Questo campo è obbligatorio per continuare.'
+
+pt_BR:
+  complete_to_continue: 'Preencha os campos destacados para continuar.'
+  field_required: 'Este campo é obrigatório para continuar.'
+
+tr:
+  complete_to_continue: 'Devam etmek için vurgulanan alanları doldurun.'
+  field_required: 'Devam etmek için bu alan gereklidir.'
+
+vi:
+  complete_to_continue: 'Điền vào các trường được đánh dấu để tiếp tục.'
+  field_required: 'Trường này là bắt buộc để tiếp tục.'
+
+id:
+  complete_to_continue: 'Isi kolom yang disorot untuk melanjutkan.'
+  field_required: 'Kolom ini diperlukan untuk melanjutkan.'
+
+nl:
+  complete_to_continue: 'Vul de gemarkeerde velden in om door te gaan.'
+  field_required: 'Dit veld is verplicht om door te gaan.'
