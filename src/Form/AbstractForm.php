@@ -11,9 +11,11 @@ use Wexample\Helpers\Helper\TextHelper;
 use Wexample\SymfonyForms\Form\Type\SubmitInputType;
 use Wexample\SymfonyLoader\Helper\LoaderHelper;
 use Wexample\SymfonyTranslations\Translation\Translator;
+use Wexample\SymfonyHelpers\Attribute\WorkerSafe;
 
 class AbstractForm extends \Symfony\Component\Form\AbstractType
 {
+    #[WorkerSafe('Whether the form submits in the background: a setting of each form class, never changed at runtime.')]
     public static bool $ajax = false;
 
     public const FIELD_OPTION_NAME_LABEL = 'label';
