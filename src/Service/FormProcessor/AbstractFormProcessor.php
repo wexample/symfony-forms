@@ -17,8 +17,9 @@ use Wexample\SymfonyForms\Form\AbstractForm;
 use Wexample\SymfonyForms\Helper\FormGateHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 use Wexample\SymfonyTranslations\Translation\Translator;
+use Symfony\Contracts\Service\ResetInterface;
 
-abstract class AbstractFormProcessor
+abstract class AbstractFormProcessor implements ResetInterface
 {
     public const string CLASS_EXTENSION = 'Processor';
     public const string FORM_SUBMIT_ROUTE = 'form_processor_submit';
@@ -34,16 +35,30 @@ abstract class AbstractFormProcessor
     public const string ACTION_EMBED_STAY = 'embed_stay';
     public const string ACTION_EMBED_REDIRECT = 'embed_redirect';
 
-    protected ?Request $request = null;
+    // Read at each use and not kept from the construction: a service lives as
+    // long as the worker serving it, the request it was built for does not.
+    protected ?Request $request {
+        get => $this->requestStack->getCurrentRequest();
+    }
+
     protected ?array $successAction = null;
     protected ?Notification $notification = null;
 
     public function __construct(
         protected FormFactoryInterface $formFactory,
-        RequestStack $requestStack,
+        private readonly RequestStack $requestStack,
         protected UrlGeneratorInterface $urlGenerator
     ) {
-        $this->request = $requestStack->getCurrentRequest();
+    }
+
+    /**
+     * What a submission produced — its notification, where to go next — is
+     * answered once: kept, the next visitor's submission would inherit it.
+     */
+    public function reset(): void
+    {
+        $this->successAction = null;
+        $this->notification = null;
     }
 
     public function createForm(
