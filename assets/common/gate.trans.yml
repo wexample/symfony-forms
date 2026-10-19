@@ -5,3 +5,11 @@ en:
 fr:
   complete_to_continue: Remplissez les champs signalés pour continuer.
   field_required: Ce champ est requis pour continuer.
+
+zh:
+  complete_to_continue: 请填写高亮的字段以继续。
+  field_required: 此字段是继续所必需的。
+
+ar:
+  complete_to_continue: 'املأ الحقول المميزة للمتابعة.'
+  field_required: 'هذا الحقل مطلوب للمتابعة.'
