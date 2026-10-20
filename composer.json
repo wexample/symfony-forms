@@ -22,7 +22,8 @@
     "syrtis/php-semantic-schema-web": ">=0.0.19",
     "symfony/form": "^7.4 || ^8.0",
     "symfony/doctrine-bridge": "^7.4 || ^8.0",
-    "wexample/symfony-check": ">=4.0.0"
+    "wexample/symfony-check": ">=4.0.0",
+    "wexample/symfony-security": ">=3.0.0"
   },
   "autoload-dev": {
     "psr-4": {

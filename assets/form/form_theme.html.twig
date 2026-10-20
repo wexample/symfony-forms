@@ -373,6 +373,27 @@
     {% endif %}
 {% endblock %}
 
+{#- No label and no group: nothing a person reads or fills in. Its error is
+    the form's (`error_bubbling`). -#}
+{% block proof_of_work_input_row %}
+    {{ form_widget(form) }}
+{% endblock %}
+
+{% block proof_of_work_input_widget %}
+    {%- do form.solution.setRendered() -%}
+    {%- do form.website.setRendered() -%}
+    {{ component(
+        render_pass,
+        '@WexampleSymfonyDesignSystemBundle/components/form/proof-of-work-input',
+        {
+            challenge: challenge,
+            solution_name: form.solution.vars.full_name,
+            trap_name: form.website.vars.full_name,
+            trap_id: form.website.vars.id
+        }
+    ) }}
+{% endblock %}
+
 {% block password_input_widget %}
     {{ block('password_widget') }}
 {% endblock %}

@@ -42,3 +42,15 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 ## Checkbox or switch
 
 `CheckboxInputType` and `SwitchInputType` hold the same boolean, drawn as a box or as a switch; the application picks. `TelInputType` is the text input typed `tel`, for a phone's keypad.
+
+## A form open to anyone
+
+`ProofOfWorkInputType` is the captcha of a form anyone may send — a contact form, a sign-up. Nothing is shown and nothing is asked:
+
+```php
+$builder->add('captcha', ProofOfWorkInputType::class);
+```
+
+The field draws a challenge from symfony-security's `ProofOfWorkService` each time it is rendered; the design system's `form/proof-of-work-input` component solves it in the browser while the form is filled in, and holds the submission back for the moment it takes when the form is sent sooner. Beside it, a text field hidden from people and from screen readers (`website`) is offered to programs, which fill in whatever they find. On submission a missing, wrong, spent or too quick solution, or a filled trap, puts « The form could not be verified as sent by a person » above the form (`assets/common/proof_of_work.trans.yml`).
+
+The field is not mapped. A solution sends one submission: a form whose processor `answersWithPage()` draws a new challenge with the page answering a refused submission. A form answered in JSON keeps the spent one; reload it to send again.

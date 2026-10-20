@@ -1,0 +1,5 @@
+en:
+  failed: The form could not be verified as sent by a person. Please send it again.
+
+fr:
+  failed: Le formulaire n'a pas pu être vérifié comme envoyé par une personne. Merci de l'envoyer à nouveau.
