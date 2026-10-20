@@ -7,6 +7,7 @@ use Wexample\SymfonyForms\WexampleSymfonyFormsBundle;
 use Wexample\SymfonyLoader\WexampleSymfonyLoaderBundle;
 use Wexample\SymfonyPreference\WexampleSymfonyPreferenceBundle;
 use Wexample\SymfonyRouting\WexampleSymfonyRoutingBundle;
+use Wexample\SymfonySecurity\WexampleSymfonySecurityBundle;
 use Wexample\SymfonyTemplate\WexampleSymfonyTemplateBundle;
 use Wexample\SymfonyTesting\Tests\Fixtures\AbstractFixtureKernel;
 use Wexample\SymfonyTranslations\WexampleSymfonyTranslationsBundle;
@@ -27,6 +28,7 @@ class AppKernel extends AbstractFixtureKernel
             new WexampleSymfonyLoaderBundle(),
             new WexampleSymfonyPreferenceBundle(),
             new WexampleSymfonyDesignSystemBundle(),
+            new WexampleSymfonySecurityBundle(),
             new WexampleSymfonyFormsBundle(),
         ];
     }
