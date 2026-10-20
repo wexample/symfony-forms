@@ -3,3 +3,66 @@ en:
 
 fr:
   failed: Le formulaire n'a pas pu être vérifié comme envoyé par une personne. Merci de l'envoyer à nouveau.
+
+zh:
+  failed: 无法验证该表单是由个人发送的。请重新发送。
+
+ar:
+  failed: 'لم يتم التحقق من النموذج على أنه تم إرساله بواسطة شخص. يرجى إرساله مرة أخرى.'
+
+hi:
+  failed: 'फॉर्म को यह सत्यापित नहीं किया जा सका कि इसे किसी व्यक्ति द्वारा भेजा गया है। कृपया इसे फिर से भेजें।'
+
+he:
+  failed: 'לא ניתן לאמת שהטופס נשלח על ידי אדם. אנא שלח אותו שוב.'
+
+fa:
+  failed: 'فرم نتوانست تایید شود که توسط یک شخص ارسال شده است. لطفاً دوباره آن را ارسال کنید.'
+
+ur:
+  failed: 'یہ فارم اس بات کی تصدیق نہیں کر سکا کہ اسے کسی شخص نے بھیجا ہے۔ براہ کرم اسے دوبارہ بھیجیں۔'
+
+ja:
+  failed: このフォームは人によって送信されたものとして確認できませんでした。もう一度送信してください。
+
+ko:
+  failed: '양식이 사람이 보낸 것으로 확인될 수 없습니다. 다시 보내주시기 바랍니다.'
+
+bn:
+  failed: 'ফর্মটি একজন মানুষের দ্বারা পাঠানো হয়েছে বলে যাচাই করা যায়নি। দয়া করে আবার পাঠান।'
+
+th:
+  failed: 'ไม่สามารถตรวจสอบแบบฟอร์มได้ว่าได้รับการส่งโดยบุคคล กรุณาส่งอีกครั้ง.'
+
+de:
+  failed: 'Das Formular konnte nicht als von einer Person gesendet verifiziert werden. Bitte senden Sie es erneut.'
+
+fi:
+  failed: 'Lomaketta ei voitu vahvistaa henkilön lähettämäksi. Lähetä se uudelleen.'
+
+ru:
+  failed: 'Форма не может быть подтверждена как отправленная человеком. Пожалуйста, отправьте её снова.'
+
+pl:
+  failed: 'Formularz nie mógł zostać zweryfikowany jako wysłany przez osobę. Proszę wysłać go ponownie.'
+
+es:
+  failed: 'El formulario no pudo ser verificado como enviado por una persona. Por favor, envíalo de nuevo.'
+
+it:
+  failed: 'Il modulo non può essere verificato come inviato da una persona. Si prega di inviarlo nuovamente.'
+
+pt_BR:
+  failed: 'O formulário não pôde ser verificado como enviado por uma pessoa. Por favor, envie-o novamente.'
+
+tr:
+  failed: 'Form, bir kişi tarafından gönderildiği doğrulanamadı. Lütfen tekrar gönderin.'
+
+vi:
+  failed: 'Biểu mẫu không thể được xác minh là đã được gửi bởi một người. Vui lòng gửi lại.'
+
+id:
+  failed: 'Formulir tidak dapat diverifikasi sebagai yang dikirim oleh seseorang. Harap kirim ulang.'
+
+nl:
+  failed: 'Het formulier kon niet worden geverifieerd als verzonden door een persoon. Stuur het alstublieft opnieuw.'

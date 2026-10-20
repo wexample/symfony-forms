@@ -1,6 +1,6 @@
 # symfony_forms
 
-Version: 13.0.0
+Version: 14.0.0
 
 `wexample/symfony-forms` is a Symfony bundle that binds the Symfony Form component to the Wexample design system: its form types (`TextInputType`, `SelectInputType`, `SwitchInputType`, `EmojiPickerType`…) carry block prefixes such as `text_input` that resolve to the design-system Twig components, and its Twig functions render those same components directly, validating the context against a JSON schema before output. Around them sits a processor layer — an `AbstractFormProcessor` paired with a form class by naming convention, the `#[FormProcessor]` attribute on a controller method, and the `_forms/submit/{name}` route — which handles submission, redirection, flash notifications and AJAX responses without repeating the `handleRequest` / `isValid` dance in every controller. It targets applications already built on `wexample/symfony-design-system` that want their forms styled, translated and processed the same way across the whole project.
 
@@ -47,6 +47,18 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 
 `CheckboxInputType` and `SwitchInputType` hold the same boolean, drawn as a box or as a switch; the application picks. `TelInputType` is the text input typed `tel`, for a phone's keypad.
 
+## A form open to anyone
+
+`ProofOfWorkInputType` is the captcha of a form anyone may send — a contact form, a sign-up. Nothing is shown and nothing is asked:
+
+```php
+$builder->add('captcha', ProofOfWorkInputType::class);
+```
+
+The field draws a challenge from symfony-security's `ProofOfWorkService` each time it is rendered; the design system's `form/proof-of-work-input` component solves it in the browser while the form is filled in, and holds the submission back for the moment it takes when the form is sent sooner. Beside it, a text field hidden from people and from screen readers (`website`) is offered to programs, which fill in whatever they find. On submission a missing, wrong, spent or too quick solution, or a filled trap, puts « The form could not be verified as sent by a person » above the form (`assets/common/proof_of_work.trans.yml`).
+
+The field is not mapped. A solution sends one submission: a form whose processor `answersWithPage()` draws a new challenge with the page answering a refused submission. A form answered in JSON keeps the spent one; reload it to send again.
+
 ## Table of Contents
 
 - [Saving an entity](#saving-an-entity)
@@ -56,6 +68,7 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 - [Buttons at the foot of a modal or a panel](#buttons-at-the-foot-of-a-modal-or-a-panel)
 - [Choosing an entity](#choosing-an-entity)
 - [Checkbox or switch](#checkbox-or-switch)
+- [A form open to anyone](#a-form-open-to-anyone)
 - [Architecture](#architecture)
 - [Integration in the Suite](#integration-in-the-suite)
 - [Dependencies](#dependencies)
@@ -223,11 +236,12 @@ The suite includes packages for configuration management, file handling, prompts
 
 - php: >=8.5
 - doctrine/orm: ^3.0
-- wexample/symfony-design-system: >=37.0.0
+- wexample/symfony-design-system: >=38.0.0
 - syrtis/php-semantic-schema-web: >=0.0.19
 - symfony/form: ^7.4 || ^8.0
 - symfony/doctrine-bridge: ^7.4 || ^8.0
 - wexample/symfony-check: >=4.0.0
+- wexample/symfony-security: >=4.0.0
 
 ## Versioning & Compatibility Policy
 

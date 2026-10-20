@@ -208,5 +208,131 @@
             "hash": "7a66ac99fd56d0fb93c2ecc190607b62",
             "engine": "syrtis"
         }
+    },
+    "common/proof_of_work.ar.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.bn.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.de.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.es.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.fa.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.fi.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.he.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.hi.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.id.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.it.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.ja.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.ko.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.nl.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.pl.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.pt_BR.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.ru.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.th.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.tr.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.ur.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.vi.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
+    },
+    "common/proof_of_work.zh.yml": {
+        "failed": {
+            "hash": "8475fb486ea8af6cde8c7a5569b91a0f",
+            "engine": "syrtis"
+        }
     }
 }
