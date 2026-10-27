@@ -7,9 +7,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Wexample\SymfonyForms\Service\FormProcessor\FormProcessorPostHandler;
 
-#[Route(name: 'form_')]
+#[Route(name: self::ROUTE_NAME_PREFIX)]
 final class FormController
 {
+    public const string ROUTE_NAME_PREFIX = 'form_';
+    public const string PATH_PREFIX = '/_forms/';
     public const ROUTE_PATH_PROCESSOR_SUBMIT = '_forms/submit/{name}';
     public const ROUTE_PROCESSOR_SUBMIT = 'processor_submit';
     public const ROUTE_ENTITY_FORM_PROCESSOR_SUBMIT = 'entity_form_processor_submit';

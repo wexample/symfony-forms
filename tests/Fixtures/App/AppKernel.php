@@ -2,6 +2,7 @@
 
 namespace Wexample\SymfonyForms\Tests\Fixtures\App;
 
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Wexample\SymfonyDesignSystem\WexampleSymfonyDesignSystemBundle;
 use Wexample\SymfonyForms\WexampleSymfonyFormsBundle;
 use Wexample\SymfonyLoader\WexampleSymfonyLoaderBundle;
@@ -38,5 +39,10 @@ class AppKernel extends AbstractFixtureKernel
         return [
             __DIR__ . '/config/config.yaml',
         ];
+    }
+
+    protected function configureRoutes(RoutingConfigurator $routes): void
+    {
+        $routes->import('@WexampleSymfonyFormsBundle/Resources/config/routes.yaml');
     }
 }

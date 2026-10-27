@@ -1,6 +1,9 @@
 framework:
   test: true
   secret: "test"
+  # Debug kernels say `noindex` on every response; production ones do not,
+  # and the robots tests read what the package says on its own.
+  disallow_search_engine_index: false
 
 twig:
   strict_variables: true
