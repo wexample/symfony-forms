@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Wexample\SymfonyForms\Attribute\FormProcessor;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;
+use Wexample\SymfonyForms\Service\FormProcessor\FormProcessorAccessGuard;
 use Wexample\SymfonyForms\Service\FormProcessor\FormResponsePayloadBuilder;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 use Wexample\SymfonyHelpers\Helper\RouteHelper;
@@ -22,7 +24,8 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly ServiceLocator $processors,
         private readonly ServiceLocator $formDataResolvers,
-        private readonly FormResponsePayloadBuilder $payloadBuilder
+        private readonly FormResponsePayloadBuilder $payloadBuilder,
+        private readonly FormProcessorAccessGuard $accessGuard,
     ) {
     }
 
@@ -64,6 +67,12 @@ class FormProcessorRequestSubscriber implements EventSubscriberInterface
                 : null;
 
             if ($request->isMethod('POST')) {
+                // Refused as the page itself would be, before anything is
+                // saved: the firewall answers, a sign-in for a visitor.
+                if (! $this->accessGuard->mayProcess($processor) || ! $this->accessGuard->mayReachController($reflection)) {
+                    throw new AccessDeniedException('Access denied for form submission.');
+                }
+
                 $form = $hasFormDataResolver
                     ? $processor->handleSubmissionWithData($request, $formData)
                     : $processor->handleSubmission($request);

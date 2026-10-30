@@ -103,6 +103,8 @@ $event->setResponse(new JsonResponse(
 ));
 ```
 
+Before a `POST` is handled, {{ path("src/Service/FormProcessor/FormProcessorAccessGuard.php") }} refuses it as the page would be refused: the processor's `getRequiredRoles()`, and every `#[IsGranted]` without a subject on the controller's class and method. The subscriber runs before Symfony reads those attributes on the controller, so without this check a refused page would answer 403 after the form had saved. An `#[IsGranted]` naming a subject is left to the controller — its arguments are not resolved yet —, and a processor writing to a record checks it itself. A refusal throws `AccessDeniedException`, which the firewall turns into a sign-in for a visitor and a 403 otherwise.
+
 Otherwise the built form is stored under the request attribute `_form_processor_forms`, keyed by `formArgumentName`. {{ path("src/ArgumentResolver/FormProcessorValueResolver.php") }} then hands it to the controller argument: it only supports arguments typed `FormInterface` whose name matches a `formArgumentName` on the same method, and yields the form from that attribute. The controller therefore receives a form already created, already submitted, already validated.
 
 **Direct POST to the submit route.** {{ path("src/Controller/FormController.php") }} exposes `_forms/submit/{name}` (route `form_processor_submit`, matching `AbstractFormProcessor::FORM_SUBMIT_ROUTE`) and `_forms/submit/{name}/entity/{id}`, both POST only, both delegating to {{ path("src/Service/FormProcessor/FormProcessorPostHandler.php") }}. The handler walks the tagged locator to find the processor whose form matches the URL name:
@@ -111,7 +113,7 @@ Otherwise the built form is stored under the request attribute `_form_processor_
 if (ClassHelper::longTableized($processorClass::getFormClass()) === $formName) {
 ```
 
-then checks `getRequiredRoles()` — `['ROLE_USER']` by default, `RoleHelper::PUBLIC_ACCESS` opening it up — and throws `AccessDeniedHttpException` when none is granted. It returns the processor's redirect if there is one, a `JsonResponse` for a JSON request, and `204 No Content` otherwise.
+then checks `getRequiredRoles()` through the same guard — `['ROLE_USER']` by default, `RoleHelper::PUBLIC_ACCESS` opening it up — and throws `AccessDeniedHttpException` when none is granted. It returns the processor's redirect if there is one, a `JsonResponse` for a JSON request, and `204 No Content` otherwise.
 
 ### The JSON payload
 

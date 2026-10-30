@@ -8,16 +8,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
-use Wexample\SymfonyHelpers\Helper\RoleHelper;
 
 class FormProcessorPostHandler
 {
     public function __construct(
         private readonly ServiceLocator $processors,
-        private readonly AuthorizationCheckerInterface $authorizationChecker,
+        private readonly FormProcessorAccessGuard $accessGuard,
         private readonly FormResponsePayloadBuilder $payloadBuilder
     ) {
     }
@@ -66,22 +64,8 @@ class FormProcessorPostHandler
 
     private function assertHasAccess(AbstractFormProcessor $formProcessor): void
     {
-        $roles = $formProcessor->getRequiredRoles();
-
-        if (empty($roles)) {
-            return;
+        if (! $this->accessGuard->mayProcess($formProcessor)) {
+            throw new AccessDeniedHttpException('Access denied for form submission.');
         }
-
-        foreach ($roles as $role) {
-            if ($role === RoleHelper::PUBLIC_ACCESS) {
-                return;
-            }
-
-            if ($this->authorizationChecker->isGranted($role)) {
-                return;
-            }
-        }
-
-        throw new AccessDeniedHttpException('Access denied for form submission.');
     }
 }
