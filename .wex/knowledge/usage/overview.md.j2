@@ -35,6 +35,19 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 {% block page_actions %}{{ form_footer(form) }}{% endblock %}
 ```{% endraw %}
 
+## A form drawn by a vue
+
+`form_props(form)` hands a form to a vue rather than drawing it: where it is sent, under which name, its token, and each field's name, value, `required` and `maxlength`. The vue sends it as the drawn form would be — the same fields, posted to the processor's address, answered in json — and the processor validates, saves and notifies as for any other form. The design system's `inline-edit` reads these props: a title edited in place, one field of an `$ajax` entity form.
+
+```twig
+{{ vue(render_pass, '@WexampleSymfonyDesignSystemBundle/components/form/inline-edit', {
+    form: form_props(step_title_form, { id_placeholder: '__id__' }),
+    field: 'title',
+}) }}
+```
+
+`id_placeholder` puts a placeholder where the entity's id stands in the address: one form serves every entity of its kind the vue shows, the vue putting the one it sends in its place.
+
 ## Choosing an entity
 
 `EntitySelectInputType` offers every row of a short table at once, as a select — a team among ten —, with Doctrine's EntityType options (`class`, `choice_label`, `query_builder`); the labels are the data, not translated. A long table is searched rather than listed: symfony-search's `EntitySearchInputType`.
