@@ -21,6 +21,10 @@ services:
   Wexample\SymfonyForms\Tests\Fixtures\App\Form\:
     resource: '../Form/'
 
+  # Found by their form's class (`form_props_for()`), as an application's are.
+  Wexample\SymfonyForms\Tests\Fixtures\App\Service\FormProcessor\:
+    resource: '../Service/FormProcessor/'
+
   # symfony-testing registers it with the string '@kernel' instead of a
   # reference, which only YAML turns into the kernel service.
   Wexample\SymfonyHelpers\Service\BundleService:

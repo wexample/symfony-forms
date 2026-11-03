@@ -20,6 +20,10 @@ services:
         arguments:
             $processors: !tagged_locator { tag: 'wexample.symfony_forms.form_processor' }
 
+    Wexample\SymfonyForms\Twig\FormPropsExtension:
+        arguments:
+            $processors: !tagged_locator { tag: 'wexample.symfony_forms.form_processor' }
+
     Wexample\SymfonyForms\ArgumentResolver\FormProcessorValueResolver:
         tags: ['controller.argument_value_resolver']
 

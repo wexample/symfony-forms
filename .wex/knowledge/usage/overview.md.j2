@@ -48,6 +48,8 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 
 `id_placeholder` puts a placeholder where the entity's id stands in the address: one form serves every entity of its kind the vue shows, the vue putting the one it sends in its place.
 
+`form_props_for(form_class, data)` makes the form there, by its processor: for what a layout shows on every page it draws — the title of the record its header names —, no controller making it for each.
+
 ## Choosing an entity
 
 `EntitySelectInputType` offers every row of a short table at once, as a select — a team among ten —, with Doctrine's EntityType options (`class`, `choice_label`, `query_builder`); the labels are the data, not translated. A long table is searched rather than listed: symfony-search's `EntitySearchInputType`.

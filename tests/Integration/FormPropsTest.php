@@ -52,6 +52,21 @@ class FormPropsTest extends KernelTestCase
         $this->assertSame('/_forms/submit/contact_form/entity/42', $this->builder()->build($form)['action']);
     }
 
+    public function testALayoutMakesTheFormByItsClass(): void
+    {
+        self::bootKernel();
+        $contact = new Contact();
+        $contact->name = 'Ada';
+
+        $props = self::getContainer()->get('twig')
+            ->createTemplate("{{ form_props_for('Wexample\\\\SymfonyForms\\\\Tests\\\\Fixtures\\\\App\\\\Form\\\\ContactForm', contact)|json_encode|raw }}")
+            ->render(['contact' => $contact]);
+        $props = json_decode($props, true);
+
+        $this->assertSame('contact_form', $props['name']);
+        $this->assertSame('Ada', $props['fields']['name']['value']);
+    }
+
     private function builder(): FormPropsBuilder
     {
         return self::getContainer()->get(FormPropsBuilder::class);
