@@ -43,6 +43,19 @@ abstract class AbstractEntityFormProcessor extends AbstractFormProcessor
         return parent::getFormActionArgs($data) + ($id !== null ? [self::ROUTE_PARAM_ID => (string) $id] : []);
     }
 
+    /**
+     * The submit address of the entity whose id is `$id` — or a placeholder
+     * standing for it, for a form serving every entity of its kind
+     * (`form_props_for(form, null, { id_placeholder })`).
+     */
+    public function createFormActionForId(string $id): string
+    {
+        return $this->urlGenerator->generate(
+            $this->getFormActionRoute(),
+            parent::getFormActionArgs(null) + [self::ROUTE_PARAM_ID => $id]
+        );
+    }
+
     public function handleSubmission(Request $request): FormInterface
     {
         $id = $request->attributes->get(self::ROUTE_PARAM_ID);

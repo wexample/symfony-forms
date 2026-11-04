@@ -7,6 +7,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
+use Wexample\SymfonyForms\Service\FormProcessor\AbstractEntityFormProcessor;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;
 use Wexample\SymfonyForms\Service\FormPropsBuilder;
 
@@ -19,6 +20,9 @@ use Wexample\SymfonyForms\Service\FormPropsBuilder;
  * - `form_props_for(form_class, data, { id_placeholder })`, a form made here by
  *   its processor, for what a layout shows on every page it draws — the
  *   title of the record a header names —, no controller making it for each.
+ *   No data and a placeholder: the form of an entity of its kind, any of
+ *   them, its id put in its address by the vue — the slot a board's zone
+ *   edits, whichever is picked.
  */
 class FormPropsExtension extends AbstractExtension
 {
@@ -38,11 +42,23 @@ class FormPropsExtension extends AbstractExtension
             new TwigFunction(
                 'form_props_for',
                 fn (string $formClass, mixed $data = null, array $options = []): array => $this->builder->build(
-                    $this->processorFor($formClass)->createForm($data),
+                    $this->createFormFor($formClass, $data, $options),
                     $options
                 )
             ),
         ];
+    }
+
+    private function createFormFor(string $formClass, mixed $data, array $options): FormInterface
+    {
+        $processor = $this->processorFor($formClass);
+        $placeholder = $options['id_placeholder'] ?? null;
+
+        if (null === $data && null !== $placeholder && $processor instanceof AbstractEntityFormProcessor) {
+            return $processor->createForm(null, ['action' => $processor->createFormActionForId($placeholder)]);
+        }
+
+        return $processor->createForm($data);
     }
 
     private function processorFor(string $formClass): AbstractFormProcessor
