@@ -19,7 +19,7 @@
     "php": ">=8.5",
     "doctrine/orm": "^3.0",
     "wexample/symfony-design-system": ">=42.0.0",
-    "syrtis/php-semantic-schema-web": ">=0.0.19",
+    "opis/json-schema": "^2.6",
     "symfony/form": "^7.4 || ^8.0",
     "symfony/doctrine-bridge": "^7.4 || ^8.0",
     "wexample/symfony-check": ">=4.0.4",

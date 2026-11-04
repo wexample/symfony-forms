@@ -72,13 +72,19 @@ $resolver->setDefaults([
 
 ### Rendering without a form object
 
-src/Twig/FormExtension.php registers one Twig function per component (`text_input`, `password_input`, `hidden_input`, `submit_input`, `textarea_input`, `select_input`) for templates that render an input without a Symfony form behind it. Each sets `$context['type']`, validates, then renders the same design-system template the theme uses. Validation lives in src/Service/FormRenderingService.php, which loads the JSON schema for the component and checks the Twig context against it:
+src/Twig/FormExtension.php registers one Twig function per component (`text_input`, `password_input`, `hidden_input`, `submit_input`, `textarea_input`, `select_input`) for templates that render an input without a Symfony form behind it. Each sets `$context['type']`, validates, then renders the same design-system template the theme uses. Validation lives in src/Service/FormRenderingService.php, which checks the Twig context against the schema of that kind of field:
 
 ```php
-$schema = SchemaLoaderHelper::loadSchema($type);
-$data = TemplateHelper::stripTwigContextKeys($context);
-JsonSchemaValidationHelper::validateOrThrow($schema, $data, $type.' context');
+$this->validateAgainst($this->schemas->load($type), TemplateHelper::stripTwigContextKeys($context), $type.' context');
 ```
+
+### The form schemas
+
+The schemas are a norm kept outside any language — the `json-schema` service of the stack, its `web/` directory: one file per kind of field (`text_input.json`, `select_input.json`…, all on `field_base.json`), `form.json` for a form as a whole and `form_submit_response.json` for what a form answers. The design system keeps a copy of the directory beside its field components (`assets/schemas/web/`, made by `design-system:schemas:sync`), and src/Service/FormSchemaLoader.php reads that copy: each file's relative `$ref`s put in place, each `allOf` folded, so the validator (`opis/json-schema`) checks against one object. Nothing here depends on the Syrtis packages that first held these schemas.
+
+### A form handed to a vue
+
+src/Service/FormPropsBuilder.php (`form_props()`, `form_props_for()`) hands a form to a vue as `form.json` describes one — its name, where and how it is sent, its token, its fields in order, each of the kind the norm names with its label, limits and value — and checks the result against the norm before it leaves. The design system's `inline-edit` and `props-form` draw from that description and send the fields under the form's name, as the drawn form would; the processor answers as `form_submit_response.json` says, which `FormResponsePayload` is checked against in the tests.
 
 ### Processing: the processor
 

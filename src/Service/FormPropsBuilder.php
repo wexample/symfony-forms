@@ -2,48 +2,49 @@
 
 namespace Wexample\SymfonyForms\Service;
 
+use Symfony\Component\Form\ChoiceList\View\ChoiceGroupView;
+use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * A form handed to a vue rather than drawn (`form_props()`): what the vue
- * needs to send it as the form drawn would be sent — where, under which
- * name, with its token —, and each field's name, value and limits. The form
- * stays the one that validates, saves and answers (its processor); the vue
- * only draws it, as lightly as it likes — a title edited in place.
+ * A form handed to a vue rather than drawn (`form_props()`): the form as the
+ * json-schema norm describes one (`form.json` — its fields each of the kind
+ * the norm names, where and how it is sent), so the vue draws it from that
+ * description alone, as it would draw one an agent wrote or a page kept in
+ * a database. The form stays the one that validates, saves and answers (its
+ * processor); the vue only draws it, as lightly as it likes — a title edited
+ * in place (inline-edit), the form whole (props-form).
  *
  * ```
  * {
  *   name: 'step_title_form',
  *   action: '/_forms/submit/step_title_form/entity/__id__',
  *   method: 'POST',
- *   token: { name: 'step_title_form[_token]', value: '…' },
- *   fields: { title: { name: 'step_title_form[title]', value: 'Intro', required: true, maxlength: 255, label: 'Title', type: 'text' } }
+ *   token: { name: '_token', value: '…' },
+ *   fields: [{ type: 'text', name: 'title', label: 'Title', required: true, maxLength: 255, value: 'Intro' }]
  * }
  * ```
  *
- * `label` is the one the drawn form shows — `label: true` read as
- * `field.<name>.label` in the form's domain, as the form theme reads it —,
- * null when the form says none; `type` the kind of field a vue draws for it
- * (FIELD_TYPES), `text` for any other.
+ * A field's name is its own: sent under the form's, `step_title_form[title]`,
+ * as the drawn form sends it. Its label is the one the drawn form shows —
+ * `label: true` read as `field.<name>.label` in the form's domain, as the
+ * form theme reads it —, its name when the form says none. What is built is
+ * checked against the norm before it leaves: a form the norm cannot say is
+ * a fault here, not in the vue.
  */
 class FormPropsBuilder
 {
     private const string TOKEN_FIELD = '_token';
 
-    /** The block prefix of a field's type, and the kind of field it is drawn as. */
-    private const array FIELD_TYPES = [
-        'textarea_input' => 'textarea',
-        'email_input' => 'email',
-        'password_input' => 'password',
-        'tel_input' => 'tel',
-        'url_input' => 'url',
-        'number_input' => 'number',
-        'text_input' => 'text',
-    ];
+    private const string KIND_SUFFIX = '_input';
+
+    private const string KIND_DEFAULT = 'text';
 
     public function __construct(
+        private readonly FormSchemaLoader $schemas,
+        private readonly FormRenderingService $rendering,
         private readonly ?TranslatorInterface $translator = null,
     ) {
     }
@@ -59,8 +60,10 @@ class FormPropsBuilder
         $vars = $view->vars;
 
         $props = [
-            'name' => $vars['full_name'],
-            'action' => $this->buildAction($form, $vars['action'] ?? '', $options['id_placeholder'] ?? null),
+            'name' => $vars['name'],
+            // A form naming no address is sent to the page it is on, as the
+            // drawn one would be.
+            'action' => $this->buildAction($form, $vars['action'] ?? '', $options['id_placeholder'] ?? null) ?: '#',
             'method' => strtoupper($vars['method'] ?? 'POST'),
             'token' => null,
             'fields' => [],
@@ -69,8 +72,8 @@ class FormPropsBuilder
         foreach ($view->children as $name => $child) {
             if (self::TOKEN_FIELD === $name) {
                 $props['token'] = [
-                    'name' => $child->vars['full_name'],
-                    'value' => $child->vars['value'],
+                    'name' => $name,
+                    'value' => (string) $child->vars['value'],
                 ];
 
                 continue;
@@ -81,17 +84,104 @@ class FormPropsBuilder
                 continue;
             }
 
-            $props['fields'][$name] = [
-                'name' => $child->vars['full_name'],
-                'value' => $child->vars['value'],
-                'required' => (bool) ($child->vars['required'] ?? false),
-                'maxlength' => isset($child->vars['attr']['maxlength']) ? (int) $child->vars['attr']['maxlength'] : null,
-                'label' => $this->buildLabel($child),
-                'type' => $this->buildType($child),
-            ];
+            $props['fields'][] = $this->buildField($child);
         }
 
+        $this->rendering->validateAgainst($this->schemas->load('form'), $props, sprintf('The form "%s" handed to a vue', $vars['name']));
+
         return $props;
+    }
+
+    private function buildField(FormView $field): array
+    {
+        $vars = $field->vars;
+        $attr = $vars['attr'] ?? [];
+        $kind = $this->buildKind($field);
+        $value = $vars['value'];
+
+        $built = array_filter([
+            'type' => $kind,
+            'name' => $vars['name'],
+            'label' => $this->buildLabel($field),
+            'placeholder' => $this->buildPlaceholder($field),
+            'required' => (bool) ($vars['required'] ?? false),
+            'minLength' => isset($attr['minlength']) ? (int) $attr['minlength'] : null,
+            'maxLength' => isset($attr['maxlength']) ? (int) $attr['maxlength'] : null,
+            'pattern' => isset($attr['pattern']) ? (string) $attr['pattern'] : null,
+            // What the norm holds as a value: a text. A list — a choice of
+            // several — or a record goes as nothing, the field starting empty.
+            'value' => is_scalar($value) ? (string) $value : null,
+        ], static fn (mixed $value): bool => $value !== null);
+
+        // A hidden field says no label.
+        if ('hidden' === $kind) {
+            unset($built['label']);
+        }
+
+        if ('textarea' === $kind && isset($attr['rows'])) {
+            $built['rows'] = (int) $attr['rows'];
+        }
+
+        if ('select' === $kind) {
+            $built['choices'] = $this->buildChoices($vars['choices'] ?? []);
+
+            if (! empty($vars['multiple'])) {
+                $built['multiple'] = true;
+            }
+        }
+
+        return $built;
+    }
+
+    /**
+     * The kind of field, as the norm names it: the nearest block prefix the
+     * norm has a schema for — `textarea_input` is `textarea`, as a core
+     * `email` is `email` —, text for any other.
+     */
+    private function buildKind(FormView $field): string
+    {
+        $kinds = $this->schemas->getFieldKinds();
+
+        foreach (array_reverse($field->vars['block_prefixes'] ?? []) as $prefix) {
+            $kind = str_ends_with($prefix, self::KIND_SUFFIX) ? substr($prefix, 0, -strlen(self::KIND_SUFFIX)) : $prefix;
+
+            if (in_array($kind, $kinds, true)) {
+                return $kind;
+            }
+        }
+
+        return self::KIND_DEFAULT;
+    }
+
+    /**
+     * @param array<ChoiceView|ChoiceGroupView> $choices
+     *
+     * @return array<array{label: string, value: string|null, options?: array}>
+     */
+    private function buildChoices(array $choices): array
+    {
+        $built = [];
+
+        foreach ($choices as $choice) {
+            if ($choice instanceof ChoiceGroupView) {
+                $built[] = [
+                    'label' => (string) $choice->label,
+                    'value' => null,
+                    'options' => $this->buildChoices($choice->choices),
+                ];
+
+                continue;
+            }
+
+            if ($choice instanceof ChoiceView) {
+                $built[] = [
+                    'label' => (string) $choice->label,
+                    'value' => (string) $choice->value,
+                ];
+            }
+        }
+
+        return $built;
     }
 
     private function buildAction(FormInterface|FormView $form, string $action, ?string $placeholder): string
@@ -106,31 +196,38 @@ class FormPropsBuilder
         return null === $id ? $action : str_replace('/'.$id, '/'.$placeholder, $action);
     }
 
-    private function buildLabel(FormView $field): ?string
+    private function buildLabel(FormView $field): string
     {
         $vars = $field->vars;
         $label = $vars['label'] ?? null;
 
         if (false === $label) {
-            return null;
+            return $vars['name'];
         }
 
         $key = true === $label ? 'field.'.$vars['name'].'.label' : ($label ?? $vars['name']);
-        $domain = $vars['translation_domain'] ?? null;
 
-        return false === $domain || null === $this->translator
-            ? $key
-            : $this->translator->trans($key, $vars['label_translation_parameters'] ?? [], $domain);
+        return $this->translate($key, $vars['label_translation_parameters'] ?? [], $vars['translation_domain'] ?? null);
     }
 
-    private function buildType(FormView $field): string
+    private function buildPlaceholder(FormView $field): ?string
     {
-        foreach (array_reverse($field->vars['block_prefixes'] ?? []) as $prefix) {
-            if (isset(self::FIELD_TYPES[$prefix])) {
-                return self::FIELD_TYPES[$prefix];
-            }
+        $vars = $field->vars;
+        $placeholder = $vars['attr']['placeholder'] ?? null;
+
+        if (null === $placeholder || false === $placeholder) {
+            return null;
         }
 
-        return 'text';
+        $key = true === $placeholder ? 'field.'.$vars['name'].'.placeholder' : (string) $placeholder;
+
+        return $this->translate($key, [], $vars['translation_domain'] ?? null);
+    }
+
+    private function translate(string $key, array $parameters, string|false|null $domain): string
+    {
+        return false === $domain || null === $this->translator
+            ? $key
+            : $this->translator->trans($key, $parameters, $domain);
     }
 }

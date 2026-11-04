@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "453cf8e5411aee18a31827e4a1bc7267",
+    "content-hash": "d26ff90adbb0e4693b16ee796f24b43e",
     "packages": [
         {
             "name": "dflydev/dot-access-data",
@@ -7532,90 +7532,6 @@
             "time": "2026-10-26T13:33:44+00:00"
         },
         {
-            "name": "syrtis/php-json-schema",
-            "version": "0.0.20",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Syrtis-AI/syrtis-php-json-schema.git",
-                "reference": "833f90dbd0e1e471943975d22e5290b6c33a930e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Syrtis-AI/syrtis-php-json-schema/zipball/833f90dbd0e1e471943975d22e5290b6c33a930e",
-                "reference": "833f90dbd0e1e471943975d22e5290b6c33a930e",
-                "shasum": ""
-            },
-            "require": {
-                "opis/json-schema": "^2.6.0",
-                "php": ">=8.1",
-                "wexample/php-helpers": ">=2.0.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Syrtis\\JsonSchema\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Syrtis",
-                    "email": "contact@syrtis.ai"
-                }
-            ],
-            "description": "Helper to build and resolve json schemas.",
-            "support": {
-                "issues": "https://github.com/Syrtis-AI/syrtis-php-json-schema/issues",
-                "source": "https://github.com/Syrtis-AI/syrtis-php-json-schema/tree/v0.0.20"
-            },
-            "time": "2026-10-24T09:52:40+00:00"
-        },
-        {
-            "name": "syrtis/php-semantic-schema-web",
-            "version": "0.0.21",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Syrtis-AI/syrtis-php-semantic-schema-web.git",
-                "reference": "87db7955d46d69c8ea3ec9142322013b499acc60"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Syrtis-AI/syrtis-php-semantic-schema-web/zipball/87db7955d46d69c8ea3ec9142322013b499acc60",
-                "reference": "87db7955d46d69c8ea3ec9142322013b499acc60",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^7.8",
-                "php": ">=8.1",
-                "syrtis/php-json-schema": ">=0.0.18"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Syrtis\\SemanticSchemaWeb\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Syrtis",
-                    "email": "contact@syrtis.ai"
-                }
-            ],
-            "description": "List of JSON schema used to describe basc web elements",
-            "support": {
-                "issues": "https://github.com/Syrtis-AI/syrtis-php-semantic-schema-web/issues",
-                "source": "https://github.com/Syrtis-AI/syrtis-php-semantic-schema-web/tree/v0.0.21"
-            },
-            "time": "2026-10-24T09:53:04+00:00"
-        },
-        {
             "name": "twig/twig",
             "version": "v3.30.0",
             "source": {
@@ -7701,7 +7617,7 @@
             "dist": {
                 "type": "path",
                 "url": "../php-api",
-                "reference": "a35b9d3138ac5c5d11b434d70fafff994b3deb37"
+                "reference": "86242baa1098565c1171546b1d8feccbc938bfd2"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.8",
@@ -7742,7 +7658,7 @@
             "dist": {
                 "type": "path",
                 "url": "../php-api-entity",
-                "reference": "22c637de44dede44a26327a3d71531e765d96ab3"
+                "reference": "aec50c34d688ff4a165e8f5bc4dda7766f1357a7"
             },
             "require": {
                 "php": ">=8.5",
@@ -7784,7 +7700,7 @@
             "dist": {
                 "type": "path",
                 "url": "../php-bpmn",
-                "reference": "d1211a0530107623ed30ad5c04e3abcae627ed87"
+                "reference": "1d34b6da44e99cf504641ba4377ceefb4190ed08"
             },
             "require": {
                 "ext-dom": "*",
@@ -7825,7 +7741,7 @@
             "dist": {
                 "type": "path",
                 "url": "../php-date",
-                "reference": "96a41850698cbc6cec7d85035e1579538c094279"
+                "reference": "df9cd4f7e5842bbacd4c1542b5c0aa4aec4b05ad"
             },
             "require": {
                 "ext-intl": "*",
@@ -7866,7 +7782,7 @@
             "dist": {
                 "type": "path",
                 "url": "../php-file",
-                "reference": "b64d36234519ec750d9f4351c07361f9d52c2b87"
+                "reference": "5d8343ea81ad6c84af53213ce2cd6114a21cc354"
             },
             "require": {
                 "php": ">=8.5"
@@ -7906,7 +7822,7 @@
             "dist": {
                 "type": "path",
                 "url": "../php-helpers",
-                "reference": "b8d4ec3a88c4a42fa007080d90c47020d790e1c0"
+                "reference": "aa905f485beb127114cbcda3f47947369a48b453"
             },
             "require": {
                 "php": ">=8.5",
@@ -7942,7 +7858,7 @@
             "dist": {
                 "type": "path",
                 "url": "../php-html",
-                "reference": "0b9e355167dcc8c68b5568d83015b43b4881a101"
+                "reference": "3faf9bf49d12634418bff65959b8e8c272ed7777"
             },
             "require": {
                 "php": ">=8.5",
@@ -7983,7 +7899,7 @@
             "dist": {
                 "type": "path",
                 "url": "../php-yaml",
-                "reference": "f0b4d7e9389cfb0261739bc86ab64c371bd56acf"
+                "reference": "7710de47cd1cfa800d155cb6b2b137c660ad9920"
             },
             "require": {
                 "php": ">=8.5",
@@ -8015,17 +7931,17 @@
         },
         {
             "name": "wexample/symfony-check",
-            "version": "4.0.4",
+            "version": "4.0.7",
             "dist": {
                 "type": "path",
                 "url": "../symfony-check",
-                "reference": "63f9e0280636b4162f5e66e8e344ea53bbb5a5c9"
+                "reference": "98d7a1eb6227e18e4ecb1a61c4c8596c09a1d9f0"
             },
             "require": {
                 "php": ">=8.5",
                 "symfony/http-kernel": "^7.4 || ^8.0",
                 "symfony/property-access": "^7.4 || ^8.0",
-                "wexample/symfony-helpers": ">=18.0.2"
+                "wexample/symfony-helpers": ">=19.2.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^13",
@@ -8064,16 +7980,16 @@
         },
         {
             "name": "wexample/symfony-design-system",
-            "version": "39.0.4",
+            "version": "42.0.0",
             "dist": {
                 "type": "path",
                 "url": "../symfony-design-system",
-                "reference": "b56b010eef24900e8df2f2d1378925db12595319"
+                "reference": "7d506b58862f1353ab7e5655cca3d93b0dc210de"
             },
             "require": {
                 "php": ">=8.5",
                 "symfony/security-bundle": "^7.4 || ^8.0",
-                "wexample/symfony-loader": ">=25.1.0",
+                "wexample/symfony-loader": ">=27.0.0",
                 "wexample/symfony-preference": ">=2.0.2",
                 "wexample/symfony-routing": ">=2.2.0",
                 "wexample/symfony-template": ">=2.1.2"
@@ -8112,16 +8028,16 @@
         },
         {
             "name": "wexample/symfony-dev",
-            "version": "6.0.5",
+            "version": "6.0.8",
             "dist": {
                 "type": "path",
                 "url": "../symfony-dev",
-                "reference": "3f8fd86424524cf8db15cc1321810c1db2260486"
+                "reference": "d3905ccc6b62e6d95200864168e199b06586b66e"
             },
             "require": {
                 "php": ">=8.5",
                 "symfony/process": "^7.4 || ^8.0",
-                "wexample/symfony-helpers": ">=18.0.2",
+                "wexample/symfony-helpers": ">=19.2.0",
                 "wexample/symfony-testing": ">=7.0.5"
             },
             "type": "library",
@@ -8155,11 +8071,11 @@
         },
         {
             "name": "wexample/symfony-helpers",
-            "version": "18.0.3",
+            "version": "19.2.0",
             "dist": {
                 "type": "path",
                 "url": "../symfony-helpers",
-                "reference": "19ef378a099c3235e3aed8aa8c01b7e7acd1da23"
+                "reference": "05c1f6631880ac39f2dcd0c3b7dc4a63fdd0eb50"
             },
             "require": {
                 "doctrine/common": "^3.4",
@@ -8204,11 +8120,11 @@
         },
         {
             "name": "wexample/symfony-loader",
-            "version": "25.1.0",
+            "version": "27.1.0",
             "dist": {
                 "type": "path",
                 "url": "../symfony-loader",
-                "reference": "d1c2f4770ade79183515b5b66a1ae4430ca420b9"
+                "reference": "ab20d83217ed188cdfa88df120a96928e8c12705"
             },
             "require": {
                 "fortawesome/font-awesome": "^6.7",
@@ -8218,7 +8134,7 @@
                 "wexample/php-date": ">=2.1.2",
                 "wexample/php-html": ">=0.1.6",
                 "wexample/symfony-dev": ">=6.0.5",
-                "wexample/symfony-helpers": ">=18.0.2",
+                "wexample/symfony-helpers": ">=19.2.0",
                 "wexample/symfony-translations": ">=17.0.1"
             },
             "require-dev": {
@@ -8263,18 +8179,18 @@
         },
         {
             "name": "wexample/symfony-preference",
-            "version": "2.0.2",
+            "version": "2.0.5",
             "dist": {
                 "type": "path",
                 "url": "../symfony-preference",
-                "reference": "0a69482f2f33ded71a77e33aa10e7e528d3a0243"
+                "reference": "437ad3e14df1a7d9aa704bc12731a3461d3a1ed5"
             },
             "require": {
                 "doctrine/orm": "^3.0",
                 "php": ">=8.5",
                 "symfony/security-bundle": "^7.4 || ^8.0",
                 "symfony/validator": "^7.4 || ^8.0",
-                "wexample/symfony-helpers": ">=18.0.2"
+                "wexample/symfony-helpers": ">=19.2.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^13"
@@ -8312,15 +8228,15 @@
         },
         {
             "name": "wexample/symfony-routing",
-            "version": "2.2.2",
+            "version": "2.2.5",
             "dist": {
                 "type": "path",
                 "url": "../symfony-routing",
-                "reference": "a8a8fa4088b8e3308892c7bdc483a24e31e040e3"
+                "reference": "a6573df45889423e53caf5aa2604fe73270e848a"
             },
             "require": {
                 "php": ">=8.5",
-                "wexample/symfony-helpers": ">=18.0.2",
+                "wexample/symfony-helpers": ">=19.2.0",
                 "wexample/symfony-template": ">=2.1.2"
             },
             "type": "library",
@@ -8351,11 +8267,11 @@
         },
         {
             "name": "wexample/symfony-security",
-            "version": "4.0.2",
+            "version": "4.0.5",
             "dist": {
                 "type": "path",
                 "url": "../symfony-security",
-                "reference": "313c2fc5fd1f678974f599a79bc747602f403896"
+                "reference": "6970f524ddb8ad285c380cb2aa632d1b81c9a0dd"
             },
             "require": {
                 "monolog/monolog": "^3.5",
@@ -8368,7 +8284,7 @@
                 "symfony/http-kernel": "^7.4 || ^8.0",
                 "symfony/rate-limiter": "^7.4 || ^8.0",
                 "symfony/yaml": "^7.4 || ^8.0",
-                "wexample/symfony-helpers": ">=18.0.2"
+                "wexample/symfony-helpers": ">=19.2.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^13",
@@ -8411,18 +8327,18 @@
         },
         {
             "name": "wexample/symfony-template",
-            "version": "2.1.2",
+            "version": "2.1.5",
             "dist": {
                 "type": "path",
                 "url": "../symfony-template",
-                "reference": "9b05fc47d10d79731478ff2b7df627a19426e719"
+                "reference": "79164ed6cb956af28d7c1d1232deed8634a41635"
             },
             "require": {
                 "ext-dom": "*",
                 "league/commonmark": "^2.4",
                 "php": ">=8.5",
                 "symfony/yaml": ">=6.2",
-                "wexample/symfony-helpers": ">=18.0.2"
+                "wexample/symfony-helpers": ">=19.2.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^13"
@@ -8460,11 +8376,11 @@
         },
         {
             "name": "wexample/symfony-testing",
-            "version": "7.0.5",
+            "version": "7.0.8",
             "dist": {
                 "type": "path",
                 "url": "../symfony-testing",
-                "reference": "c0d46903ba50804b1354ef4681544b31088eca7b"
+                "reference": "78d22c6bb450476839e6c4a9322f71eee9ebdd9b"
             },
             "require": {
                 "php": ">=8.5",
@@ -8477,7 +8393,7 @@
                 "symfony/yaml": "^7.4 || ^8.0",
                 "wexample/php-bpmn": ">=2.0.2",
                 "wexample/php-date": ">=2.1.2",
-                "wexample/symfony-helpers": ">=18.0.2",
+                "wexample/symfony-helpers": ">=19.2.0",
                 "wexample/symfony-template": ">=2.1.2"
             },
             "require-dev": {
@@ -8519,11 +8435,11 @@
         },
         {
             "name": "wexample/symfony-translations",
-            "version": "17.0.1",
+            "version": "17.0.4",
             "dist": {
                 "type": "path",
                 "url": "../symfony-translations",
-                "reference": "d7049c5f81e60902d14ed6fe61a477d5e3005c07"
+                "reference": "0f84a5a9dced06b045d86fc7b3ea8146c9cd8cf2"
             },
             "require": {
                 "php": ">=8.5",
@@ -8533,7 +8449,7 @@
                 "syrtis/php-client": ">=4.0.0",
                 "wexample/php-helpers": ">=7.0.4",
                 "wexample/php-yaml": ">=2.0.0",
-                "wexample/symfony-helpers": ">=18.0.2",
+                "wexample/symfony-helpers": ">=19.2.0",
                 "wexample/symfony-template": ">=2.1.2",
                 "wexample/symfony-testing": ">=7.0.5"
             },
