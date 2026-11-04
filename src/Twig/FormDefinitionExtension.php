@@ -7,9 +7,9 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
+use Wexample\SymfonyForms\Service\FormDefinitionBuilder;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractEntityFormProcessor;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;
-use Wexample\SymfonyForms\Service\FormDefinitionBuilder;
 
 /**
  * A form handed to a vue rather than drawn (FormDefinitionBuilder): its

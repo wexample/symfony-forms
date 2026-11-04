@@ -3,8 +3,8 @@
 namespace Wexample\SymfonyForms\Tests\Integration;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\FormFactoryInterface;
 use Wexample\SymfonyForms\Form\Type\SelectInputType;
 use Wexample\SymfonyForms\Form\Type\TextareaInputType;
 use Wexample\SymfonyForms\Service\FormDefinitionBuilder;
