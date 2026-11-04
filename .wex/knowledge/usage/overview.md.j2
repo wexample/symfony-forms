@@ -37,18 +37,18 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 
 ## A form drawn by a vue
 
-`form_props(form)` hands a form to a vue rather than drawing it: where it is sent, under which name, its token, and each field's name, value, `required` and `maxlength`. The vue sends it as the drawn form would be — the same fields, posted to the processor's address, answered in json — and the processor validates, saves and notifies as for any other form. The design system's `inline-edit` reads these props: a title edited in place, one field of an `$ajax` entity form.
+`form_definition(form)` hands a form to a vue rather than drawing it: where it is sent, under which name, its token, and each field's name, value, `required` and `maxlength`. The vue sends it as the drawn form would be — the same fields, posted to the processor's address, answered in json — and the processor validates, saves and notifies as for any other form. The design system's `inline-edit` reads that definition: a title edited in place, one field of an `$ajax` entity form.
 
 ```twig
 {{ vue(render_pass, '@WexampleSymfonyDesignSystemBundle/components/form/inline-edit', {
-    form: form_props(step_title_form, { id_placeholder: '__id__' }),
+    form: form_definition(step_title_form, { id_placeholder: '__id__' }),
     field: 'title',
 }) }}
 ```
 
 `id_placeholder` puts a placeholder where the entity's id stands in the address: one form serves every entity of its kind the vue shows, the vue putting the one it sends in its place.
 
-`form_props_for(form_class, data)` makes the form there, by its processor: for what a layout shows on every page it draws — the title of the record its header names —, no controller making it for each.
+`form_definition_for(form_class, data)` makes the form there, by its processor: for what a layout shows on every page it draws — the title of the record its header names —, no controller making it for each.
 
 ## Choosing an entity
 

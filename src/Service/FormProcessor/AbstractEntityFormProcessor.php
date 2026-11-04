@@ -46,7 +46,7 @@ abstract class AbstractEntityFormProcessor extends AbstractFormProcessor
     /**
      * The submit address of the entity whose id is `$id` — or a placeholder
      * standing for it, for a form serving every entity of its kind
-     * (`form_props_for(form, null, { id_placeholder })`).
+     * (`form_definition_for(form, null, { id_placeholder })`).
      */
     public function createFormActionForId(string $id): string
     {

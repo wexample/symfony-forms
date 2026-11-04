@@ -21,7 +21,7 @@ services:
   Wexample\SymfonyForms\Tests\Fixtures\App\Form\:
     resource: '../Form/'
 
-  # Found by their form's class (`form_props_for()`), as an application's are.
+  # Found by their form's class (`form_definition_for()`), as an application's are.
   Wexample\SymfonyForms\Tests\Fixtures\App\Service\FormProcessor\:
     resource: '../Service/FormProcessor/'
 
