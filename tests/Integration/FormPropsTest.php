@@ -25,10 +25,13 @@ class FormPropsTest extends KernelTestCase
         $this->assertSame('contact_form', $props['name']);
         $this->assertSame('/contacts/save', $props['action']);
         $this->assertSame('POST', $props['method']);
-        $this->assertSame(
-            ['name' => 'contact_form[name]', 'value' => 'Ada', 'required' => true, 'maxlength' => 40],
-            $props['fields']['name']
-        );
+        $name = $props['fields']['name'];
+        $this->assertSame('contact_form[name]', $name['name']);
+        $this->assertSame('Ada', $name['value']);
+        $this->assertTrue($name['required']);
+        $this->assertSame(40, $name['maxlength']);
+        $this->assertSame('text', $name['type']);
+        $this->assertSame('tel', $props['fields']['phone']['type']);
         $this->assertFalse($props['fields']['phone']['required']);
         $this->assertNull($props['fields']['phone']['maxlength']);
     }
