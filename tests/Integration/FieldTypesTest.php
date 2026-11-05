@@ -8,6 +8,7 @@ use Symfony\Component\Validator\Constraints\Length;
 use Wexample\SymfonyForms\Form\Type\CheckboxInputType;
 use Wexample\SymfonyForms\Form\Type\EmailInputType;
 use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
+use Wexample\SymfonyForms\Form\Type\SearchSelectInputType;
 use Wexample\SymfonyForms\Form\Type\TagsInputType;
 use Wexample\SymfonyForms\Form\Type\TelInputType;
 use Wexample\SymfonyForms\Form\Type\TextInputType;
@@ -81,6 +82,20 @@ class FieldTypesTest extends KernelTestCase
         $this->assertStringContainsString('marker--cat-straw', $html);
         $this->assertStringContainsString('data-suggestions-url="/stamps"', $html);
         $this->assertStringContainsString('&quot;late&quot;', $html);
+    }
+
+    public function testASearchedSelectPostsItsValueAndShowsItsLabel(): void
+    {
+        $form = self::getContainer()->get('form.factory')
+            ->createNamedBuilder('message', FormType::class, ['type' => 'conversation'])
+            ->add('type', SearchSelectInputType::class, ['label' => 'Type', 'options_url' => '/types', 'value_label' => 'Conversation'])
+            ->getForm();
+        $html = $this->renderForm($form);
+
+        $this->assertStringContainsString('name="message[type]"', $html);
+        $this->assertStringContainsString('value="conversation"', $html);
+        $this->assertStringContainsString('data-options-url="/types"', $html);
+        $this->assertMatchesRegularExpression('/select--trigger-label[^>]*>\s*Conversation/', $html);
     }
 
     public function testAPhoneIsATelInput(): void

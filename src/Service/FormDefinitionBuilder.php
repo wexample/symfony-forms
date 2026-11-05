@@ -152,6 +152,22 @@ class FormDefinitionBuilder
             }
         }
 
+        // A choice searched: the options it holds, its source, the label of
+        // its value (`search_select_input.json`).
+        if ('search_select' === $kind) {
+            if (! empty($vars['options'])) {
+                $built['options'] = $vars['options'];
+            }
+
+            if (! empty($vars['options_url'])) {
+                $built['optionsUrl'] = (string) $vars['options_url'];
+            }
+
+            if (null !== ($vars['value_label'] ?? null)) {
+                $built['valueLabel'] = (string) $vars['value_label'];
+            }
+        }
+
         if ('select' === $kind) {
             $built['choices'] = $this->buildChoices($vars['choices'] ?? []);
 

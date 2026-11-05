@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
+use Wexample\SymfonyForms\Form\Type\SearchSelectInputType;
 use Wexample\SymfonyForms\Form\Type\SelectInputType;
 use Wexample\SymfonyForms\Form\Type\TagsInputType;
 use Wexample\SymfonyForms\Form\Type\TextareaInputType;
@@ -109,6 +110,24 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertSame('cat-straw', $stamps['tone']);
         $this->assertSame('ph:bold/tag', $stamps['glyph']);
         $this->assertArrayNotHasKey('value', $stamps);
+    }
+
+    public function testASearchedSelectIsHandedWithItsSourceAndTheLabelOfItsValue(): void
+    {
+        self::bootKernel();
+        $form = $this->factory()->createBuilder(FormType::class, ['type' => 'conversation'], ['action' => '/message'])
+            ->add('type', SearchSelectInputType::class, ['label' => 'Type', 'options_url' => '/types', 'value_label' => 'Conversation'])
+            ->getForm();
+
+        $props = $this->builder()->build($form);
+        $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'message form');
+
+        [$type] = $props['fields'];
+        $this->assertSame('search_select', $type['type']);
+        $this->assertSame('conversation', $type['value']);
+        $this->assertSame('/types', $type['optionsUrl']);
+        $this->assertSame('Conversation', $type['valueLabel']);
+        $this->assertArrayNotHasKey('options', $type);
     }
 
     public function testTheEntityIdInTheActionGivesWayToAPlaceholder(): void

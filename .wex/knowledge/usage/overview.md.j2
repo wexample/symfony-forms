@@ -58,6 +58,10 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 
 `TagsInputType` holds a list of words, posted as one text the `separator` joins. Its other options say what the field offers and how it draws its tags, the same in the twig field and the vue one (the design system's `tags-input`), and handed on by `form_definition()` (kind `tags`, its `tags`): `suggestions` (words, `value => label`, or `['value' => …, 'label' => …]`), `suggestions_url` (asked with `?q=` as the words are typed, answering words or `{ value, label }`), `tone` and `glyph` (the marker every tag wears: a state's tone or a category's, `cat-straw`).
 
+## One choice, searched
+
+`SearchSelectInputType` is a choice among options too many to send — a registry —: a text, posted as it is, drawn by the design system's `search-select-input`. `options` (words, `value => label`, or `['value' => …, 'label' => …]`) are those it holds itself, `options_url` a source asked as the words are typed (`?q=`, answering words or `{ value, label }`), `value_label` the label of the value given where its options do not hold it — else the field asks the source. It is not a choice type: holding only some options, it does not check the value is one of them; the application does, by a constraint on the field. `form_definition()` hands it as kind `search_select`.
+
 ## A field standardised
 
 A field of an application — the stamps of a message, the labels of a ticket — is a type of the design system with its options preset, not a field of its own: a `FormType` whose `getParent()` is the generic type and whose `configureOptions()` sets its defaults, nothing drawn and nothing read of its own. A form naming another option still wins over the default.

@@ -366,6 +366,51 @@
     {% endif %}
 {% endblock %}
 
+{#- One choice among options searched: the design system's field, the value
+    posted as a text. Frozen, the label of the value. -#}
+{% block search_select_input_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
+    %}
+    {% set placeholder_key = attr.placeholder ?? null %}
+    {% if placeholder_key is same as(true) %}
+        {% set placeholder_key = 'field.' ~ form.vars.name ~ '.placeholder' %}
+    {% endif %}
+    {% set placeholder_value = placeholder_key %}
+    {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
+        {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
+    {% endif %}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {% set frozen_value = form.vars.value_label ?? value %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/search-select-input',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                placeholder: placeholder_value,
+                required: required,
+                value: value,
+                value_label: form.vars.value_label,
+                options: form.vars.options,
+                options_url: form.vars.options_url
+            }
+        ) }}
+    {% endif %}
+{% endblock %}
+
 {% block select_input_widget %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name

@@ -11,6 +11,7 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Wexample\SymfonyForms\Form\Traits\FieldOptionsTrait;
+use Wexample\SymfonyForms\Helper\OptionsHelper;
 
 /**
  * Words kept as tags: a list of strings, posted as one text where `separator`
@@ -94,27 +95,6 @@ class TagsInputType extends AbstractType
      */
     public static function normalizeSuggestions(array $suggestions): array
     {
-        $normalized = [];
-
-        foreach ($suggestions as $key => $suggestion) {
-            if (is_array($suggestion)) {
-                $value = (string) ($suggestion['value'] ?? '');
-                $label = (string) ($suggestion['label'] ?? $value);
-            } elseif (is_string($key)) {
-                $value = $key;
-                $label = (string) $suggestion;
-            } else {
-                $value = (string) $suggestion;
-                $label = $value;
-            }
-
-            $value = trim($value);
-
-            if ('' !== $value && ! isset($normalized[$value])) {
-                $normalized[$value] = ['value' => $value, 'label' => '' !== trim($label) ? trim($label) : $value];
-            }
-        }
-
-        return array_values($normalized);
+        return OptionsHelper::normalize($suggestions);
     }
 }
