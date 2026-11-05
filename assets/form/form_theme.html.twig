@@ -203,7 +203,8 @@
 {% endblock %}
 
 {#- The earlier versions of a text, read at the record's address: the design
-    system's bar under the field, the field reached by its id. -#}
+    system's footer glued under the field (`field-versioned`, opened before the
+    field and closed after this block), the field reached by its id. -#}
 {% block wex_field_versions %}
     {% if (form.vars.versions_url_resolved ?? null) and not (form.vars.disabled ?? false) %}
         {{ vue(render_pass, '@WexampleSymfonyDesignSystemBundle/components/form/field-versions', {
@@ -211,6 +212,11 @@
             target: id,
         }) }}
     {% endif %}
+    {% if (form.vars.versions_url_resolved ?? null) and not (form.vars.disabled ?? false) %}</div>{% endif %}
+{% endblock %}
+
+{% block wex_field_versioned_open %}
+    {% if (form.vars.versions_url_resolved ?? null) and not (form.vars.disabled ?? false) %}<div class="field-versioned">{% endif %}
 {% endblock %}
 
 {% block textarea_widget %}
@@ -234,6 +240,7 @@
     {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
         {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
     {% endif %}
+    {{ block('wex_field_versioned_open') }}
     {{ component(
         render_pass,
         '@WexampleSymfonyDesignSystemBundle/components/form/textarea-input',
