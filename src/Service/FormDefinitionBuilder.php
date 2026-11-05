@@ -10,7 +10,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * A form handed to a vue rather than drawn (`form_definition()`): the form as the
- * json-schema norm describes one (`form.json` — its fields each of the kind
+ * json-schema norm describes one (`form.schema.json` — its fields each of the kind
  * the norm names, where and how it is sent), so the vue draws it from that
  * description alone, as it would draw one an agent wrote or a page kept in
  * a database. The form stays the one that validates, saves and answers (its
@@ -123,7 +123,7 @@ class FormDefinitionBuilder
         }
 
         // Pairs, in the order written: the field's value is a list, not a
-        // text (`key_value_input.json`).
+        // text (`key_value_input.schema.json`).
         if ('key_value' === $kind) {
             $built['pairs'] = array_values(array_map(
                 static fn (array $pair): array => ['key' => (string) $pair['key'], 'value' => (string) $pair['value']],
@@ -132,7 +132,7 @@ class FormDefinitionBuilder
         }
 
         // The words, a list; what is offered and how a tag is drawn, as the
-        // twig field has them (`tags_input.json`).
+        // twig field has them (`tags_input.schema.json`).
         if ('tags' === $kind) {
             unset($built['value']);
             $built['tags'] = $vars['tags'] ?? [];
@@ -153,7 +153,7 @@ class FormDefinitionBuilder
         }
 
         // A choice searched: the options it holds, its source, the label of
-        // its value (`search_select_input.json`).
+        // its value (`search_select_input.schema.json`).
         if ('search_select' === $kind) {
             if (! empty($vars['options'])) {
                 $built['options'] = $vars['options'];

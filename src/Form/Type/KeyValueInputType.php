@@ -17,7 +17,7 @@ use Wexample\SymfonyForms\Form\Traits\FieldOptionsTrait;
  * record `['lang' => 'fr']` on the model's side, a list of pairs in the
  * order they were written on the field's, posted each under its index
  * (`form[field][0][key]`, `form[field][0][value]`), as the json-schema norm
- * says (`key_value_input.json`).
+ * says (`key_value_input.schema.json`).
  *
  * Read back, a line left blank is dropped; a value without its key, or a key
  * written twice, is refused rather than dropped — what the reader typed is

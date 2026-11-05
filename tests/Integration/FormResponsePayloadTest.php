@@ -14,7 +14,7 @@ use Wexample\SymfonyForms\Tests\Fixtures\App\Service\FormProcessor\ContactFormPr
 
 /**
  * What a form answers in json is what the json-schema norm says it answers
- * (`form_submit_response.json`): refused, its errors under each field's full
+ * (`form_submit_response.schema.json`): refused, its errors under each field's full
  * name; taken, that it is.
  */
 class FormResponsePayloadTest extends KernelTestCase

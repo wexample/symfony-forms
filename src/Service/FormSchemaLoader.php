@@ -90,7 +90,8 @@ class FormSchemaLoader
         }
 
         if (isset($node->{'$ref'}) && is_string($node->{'$ref'}) && str_ends_with($node->{'$ref'}, '.json')) {
-            $name = pathinfo(explode('#', $node->{'$ref'})[0], PATHINFO_FILENAME);
+            // `text_input.schema.json` is the schema `text_input`.
+            $name = preg_replace('/\.schema\.json$|\.json$/', '', basename(explode('#', $node->{'$ref'})[0]));
 
             if (! in_array($name, $stack, true)) {
                 $target = $this->inline($this->read($name), [...$stack, $name]);

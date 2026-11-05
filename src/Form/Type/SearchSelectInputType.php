@@ -15,7 +15,7 @@ use Wexample\SymfonyForms\Helper\OptionsHelper;
  * One choice among options searched rather than all given — a registry too
  * long to send whole —: a text, posted as it is. The same in the twig field
  * and the vue one (the design system's `search-select-input`), handed on by
- * `form_definition()` (`search_select_input.json`):
+ * `form_definition()` (`search_select_input.schema.json`):
  *
  * - `options`: options the field holds itself — words, `value => label`, or
  *   `['value' => …, 'label' => …]`;

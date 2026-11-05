@@ -19,7 +19,7 @@ use Wexample\SymfonyForms\Helper\OptionsHelper;
  *
  * What the field offers and how it draws its tags, the same in the twig field
  * and the vue one (the design system's `tags-input`), and handed on by
- * `form_definition()` (`tags_input.json`):
+ * `form_definition()` (`tags_input.schema.json`):
  *
  * - `suggestions`: words offered while typing — a list of words, a list of
  *   `['value' => …, 'label' => …]`, or `value => label`;

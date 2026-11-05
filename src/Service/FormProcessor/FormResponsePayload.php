@@ -68,7 +68,7 @@ final class FormResponsePayload extends AdaptiveResponse
     {
         $payload = $this->payload;
         // The fields' errors are keyed by name: an object in json even with
-        // none, as the norm says (form_submit_response.json) — a php array
+        // none, as the norm says (form_submit_response.schema.json) — a php array
         // with no key would go as a list.
         $payload['form']['errors']['fields'] = (object) ($payload['form']['errors']['fields'] ?? []);
 
