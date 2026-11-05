@@ -50,6 +50,10 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 
 `form_definition_for(form_class, data)` makes the form there, by its processor: for what a layout shows on every page it draws — the title of the record its header names —, no controller making it for each.
 
+## Pairs of words
+
+`KeyValueInputType` edits a record — metadata, headers, parameters —: `['lang' => 'fr']` on the model, a list of pairs in the order written on the field, posted each under its index (`form[field][0][key]`, `form[field][0][value]`). The twig field and the vue one (through `form_definition()`, kind `key_value`, its `pairs`) are the design system's `key-value-input`. Read back, a blank line is dropped and nothing written is `null`; a value without its key or a key written twice is refused with the field's `invalid_message`, never dropped. Values are text: a number or a boolean of the record is read as its text and given back so.
+
 ## Choosing an entity
 
 `EntitySelectInputType` offers every row of a short table at once, as a select — a team among ten —, with Doctrine's EntityType options (`class`, `choice_label`, `query_builder`); the labels are the data, not translated. A long table is searched rather than listed: symfony-search's `EntitySearchInputType`.

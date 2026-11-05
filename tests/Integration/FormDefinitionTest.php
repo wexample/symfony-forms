@@ -5,6 +5,7 @@ namespace Wexample\SymfonyForms\Tests\Integration;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
+use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
 use Wexample\SymfonyForms\Form\Type\SelectInputType;
 use Wexample\SymfonyForms\Form\Type\TextareaInputType;
 use Wexample\SymfonyForms\Service\FormDefinitionBuilder;
@@ -71,6 +72,22 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertSame([['label' => 'small', 'value' => 's'], ['label' => 'large', 'value' => 'l']], $size['choices']);
         $this->assertSame('textarea', $notes['type']);
         $this->assertSame(4, $notes['rows']);
+    }
+
+    public function testAKeyValueFieldIsHandedWithItsPairsInOrder(): void
+    {
+        self::bootKernel();
+        $form = $this->factory()->createBuilder(FormType::class, ['metadata' => ['lang' => 'fr', 'channel' => 'web']], ['action' => '/rule'])
+            ->add('metadata', KeyValueInputType::class, ['required' => false, 'label' => 'Metadata'])
+            ->getForm();
+
+        $props = $this->builder()->build($form);
+        $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'rule form');
+
+        [$metadata] = $props['fields'];
+        $this->assertSame('key_value', $metadata['type']);
+        $this->assertSame([['key' => 'lang', 'value' => 'fr'], ['key' => 'channel', 'value' => 'web']], $metadata['pairs']);
+        $this->assertArrayNotHasKey('value', $metadata);
     }
 
     public function testTheEntityIdInTheActionGivesWayToAPlaceholder(): void

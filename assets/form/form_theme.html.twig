@@ -326,6 +326,42 @@
     {% endif %}
 {% endblock %}
 
+{#- Pairs of words, a key and its value: the design system's field, posted a
+    pair under each index. Frozen, the pairs read as one text, a line each. -#}
+{% block key_value_input_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
+    %}
+    {% set pairs = value is iterable ? value : [] %}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {% set frozen_value = pairs|map(pair => pair.key ~ ': ' ~ pair.value)|join(' · ') %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/key-value-input',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                required: required,
+                pairs: pairs,
+                key_placeholder: form.vars.key_placeholder,
+                value_placeholder: form.vars.value_placeholder
+            }
+        ) }}
+    {% endif %}
+{% endblock %}
+
 {% block select_input_widget %}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name

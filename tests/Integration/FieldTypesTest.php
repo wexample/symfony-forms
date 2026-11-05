@@ -7,6 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Validator\Constraints\Length;
 use Wexample\SymfonyForms\Form\Type\CheckboxInputType;
 use Wexample\SymfonyForms\Form\Type\EmailInputType;
+use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
 use Wexample\SymfonyForms\Form\Type\TelInputType;
 use Wexample\SymfonyForms\Form\Type\TextInputType;
 use Wexample\SymfonyForms\Tests\Fixtures\App\Model\Contact;
@@ -45,6 +46,24 @@ class FieldTypesTest extends KernelTestCase
             ->add('email', EmailInputType::class, ['constraints' => [new Length(max: 80)], 'attr' => ['maxlength' => 60]])
             ->getForm();
         $this->assertStringContainsString('maxlength="60"', $this->tagWithId($this->renderForm($form), 'contact_email'));
+    }
+
+    public function testPairsAreDrawnEachUnderItsIndexAndTheNextOneBlank(): void
+    {
+        $form = self::getContainer()->get('form.factory')
+            ->createNamedBuilder('rule', FormType::class, ['metadata' => ['lang' => 'fr']])
+            ->add('metadata', KeyValueInputType::class, ['required' => false, 'label' => 'Metadata'])
+            ->getForm();
+        $html = $this->renderForm($form);
+
+        $this->assertStringContainsString('name="rule[metadata][0][key]"', $html);
+        $this->assertStringContainsString('value="lang"', $html);
+        $this->assertStringContainsString('name="rule[metadata][0][value]"', $html);
+        // The next pair, blank, posted under the next index.
+        $this->assertStringContainsString('name="rule[metadata][1][key]"', $html);
+
+        $form->submit(['metadata' => [['key' => 'lang', 'value' => 'en'], ['key' => 'channel', 'value' => 'web'], ['key' => '', 'value' => '']]]);
+        $this->assertSame(['lang' => 'en', 'channel' => 'web'], $form->getData()['metadata']);
     }
 
     public function testAPhoneIsATelInput(): void

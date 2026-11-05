@@ -122,6 +122,15 @@ class FormDefinitionBuilder
             $built['rows'] = (int) $attr['rows'];
         }
 
+        // Pairs, in the order written: the field's value is a list, not a
+        // text (`key_value_input.json`).
+        if ('key_value' === $kind) {
+            $built['pairs'] = array_values(array_map(
+                static fn (array $pair): array => ['key' => (string) $pair['key'], 'value' => (string) $pair['value']],
+                array_filter(is_array($value) ? $value : [], static fn (mixed $pair): bool => is_array($pair) && '' !== (string) ($pair['key'] ?? ''))
+            ));
+        }
+
         if ('select' === $kind) {
             $built['choices'] = $this->buildChoices($vars['choices'] ?? []);
 
