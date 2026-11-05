@@ -8,6 +8,7 @@ use Symfony\Component\Validator\Constraints\Length;
 use Wexample\SymfonyForms\Form\Type\CheckboxInputType;
 use Wexample\SymfonyForms\Form\Type\EmailInputType;
 use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
+use Wexample\SymfonyForms\Form\Type\TagsInputType;
 use Wexample\SymfonyForms\Form\Type\TelInputType;
 use Wexample\SymfonyForms\Form\Type\TextInputType;
 use Wexample\SymfonyForms\Tests\Fixtures\App\Model\Contact;
@@ -64,6 +65,22 @@ class FieldTypesTest extends KernelTestCase
 
         $form->submit(['metadata' => [['key' => 'lang', 'value' => 'en'], ['key' => 'channel', 'value' => 'web'], ['key' => '', 'value' => '']]]);
         $this->assertSame(['lang' => 'en', 'channel' => 'web'], $form->getData()['metadata']);
+    }
+
+    public function testTagsAreDrawnAsTheFieldsMarkersWithWhatItOffers(): void
+    {
+        $form = self::getContainer()->get('form.factory')
+            ->createNamedBuilder('message', FormType::class, ['stamps' => ['urgent']])
+            ->add('stamps', TagsInputType::class, ['required' => false, 'label' => 'Stamps', 'suggestions' => ['late'], 'suggestions_url' => '/stamps', 'tone' => 'cat-straw', 'glyph' => 'ph:bold/tag'])
+            ->getForm();
+        $html = $this->renderForm($form);
+
+        // The text posted, the words joined.
+        $this->assertStringContainsString('name="message[stamps]"', $html);
+        $this->assertStringContainsString('value="urgent"', $html);
+        $this->assertStringContainsString('marker--cat-straw', $html);
+        $this->assertStringContainsString('data-suggestions-url="/stamps"', $html);
+        $this->assertStringContainsString('&quot;late&quot;', $html);
     }
 
     public function testAPhoneIsATelInput(): void

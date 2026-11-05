@@ -7,6 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
 use Wexample\SymfonyForms\Form\Type\SelectInputType;
+use Wexample\SymfonyForms\Form\Type\TagsInputType;
 use Wexample\SymfonyForms\Form\Type\TextareaInputType;
 use Wexample\SymfonyForms\Service\FormDefinitionBuilder;
 use Wexample\SymfonyForms\Service\FormRenderingService;
@@ -88,6 +89,26 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertSame('key_value', $metadata['type']);
         $this->assertSame([['key' => 'lang', 'value' => 'fr'], ['key' => 'channel', 'value' => 'web']], $metadata['pairs']);
         $this->assertArrayNotHasKey('value', $metadata);
+    }
+
+    public function testATagsFieldIsHandedWithItsWordsAndWhatItOffers(): void
+    {
+        self::bootKernel();
+        $form = $this->factory()->createBuilder(FormType::class, ['stamps' => ['urgent', 'vip']], ['action' => '/message'])
+            ->add('stamps', TagsInputType::class, ['required' => false, 'label' => 'Stamps', 'suggestions' => ['late'], 'suggestions_url' => '/stamps', 'tone' => 'cat-straw', 'glyph' => 'ph:bold/tag'])
+            ->getForm();
+
+        $props = $this->builder()->build($form);
+        $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'message form');
+
+        [$stamps] = $props['fields'];
+        $this->assertSame('tags', $stamps['type']);
+        $this->assertSame(['urgent', 'vip'], $stamps['tags']);
+        $this->assertSame([['value' => 'late', 'label' => 'late']], $stamps['suggestions']);
+        $this->assertSame('/stamps', $stamps['suggestionsUrl']);
+        $this->assertSame('cat-straw', $stamps['tone']);
+        $this->assertSame('ph:bold/tag', $stamps['glyph']);
+        $this->assertArrayNotHasKey('value', $stamps);
     }
 
     public function testTheEntityIdInTheActionGivesWayToAPlaceholder(): void

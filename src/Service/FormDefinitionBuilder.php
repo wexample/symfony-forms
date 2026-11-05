@@ -131,6 +131,27 @@ class FormDefinitionBuilder
             ));
         }
 
+        // The words, a list; what is offered and how a tag is drawn, as the
+        // twig field has them (`tags_input.json`).
+        if ('tags' === $kind) {
+            unset($built['value']);
+            $built['tags'] = $vars['tags'] ?? [];
+            $built['separator'] = (string) ($vars['separator'] ?? ',');
+            $built['tone'] = (string) ($vars['tone'] ?? 'neutral');
+
+            if (! empty($vars['suggestions'])) {
+                $built['suggestions'] = $vars['suggestions'];
+            }
+
+            if (! empty($vars['suggestions_url'])) {
+                $built['suggestionsUrl'] = (string) $vars['suggestions_url'];
+            }
+
+            if (! empty($vars['glyph'])) {
+                $built['glyph'] = (string) $vars['glyph'];
+            }
+        }
+
         if ('select' === $kind) {
             $built['choices'] = $this->buildChoices($vars['choices'] ?? []);
 

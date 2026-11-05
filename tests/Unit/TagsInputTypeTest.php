@@ -33,4 +33,25 @@ class TagsInputTypeTest extends TestCase
 
         $this->assertSame([], $form->getData());
     }
+
+    public function testSuggestionsAreReadAsWordsAndLabelsWhateverTheirShape(): void
+    {
+        $this->assertSame(
+            [['value' => 'urgent', 'label' => 'urgent'], ['value' => 'vip', 'label' => 'Important person'], ['value' => 'late', 'label' => 'Late']],
+            TagsInputType::normalizeSuggestions(['urgent', 'vip' => 'Important person', ['value' => 'late', 'label' => 'Late'], ' ', 'urgent'])
+        );
+    }
+
+    public function testTheViewHoldsTheWordsAndHowTheyAreDrawn(): void
+    {
+        $form = Forms::createFormFactoryBuilder()->getFormFactory()
+            ->create(TagsInputType::class, ['a', 'b'], ['suggestions' => ['c'], 'suggestions_url' => '/stamps', 'tone' => 'cat-straw', 'glyph' => 'ph:bold/tag']);
+        $vars = $form->createView()->vars;
+
+        $this->assertSame(['a', 'b'], $vars['tags']);
+        $this->assertSame([['value' => 'c', 'label' => 'c']], $vars['suggestions']);
+        $this->assertSame('/stamps', $vars['suggestions_url']);
+        $this->assertSame('cat-straw', $vars['tone']);
+        $this->assertSame('ph:bold/tag', $vars['glyph']);
+    }
 }
