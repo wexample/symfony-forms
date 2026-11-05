@@ -202,8 +202,20 @@
     ) }}
 {% endblock %}
 
+{#- The earlier versions of a text, read at the record's address: the design
+    system's bar above the field, the field reached by its id. -#}
+{% block wex_field_versions %}
+    {% if (form.vars.versions_url_resolved ?? null) and not (form.vars.disabled ?? false) %}
+        {{ vue(render_pass, '@WexampleSymfonyDesignSystemBundle/components/form/field-versions', {
+            url: form.vars.versions_url_resolved,
+            target: id,
+        }) }}
+    {% endif %}
+{% endblock %}
+
 {% block textarea_widget %}
     {% set frozen = form.vars.disabled ?? false %}
+    {{ block('wex_field_versions') }}
     {% set label_key = form.vars.label is same as(false)
         ? form.vars.name
         : (form.vars.label ?? form.vars.name)

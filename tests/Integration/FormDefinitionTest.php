@@ -187,6 +187,37 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertArrayNotHasKey('languageField', $script);
     }
 
+    public function testATextsSourceOfVersionsIsHandedOn(): void
+    {
+        self::bootKernel();
+        $form = $this->factory()->createBuilder(FormType::class, null, ['action' => '/template'])
+            ->add('content', TextareaInputType::class, ['label' => 'Content', 'versions_url' => '/_api/template/versions/__id__'])
+            ->add('script', CodeLikeType::class, ['label' => 'Script', 'versions_url' => '/_api/script/versions/__id__'])
+            ->add('notes', TextareaInputType::class, ['label' => 'Notes'])
+            ->getForm();
+
+        $props = $this->builder()->build($form);
+        $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'template form');
+
+        [$content, $script, $notes] = $props['fields'];
+        $this->assertSame('/_api/template/versions/__id__', $content['versionsUrl']);
+        $this->assertSame('/_api/script/versions/__id__', $script['versionsUrl']);
+        $this->assertArrayNotHasKey('versionsUrl', $notes);
+
+        // Drawn for a record: the record's id where the placeholder stood.
+        $record = new class {
+            public function getId(): string
+            {
+                return 'u1';
+            }
+        };
+        $drawn = $this->factory()->createBuilder(FormType::class, $record, ['action' => '/template/u1'])
+            ->add('content', TextareaInputType::class, ['mapped' => false, 'versions_url' => '/_api/template/versions/__id__'])
+            ->getForm()->createView();
+        $this->assertSame('/_api/template/versions/u1', $drawn['content']->vars['versions_url_resolved']);
+        $this->assertNull($form->createView()['content']->vars['versions_url_resolved']);
+    }
+
     public function testTheEntityIdInTheActionGivesWayToAPlaceholder(): void
     {
         self::bootKernel();

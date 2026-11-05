@@ -208,6 +208,11 @@ class FormDefinitionBuilder
             }
         }
 
+        // A text's earlier versions, read where it says (`versionsUrl`).
+        if (in_array($kind, ['textarea', 'code'], true) && ! empty($vars['versions_url'])) {
+            $built['versionsUrl'] = (string) $vars['versions_url'];
+        }
+
         // A colour: the ones it offers (`color_input.schema.json`).
         if ('color' === $kind && ! empty($vars['swatches'])) {
             $built['swatches'] = $vars['swatches'];
