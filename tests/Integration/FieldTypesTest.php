@@ -7,6 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Validator\Constraints\Length;
 use Wexample\SymfonyForms\Form\Type\CheckboxInputType;
 use Wexample\SymfonyForms\Form\Type\EmailInputType;
+use Wexample\SymfonyForms\Form\Type\ColorInputType;
 use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
 use Wexample\SymfonyForms\Form\Type\SearchSelectInputType;
 use Wexample\SymfonyForms\Form\Type\TagsInputType;
@@ -96,6 +97,20 @@ class FieldTypesTest extends KernelTestCase
         $this->assertStringContainsString('value="conversation"', $html);
         $this->assertStringContainsString('data-options-url="/types"', $html);
         $this->assertMatchesRegularExpression('/select--trigger-label[^>]*>\s*Conversation/', $html);
+    }
+
+    public function testAColourIsDrawnWithItsSwatchItsHexAndItsOffers(): void
+    {
+        $form = self::getContainer()->get('form.factory')
+            ->createNamedBuilder('theme', FormType::class, ['tint' => '#aabbcc'])
+            ->add('tint', ColorInputType::class, ['label' => 'Tint', 'swatches' => ['#ff0000' => 'Red']])
+            ->getForm();
+        $html = $this->renderForm($form);
+
+        $this->assertStringContainsString('name="theme[tint]"', $html);
+        $this->assertStringContainsString('value="#aabbcc"', $html);
+        $this->assertStringContainsString('type="color"', $html);
+        $this->assertStringContainsString('data-value="#ff0000"', $html);
     }
 
     public function testAPhoneIsATelInput(): void

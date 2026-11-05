@@ -168,6 +168,11 @@ class FormDefinitionBuilder
             }
         }
 
+        // A colour: the ones it offers (`color_input.schema.json`).
+        if ('color' === $kind && ! empty($vars['swatches'])) {
+            $built['swatches'] = $vars['swatches'];
+        }
+
         if ('select' === $kind) {
             $built['choices'] = $this->buildChoices($vars['choices'] ?? []);
 

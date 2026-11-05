@@ -5,6 +5,7 @@ namespace Wexample\SymfonyForms\Tests\Integration;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
+use Wexample\SymfonyForms\Form\Type\ColorInputType;
 use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
 use Wexample\SymfonyForms\Form\Type\SearchSelectInputType;
 use Wexample\SymfonyForms\Form\Type\SelectInputType;
@@ -128,6 +129,22 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertSame('/types', $type['optionsUrl']);
         $this->assertSame('Conversation', $type['valueLabel']);
         $this->assertArrayNotHasKey('options', $type);
+    }
+
+    public function testAColourIsHandedWithItsValueAndItsSwatches(): void
+    {
+        self::bootKernel();
+        $form = $this->factory()->createBuilder(FormType::class, ['tint' => '#aabbcc'], ['action' => '/theme'])
+            ->add('tint', ColorInputType::class, ['label' => 'Tint', 'required' => false, 'swatches' => ['#ff0000' => 'Red']])
+            ->getForm();
+
+        $props = $this->builder()->build($form);
+        $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'theme form');
+
+        [$tint] = $props['fields'];
+        $this->assertSame('color', $tint['type']);
+        $this->assertSame('#aabbcc', $tint['value']);
+        $this->assertSame([['value' => '#ff0000', 'label' => 'Red']], $tint['swatches']);
     }
 
     public function testTheEntityIdInTheActionGivesWayToAPlaceholder(): void
