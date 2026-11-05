@@ -42,6 +42,16 @@ class FormDefinitionBuilder
 
     private const string KIND_DEFAULT = 'text';
 
+    // The design system's columns, as a form drawn by twig carries them
+    // (`attr`, `row_attr`): `form--columns` is three, `form--columns-2` two.
+    private const string CLASS_COLUMNS = 'form--columns';
+
+    private const string CLASS_COLUMNS_TWO = 'form--columns-2';
+
+    private const string CLASS_SPAN = 'form--span';
+
+    private const int COLUMNS_DEFAULT = 3;
+
     public function __construct(
         private readonly FormSchemaLoader $schemas,
         private readonly FormRenderingService $rendering,
@@ -66,6 +76,7 @@ class FormDefinitionBuilder
             'action' => $this->buildAction($form, $vars['action'] ?? '', $options['id_placeholder'] ?? null) ?: '#',
             'method' => strtoupper($vars['method'] ?? 'POST'),
             'token' => null,
+            'columns' => $this->buildColumns($vars['attr']['class'] ?? ''),
             'fields' => [],
         ];
 
@@ -112,6 +123,11 @@ class FormDefinitionBuilder
             // several — or a record goes as nothing, the field starting empty.
             'value' => is_scalar($value) ? (string) $value : null,
         ], static fn (mixed $value): bool => $value !== null);
+
+        // The whole line among columns, as its row says (`row_attr`).
+        if (in_array(self::CLASS_SPAN, preg_split('/\s+/', (string) ($vars['row_attr']['class'] ?? '')), true)) {
+            $built['span'] = true;
+        }
 
         // A hidden field says no label.
         if ('hidden' === $kind) {
@@ -168,6 +184,30 @@ class FormDefinitionBuilder
             }
         }
 
+        // Code: its language, its own or another field's (`code_input.schema.json`),
+        // that field named as the definition names fields — by its name, not
+        // the id the drawn form gives it (`language_source`).
+        if ('code' === $kind) {
+            if (! empty($vars['language'])) {
+                $built['language'] = (string) $vars['language'];
+            }
+
+            $source = (string) ($vars['language_source'] ?? '');
+            $prefix = ($field->parent?->vars['id'] ?? '').'_';
+
+            if ('' !== $source && str_starts_with($source, $prefix)) {
+                $built['languageField'] = substr($source, strlen($prefix));
+            }
+
+            if (! empty($vars['language_map'])) {
+                $built['languageMap'] = array_map('strval', $vars['language_map']);
+            }
+
+            if (isset($attr['rows'])) {
+                $built['rows'] = (int) $attr['rows'];
+            }
+        }
+
         // A colour: the ones it offers (`color_input.schema.json`).
         if ('color' === $kind && ! empty($vars['swatches'])) {
             $built['swatches'] = $vars['swatches'];
@@ -189,6 +229,18 @@ class FormDefinitionBuilder
      * norm has a schema for — `textarea_input` is `textarea`, as a core
      * `email` is `email` —, text for any other.
      */
+    // How many fields side by side, as the form's classes say; one else.
+    private function buildColumns(string $classes): int
+    {
+        $classes = preg_split('/\s+/', $classes);
+
+        if (in_array(self::CLASS_COLUMNS_TWO, $classes, true)) {
+            return 2;
+        }
+
+        return in_array(self::CLASS_COLUMNS, $classes, true) ? self::COLUMNS_DEFAULT : 1;
+    }
+
     private function buildKind(FormView $field): string
     {
         $kinds = $this->schemas->getFieldKinds();

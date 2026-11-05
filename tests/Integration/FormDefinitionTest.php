@@ -11,10 +11,12 @@ use Wexample\SymfonyForms\Form\Type\SearchSelectInputType;
 use Wexample\SymfonyForms\Form\Type\SelectInputType;
 use Wexample\SymfonyForms\Form\Type\TagsInputType;
 use Wexample\SymfonyForms\Form\Type\TextareaInputType;
+use Wexample\SymfonyForms\Form\Type\TextInputType;
 use Wexample\SymfonyForms\Service\FormDefinitionBuilder;
 use Wexample\SymfonyForms\Service\FormRenderingService;
 use Wexample\SymfonyForms\Service\FormSchemaLoader;
 use Wexample\SymfonyForms\Tests\Fixtures\App\Form\ContactForm;
+use Wexample\SymfonyForms\Tests\Fixtures\App\Form\Type\CodeLikeType;
 use Wexample\SymfonyForms\Tests\Fixtures\App\Model\Contact;
 
 /**
@@ -145,6 +147,44 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertSame('color', $tint['type']);
         $this->assertSame('#aabbcc', $tint['value']);
         $this->assertSame([['value' => '#ff0000', 'label' => 'Red']], $tint['swatches']);
+    }
+
+    public function testTheColumnsOfAFormAndAFieldTakingTheWholeLineAreHandedOn(): void
+    {
+        self::bootKernel();
+        $form = $this->factory()->createBuilder(FormType::class, null, ['action' => '/message', 'attr' => ['class' => 'form form--columns form--columns-2']])
+            ->add('name', TextInputType::class, ['label' => 'Name'])
+            ->add('content', TextareaInputType::class, ['label' => 'Content', 'row_attr' => ['class' => 'form--span']])
+            ->getForm();
+
+        $props = $this->builder()->build($form);
+        $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'message form');
+
+        $this->assertSame(2, $props['columns']);
+        [$name, $content] = $props['fields'];
+        $this->assertArrayNotHasKey('span', $name);
+        $this->assertTrue($content['span']);
+    }
+
+    public function testACodeFieldIsHandedWithItsLanguageOrTheFieldNamingIt(): void
+    {
+        self::bootKernel();
+        $form = $this->factory()->createNamedBuilder('message', FormType::class, null, ['action' => '/message'])
+            ->add('format', SelectInputType::class, ['choices' => ['text' => 'text', 'json' => 'json'], 'auto_translate_choices' => false, 'label' => 'Format'])
+            ->add('content', CodeLikeType::class, ['label' => 'Content', 'language_field' => 'format', 'language_map' => ['text' => 'jinja'], 'attr' => ['rows' => 12]])
+            ->add('script', CodeLikeType::class, ['label' => 'Script', 'language' => 'python'])
+            ->getForm();
+
+        $props = $this->builder()->build($form);
+        $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'message form');
+
+        [, $content, $script] = $props['fields'];
+        $this->assertSame('code', $content['type']);
+        $this->assertSame('format', $content['languageField']);
+        $this->assertSame(['text' => 'jinja'], $content['languageMap']);
+        $this->assertSame(12, $content['rows']);
+        $this->assertSame('python', $script['language']);
+        $this->assertArrayNotHasKey('languageField', $script);
     }
 
     public function testTheEntityIdInTheActionGivesWayToAPlaceholder(): void
