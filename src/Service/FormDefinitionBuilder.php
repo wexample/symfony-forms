@@ -7,6 +7,7 @@ use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Wexample\SymfonyTranslations\Translation\Translator;
 
 /**
  * A form handed to a vue rather than drawn (`form_definition()`): the form as the
@@ -219,7 +220,11 @@ class FormDefinitionBuilder
         }
 
         if ('select' === $kind) {
-            $built['choices'] = $this->buildChoices($vars['choices'] ?? []);
+            // Worded as the field's own label, in its choices' domain.
+            $built['choices'] = $this->buildChoices(
+                $vars['choices'] ?? [],
+                $vars['choice_translation_domain'] ?? $vars['translation_domain'] ?? null,
+            );
 
             if (! empty($vars['multiple'])) {
                 $built['multiple'] = true;
@@ -266,16 +271,16 @@ class FormDefinitionBuilder
      *
      * @return array<array{label: string, value: string|null, options?: array}>
      */
-    private function buildChoices(array $choices): array
+    private function buildChoices(array $choices, string|false|null $domain): array
     {
         $built = [];
 
         foreach ($choices as $choice) {
             if ($choice instanceof ChoiceGroupView) {
                 $built[] = [
-                    'label' => (string) $choice->label,
+                    'label' => $this->translateChoice((string) $choice->label, [], $domain),
                     'value' => null,
-                    'options' => $this->buildChoices($choice->choices),
+                    'options' => $this->buildChoices($choice->choices, $domain),
                 ];
 
                 continue;
@@ -283,7 +288,7 @@ class FormDefinitionBuilder
 
             if ($choice instanceof ChoiceView) {
                 $built[] = [
-                    'label' => (string) $choice->label,
+                    'label' => $this->translateChoice((string) $choice->label, $choice->labelTranslationParameters ?? [], $domain),
                     'value' => (string) $choice->value,
                 ];
             }
@@ -330,6 +335,15 @@ class FormDefinitionBuilder
         $key = true === $placeholder ? 'field.'.$vars['name'].'.placeholder' : (string) $placeholder;
 
         return $this->translate($key, [], $vars['translation_domain'] ?? null);
+    }
+
+    // A choice's label as SelectInputType words it, `@form::field.….label`:
+    // the key in the form's own domain, which the field's is.
+    private function translateChoice(string $label, array $parameters, string|false|null $domain): string
+    {
+        $alias = Translator::DOMAIN_PREFIX.Translator::DOMAIN_TYPE_FORM.Translator::DOMAIN_SEPARATOR;
+
+        return $this->translate(str_starts_with($label, $alias) ? substr($label, strlen($alias)) : $label, $parameters, $domain);
     }
 
     private function translate(string $key, array $parameters, string|false|null $domain): string
