@@ -41,6 +41,9 @@ class FormDefinitionBuilder
 
     private const string KIND_SUFFIX = '_input';
 
+    /** A kind of Symfony's named by another of the norm: a whole number is a number. */
+    private const array KIND_ALIASES = ['integer' => 'number'];
+
     private const string KIND_DEFAULT = 'text';
 
     // The design system's columns, as a form drawn by twig carries them
@@ -214,6 +217,32 @@ class FormDefinitionBuilder
             $built['versionsUrl'] = (string) $vars['versions_url'];
         }
 
+        // Yes or no: whether it is on, what it posts then; nothing while it is
+        // off, as a drawn checkbox (`switch_input`, `checkbox_input`).
+        if (in_array($kind, ['switch', 'checkbox'], true)) {
+            $built['checked'] = (bool) ($vars['checked'] ?? false);
+        }
+
+        // A number: its bounds and its step, the field's attributes — a whole
+        // one stepping by one unless it says (`number_input.schema.json`).
+        if ('number' === $kind) {
+            foreach (['min', 'max'] as $bound) {
+                if (isset($attr[$bound]) && is_numeric($attr[$bound])) {
+                    $built[$bound] = $attr[$bound] + 0;
+                }
+            }
+
+            $step = $attr['step'] ?? (in_array('integer', $vars['block_prefixes'] ?? [], true) ? 1 : null);
+
+            if ('any' === $step || (is_numeric($step) && $step > 0)) {
+                $built['step'] = 'any' === $step ? 'any' : $step + 0;
+            }
+
+            if (! empty($vars['stepper'])) {
+                $built['stepper'] = true;
+            }
+        }
+
         // A colour: the ones it offers (`color_input.schema.json`).
         if ('color' === $kind && ! empty($vars['swatches'])) {
             $built['swatches'] = $vars['swatches'];
@@ -257,6 +286,7 @@ class FormDefinitionBuilder
 
         foreach (array_reverse($field->vars['block_prefixes'] ?? []) as $prefix) {
             $kind = str_ends_with($prefix, self::KIND_SUFFIX) ? substr($prefix, 0, -strlen(self::KIND_SUFFIX)) : $prefix;
+            $kind = self::KIND_ALIASES[$kind] ?? $kind;
 
             if (in_array($kind, $kinds, true)) {
                 return $kind;

@@ -4,6 +4,8 @@ namespace Wexample\SymfonyForms\Tests\Integration;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Wexample\SymfonyForms\Form\Type\ColorInputType;
 use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
@@ -11,6 +13,8 @@ use Wexample\SymfonyForms\Form\Type\SearchSelectInputType;
 use Wexample\SymfonyForms\Form\Type\SelectInputType;
 use Wexample\SymfonyForms\Form\Type\TagsInputType;
 use Wexample\SymfonyForms\Form\Type\TextareaInputType;
+use Wexample\SymfonyForms\Form\Type\NumberInputType;
+use Wexample\SymfonyForms\Form\Type\SwitchInputType;
 use Wexample\SymfonyForms\Form\Type\TextInputType;
 use Wexample\SymfonyForms\Service\FormDefinitionBuilder;
 use Wexample\SymfonyForms\Service\FormRenderingService;
@@ -58,7 +62,7 @@ class FormDefinitionTest extends KernelTestCase
 
         // Validated as it is built: a form the norm refuses never reaches a vue.
         $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'contact form');
-        $this->assertSame(['text', 'tel', 'text'], array_column($props['fields'], 'type'));
+        $this->assertSame(['text', 'tel', 'checkbox'], array_column($props['fields'], 'type'));
     }
 
     public function testAChoiceIsHandedWithItsChoices(): void
@@ -185,6 +189,26 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertSame(12, $content['rows']);
         $this->assertSame('python', $script['language']);
         $this->assertArrayNotHasKey('languageField', $script);
+    }
+
+    public function testASwitchACheckboxAndANumberAreHandedAsTheirKinds(): void
+    {
+        self::bootKernel();
+        $form = $this->factory()->createBuilder(FormType::class, null, ['action' => '/slot'])
+            ->add('streaming', SwitchInputType::class, ['label' => 'Streaming', 'required' => false, 'data' => true])
+            ->add('aggregate', CheckboxType::class, ['label' => 'Aggregate', 'required' => false])
+            ->add('timeout', NumberInputType::class, ['label' => 'Timeout', 'required' => false, 'stepper' => true, 'attr' => ['min' => 0, 'max' => 600, 'step' => 5]])
+            ->add('tokens', IntegerType::class, ['label' => 'Tokens', 'required' => false, 'data' => 512])
+            ->getForm();
+
+        $props = $this->builder()->build($form);
+        $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'slot configs form');
+
+        [$streaming, $aggregate, $timeout, $tokens] = $props['fields'];
+        $this->assertSame(['switch', true, '1'], [$streaming['type'], $streaming['checked'], $streaming['value']]);
+        $this->assertSame(['checkbox', false], [$aggregate['type'], $aggregate['checked']]);
+        $this->assertSame(['number', 0, 600, 5, true], [$timeout['type'], $timeout['min'], $timeout['max'], $timeout['step'], $timeout['stepper']]);
+        $this->assertSame(['number', 1, '512'], [$tokens['type'], $tokens['step'], $tokens['value']]);
     }
 
     public function testATextsSourceOfVersionsIsHandedOn(): void
