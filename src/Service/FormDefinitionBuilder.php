@@ -39,6 +39,9 @@ class FormDefinitionBuilder
 {
     private const string TOKEN_FIELD = '_token';
 
+    /** What `id_placeholder` is by convention, where an address holds the record's id. */
+    public const string ID_PLACEHOLDER = '__id__';
+
     private const string KIND_SUFFIX = '_input';
 
     /** A kind of Symfony's named by another of the norm: a whole number is a number. */
@@ -212,9 +215,10 @@ class FormDefinitionBuilder
             }
         }
 
-        // A text's earlier versions, read where it says (`versionsUrl`).
-        if (in_array($kind, ['textarea', 'code'], true) && ! empty($vars['versions_url'])) {
-            $built['versionsUrl'] = (string) $vars['versions_url'];
+        // What is attached to the field whatever its kind, each extension as
+        // it hands itself over (`field_base.schema.json`, `extensions`).
+        if (! empty($vars['extensions'])) {
+            $built['extensions'] = $vars['extensions'];
         }
 
         // Yes or no: whether it is on, what it posts then; nothing while it is

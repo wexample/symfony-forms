@@ -8,6 +8,8 @@ services:
             tags: ['wexample.symfony_forms.form_processor']
         Wexample\SymfonyForms\Service\FormProcessor\FormProcessorDataResolverInterface:
             tags: ['wexample.symfony_forms.form_processor_data_resolver']
+        Wexample\SymfonyForms\Form\FieldExtension\FieldExtensionInterface:
+            tags: ['wexample.symfony_forms.field_extension']
 
     Wexample\SymfonyForms\:
         resource: '../../{Form,Service,Twig,Controller,EventSubscriber,ArgumentResolver,Attribute}'
@@ -31,3 +33,7 @@ services:
         arguments:
             $processors: !tagged_locator { tag: 'wexample.symfony_forms.form_processor' }
             $formDataResolvers: !tagged_locator { tag: 'wexample.symfony_forms.form_processor_data_resolver' }
+
+    Wexample\SymfonyForms\Form\Extension\FieldExtensionsTypeExtension:
+        arguments:
+            $extensions: !tagged_iterator { tag: 'wexample.symfony_forms.field_extension' }

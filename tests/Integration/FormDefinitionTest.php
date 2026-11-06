@@ -7,6 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Wexample\SymfonyForms\Form\Type\ColorInputType;
 use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
 use Wexample\SymfonyForms\Form\Type\SearchSelectInputType;
@@ -211,22 +212,22 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertSame(['number', 1, '512'], [$tokens['type'], $tokens['step'], $tokens['value']]);
     }
 
-    public function testATextsSourceOfVersionsIsHandedOn(): void
+    public function testWhatIsAttachedToAFieldIsHandedWhateverItsKind(): void
     {
         self::bootKernel();
         $form = $this->factory()->createBuilder(FormType::class, null, ['action' => '/template'])
-            ->add('content', TextareaInputType::class, ['label' => 'Content', 'versions_url' => '/_api/template/versions/__id__'])
-            ->add('script', CodeLikeType::class, ['label' => 'Script', 'versions_url' => '/_api/script/versions/__id__'])
+            ->add('content', TextareaInputType::class, ['label' => 'Content', 'extensions' => ['versions' => ['url' => '/_api/template/versions/__id__']]])
+            ->add('timeout', NumberInputType::class, ['label' => 'Timeout', 'extensions' => ['expression' => ['language' => 'jinja', 'pattern' => '\\{[{%]']]])
             ->add('notes', TextareaInputType::class, ['label' => 'Notes'])
             ->getForm();
 
         $props = $this->builder()->build($form);
         $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'template form');
 
-        [$content, $script, $notes] = $props['fields'];
-        $this->assertSame('/_api/template/versions/__id__', $content['versionsUrl']);
-        $this->assertSame('/_api/script/versions/__id__', $script['versionsUrl']);
-        $this->assertArrayNotHasKey('versionsUrl', $notes);
+        [$content, $timeout, $notes] = $props['fields'];
+        $this->assertSame(['versions' => ['url' => '/_api/template/versions/__id__']], $content['extensions']);
+        $this->assertEquals(['expression' => ['language' => 'jinja', 'pattern' => '\\{[{%]', 'rows' => 2]], $timeout['extensions']);
+        $this->assertArrayNotHasKey('extensions', $notes);
 
         // Drawn for a record: the record's id where the placeholder stood.
         $record = new class {
@@ -236,10 +237,29 @@ class FormDefinitionTest extends KernelTestCase
             }
         };
         $drawn = $this->factory()->createBuilder(FormType::class, $record, ['action' => '/template/u1'])
-            ->add('content', TextareaInputType::class, ['mapped' => false, 'versions_url' => '/_api/template/versions/__id__'])
+            ->add('content', TextareaInputType::class, ['mapped' => false, 'extensions' => ['versions' => ['url' => '/_api/template/versions/__id__']]])
             ->getForm()->createView();
-        $this->assertSame('/_api/template/versions/u1', $drawn['content']->vars['versions_url_resolved']);
-        $this->assertNull($form->createView()['content']->vars['versions_url_resolved']);
+        $this->assertSame(['versions' => ['url' => '/_api/template/versions/u1']], $drawn['content']->vars['extensions_drawn']);
+        $this->assertSame([], $form->createView()['content']->vars['extensions_drawn']);
+
+        // An expression goes through a number as the text it is.
+        $form->submit(['timeout' => '{{ model.timeout }}', 'content' => '', 'notes' => '']);
+        $this->assertSame('{{ model.timeout }}', $form->get('timeout')->getData(), (string) $form->get('timeout')->getErrors(true));
+        $this->assertTrue($form->get('timeout')->isValid(), (string) $form->getErrors(true, false));
+
+        // Held as an expression, the number shows it, and the definition hands it as its value.
+        $held = $this->factory()->createBuilder(FormType::class, null, ['action' => '/slot'])
+            ->add('timeout', NumberInputType::class, ['label' => 'Timeout', 'data' => '{{ model.timeout }}', 'extensions' => ['expression' => ['language' => 'jinja', 'pattern' => '\\{[{%]']]])
+            ->getForm();
+        $this->assertSame('{{ model.timeout }}', $this->builder()->build($held)['fields'][0]['value']);
+        $plain = $this->factory()->createBuilder(FormType::class, null, ['action' => '/slot'])
+            ->add('timeout', NumberInputType::class, ['label' => 'Timeout', 'data' => 30, 'extensions' => ['expression' => ['language' => 'jinja', 'pattern' => '\\{[{%]']]])
+            ->getForm();
+        $this->assertSame('30', $this->builder()->build($plain)['fields'][0]['value']);
+
+        // What no extension is named for is refused.
+        $this->expectException(InvalidOptionsException::class);
+        $this->factory()->createBuilder(FormType::class)->add('x', TextInputType::class, ['extensions' => ['wings' => []]])->getForm();
     }
 
     public function testTheEntityIdInTheActionGivesWayToAPlaceholder(): void

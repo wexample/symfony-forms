@@ -73,13 +73,29 @@
     {% elseif required_mode == 'optional' and (required is not defined or not required) %}
         {% set row_classes = row_classes ~ ' is-optional' %}
     {% endif %}
+    {#- What is attached to the field whatever its kind (`extensions`): the
+        row says so, and draws each under the control. -#}
+    {% set field_extensions = form.vars.disabled ?? false ? {} : (form.vars.extensions_drawn ?? {}) %}
+    {% if field_extensions is not empty %}
+        {% set row_classes = row_classes ~ ' field-extended' %}
+    {% endif %}
     {% set row_attr = row_attr|merge({ class: row_classes|trim }) %}
     {% set attr = row_attr %}
     <div {{ block('attributes')|raw }}>
         {{ form_widget(form) }}
+        {{ block('wex_field_extensions') }}
         {{ form_errors(form) }}
         {{ form_help(form) }}
     </div>
+{% endblock %}
+
+{#- Each extension's component, the design system's or the application's
+    (`components/form/extension/<name>`), beside the control it reaches by
+    its id. -#}
+{% block wex_field_extensions %}
+    {% for extension_name, extension in field_extensions %}
+        {{ vue(render_pass, '@WexampleSymfonyDesignSystemBundle/components/form/extension/' ~ extension_name, extension|merge({ target: id })) }}
+    {% endfor %}
 {% endblock %}
 
 {#- A submit kept for the foot (`in_footer`) is left out of the body:
@@ -202,23 +218,6 @@
     ) }}
 {% endblock %}
 
-{#- The earlier versions of a text, read at the record's address: the design
-    system's footer glued under the field (`field-versioned`, opened before the
-    field and closed after this block), the field reached by its id. -#}
-{% block wex_field_versions %}
-    {% if (form.vars.versions_url_resolved ?? null) and not (form.vars.disabled ?? false) %}
-        {{ vue(render_pass, '@WexampleSymfonyDesignSystemBundle/components/form/field-versions', {
-            url: form.vars.versions_url_resolved,
-            target: id,
-        }) }}
-    {% endif %}
-    {% if (form.vars.versions_url_resolved ?? null) and not (form.vars.disabled ?? false) %}</div>{% endif %}
-{% endblock %}
-
-{% block wex_field_versioned_open %}
-    {% if (form.vars.versions_url_resolved ?? null) and not (form.vars.disabled ?? false) %}<div class="field-versioned">{% endif %}
-{% endblock %}
-
 {% block textarea_widget %}
     {% set frozen = form.vars.disabled ?? false %}
     {% set label_key = form.vars.label is same as(false)
@@ -240,7 +239,6 @@
     {% if placeholder_key is not null and form.vars.translation_domain is not same as(false) %}
         {% set placeholder_value = placeholder_key|trans({}, form.vars.translation_domain) %}
     {% endif %}
-    {{ block('wex_field_versioned_open') }}
     {{ component(
         render_pass,
         '@WexampleSymfonyDesignSystemBundle/components/form/textarea-input',
@@ -257,7 +255,6 @@
             input_attr: block('wex_input_attributes')
         }
     ) }}
-    {{ block('wex_field_versions') }}
 {% endblock %}
 
 {% block textarea_input_widget %}
