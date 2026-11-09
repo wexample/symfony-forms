@@ -3,10 +3,10 @@
 namespace Wexample\SymfonyForms\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Wexample\Helpers\Helper\ClassHelper;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\LogicException;
+use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\SymfonyForms\DependencyInjection\Compiler\FormProcessorRegistryPass;
 use Wexample\SymfonyForms\DependencyInjection\WexampleSymfonyFormsExtension;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;

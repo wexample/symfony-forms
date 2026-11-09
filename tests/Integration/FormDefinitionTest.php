@@ -3,19 +3,19 @@
 namespace Wexample\SymfonyForms\Tests\Integration;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Wexample\SymfonyForms\Form\Type\ColorInputType;
 use Wexample\SymfonyForms\Form\Type\KeyValueInputType;
+use Wexample\SymfonyForms\Form\Type\NumberInputType;
 use Wexample\SymfonyForms\Form\Type\SearchSelectInputType;
 use Wexample\SymfonyForms\Form\Type\SelectInputType;
+use Wexample\SymfonyForms\Form\Type\SwitchInputType;
 use Wexample\SymfonyForms\Form\Type\TagsInputType;
 use Wexample\SymfonyForms\Form\Type\TextareaInputType;
-use Wexample\SymfonyForms\Form\Type\NumberInputType;
-use Wexample\SymfonyForms\Form\Type\SwitchInputType;
 use Wexample\SymfonyForms\Form\Type\TextInputType;
 use Wexample\SymfonyForms\Service\FormDefinitionBuilder;
 use Wexample\SymfonyForms\Service\FormRenderingService;
@@ -246,7 +246,7 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertArrayNotHasKey('extensions', $notes);
 
         // Drawn for a record: the record's id where the placeholder stood.
-        $record = new class {
+        $record = new class () {
             public function getId(): string
             {
                 return 'u1';
