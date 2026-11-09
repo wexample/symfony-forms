@@ -23,7 +23,9 @@ $container->registerForAutoconfiguration(FormProcessorDataResolverInterface::cla
     ->addTag(self::TAG_FORM_PROCESSOR_DATA_RESOLVER);
 ```
 
-And it loads src/Resources/config/services.yaml, where both tags are turned into service locators injected into `FormProcessorPostHandler` and `FormProcessorRequestSubscriber` (`!tagged_locator`). src/Resources/config/routes.yaml imports the controllers by attribute.
+And it loads src/Resources/config/services.yaml, where both tags are turned into service locators injected into `FormProcessorRegistry` and `FormProcessorRequestSubscriber` (`!tagged_locator`). src/Resources/config/routes.yaml imports the controllers by attribute.
+
+The bundle registers one compiler pass, src/DependencyInjection/Compiler/FormProcessorRegistryPass.php. It asks every tagged processor its form class once, while the container is compiled, and hands src/Service/FormProcessor/FormProcessorRegistry.php two maps — form class → processors, form name → processors. A processor that cannot name its form class fails the build — `cache:clear`, the deploy — rather than the running application: when the lookup walked every processor at each request, one processor without a form took down every submission and every `form_definition_for()`. A form may have several processors, each picked by the page posting it through `#[FormProcessor]`; only a lookup by name or by class landing on such a form fails, with `AmbiguousFormProcessorException`, and for that form alone.
 
 ### Rendering: types, theme, components
 
@@ -109,15 +111,11 @@ $event->setResponse(new JsonResponse(
 ));
 ```
 
+Before a `POST` is handled, src/Service/FormProcessor/FormProcessorAccessGuard.php refuses it as the page would be refused: the processor's `getRequiredRoles()`, and every `#[IsGranted]` without a subject on the controller's class and method. The subscriber runs before Symfony reads those attributes on the controller, so without this check a refused page would answer 403 after the form had saved. An `#[IsGranted]` naming a subject is left to the controller — its arguments are not resolved yet —, and a processor writing to a record checks it itself. A refusal throws `AccessDeniedException`, which the firewall turns into a sign-in for a visitor and a 403 otherwise.
+
 Otherwise the built form is stored under the request attribute `_form_processor_forms`, keyed by `formArgumentName`. src/ArgumentResolver/FormProcessorValueResolver.php then hands it to the controller argument: it only supports arguments typed `FormInterface` whose name matches a `formArgumentName` on the same method, and yields the form from that attribute. The controller therefore receives a form already created, already submitted, already validated.
 
-**Direct POST to the submit route.** src/Controller/FormController.php exposes `_forms/submit/{name}` (route `form_processor_submit`, matching `AbstractFormProcessor::FORM_SUBMIT_ROUTE`) and `_forms/submit/{name}/entity/{id}`, both POST only, both delegating to src/Service/FormProcessor/FormProcessorPostHandler.php. The handler walks the tagged locator to find the processor whose form matches the URL name:
-
-```php
-if (ClassHelper::longTableized($processorClass::getFormClass()) === $formName) {
-```
-
-then checks `getRequiredRoles()` — `['ROLE_USER']` by default, `RoleHelper::PUBLIC_ACCESS` opening it up — and throws `AccessDeniedHttpException` when none is granted. It returns the processor's redirect if there is one, a `JsonResponse` for a JSON request, and `204 No Content` otherwise.
+**Direct POST to the submit route.** src/Controller/FormController.php exposes `_forms/submit/{name}` (route `form_processor_submit`, matching `AbstractFormProcessor::FORM_SUBMIT_ROUTE`) and `_forms/submit/{name}/entity/{id}`, both POST only, both delegating to src/Service/FormProcessor/FormProcessorPostHandler.php. The handler reads the processor of the URL name from the registry — the name being `ClassHelper::longTableized()` of the form class, as the processor writes it in its form's `action` — answers 404 when no form has that name, then checks `getRequiredRoles()` through the same guard — `['ROLE_USER']` by default, `RoleHelper::PUBLIC_ACCESS` opening it up — and throws `AccessDeniedHttpException` when none is granted. It returns the processor's redirect if there is one, a `JsonResponse` for a JSON request, and `204 No Content` otherwise.
 
 ### The JSON payload
 

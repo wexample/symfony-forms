@@ -35,6 +35,64 @@ A text field (and every type built on it: email, tel, url, textarea, password) c
 {% block page_actions %}{{ form_footer(form) }}{% endblock %}
 ```
 
+## A form drawn by a vue
+
+`form_definition(form)` hands a form to a vue rather than drawing it: where it is sent, under which name, its token, and each field's name, value, `required` and `maxlength`. The vue sends it as the drawn form would be — the same fields, posted to the processor's address, answered in json — and the processor validates, saves and notifies as for any other form. The design system's `inline-edit` reads that definition: a title edited in place, one field of an `$ajax` entity form.
+
+
+```twig
+{{ vue(render_pass, '@WexampleSymfonyDesignSystemBundle/components/form/inline-edit', {
+    form: form_definition(step_title_form, { id_placeholder: '__id__' }),
+    field: 'title',
+}) }}
+```
+
+
+`id_placeholder` puts a placeholder where the entity's id stands in the address: one form serves every entity of its kind the vue shows, the vue putting the one it sends in its place.
+
+`form_definition_for(form_class, data)` makes the form there, by its processor: for what a layout shows on every page it draws — the title of the record its header names —, no controller making it for each.
+
+## Pairs of words
+
+`KeyValueInputType` edits a record — metadata, headers, parameters —: `['lang' => 'fr']` on the model, a list of pairs in the order written on the field, posted each under its index (`form[field][0][key]`, `form[field][0][value]`). The twig field and the vue one (through `form_definition()`, kind `key_value`, its `pairs`) are the design system's `key-value-input`. Read back, a blank line is dropped and nothing written is `null`; a value without its key or a key written twice is refused with the field's `invalid_message`, never dropped. Values are text: a number or a boolean of the record is read as its text and given back so.
+
+## Words kept as tags
+
+`TagsInputType` holds a list of words, posted as one text the `separator` joins. Its other options say what the field offers and how it draws its tags, the same in the twig field and the vue one (the design system's `tags-input`), and handed on by `form_definition()` (kind `tags`, its `tags`): `suggestions` (words, `value => label`, or `['value' => …, 'label' => …]`), `suggestions_url` (asked with `?q=` as the words are typed, answering words or `{ value, label }`), `tone` and `glyph` (the marker every tag wears: a state's tone or a category's, `cat-straw`).
+
+## One choice, searched
+
+`SearchSelectInputType` is a choice among options too many to send — a registry —: a text, posted as it is, drawn by the design system's `search-select-input`. `options` (words, `value => label`, or `['value' => …, 'label' => …]`) are those it holds itself, `options_url` a source asked as the words are typed (`?q=`, answering words or `{ value, label }`), `value_label` the label of the value given where its options do not hold it — else the field asks the source. It is not a choice type: holding only some options, it does not check the value is one of them; the application does, by a constraint on the field. `form_definition()` hands it as kind `search_select`.
+
+## A colour
+
+`ColorInputType` holds a colour as `#rrggbb`, lowercase: `#abc` and `ABC` read as `#aabbcc`, nothing typed is `null`, what is not a colour refused with the field's `invalid_message`. `swatches` are the colours offered (`#hex`, `#hex => label`, or `['value' => …, 'label' => …]`). Drawn by the design system's `color-input`; `form_definition()` hands it as kind `color`.
+
+## A field standardised
+
+A field of an application — the stamps of a message, the labels of a ticket — is a type of the design system with its options preset, not a field of its own: a `FormType` whose `getParent()` is the generic type and whose `configureOptions()` sets its defaults, nothing drawn and nothing read of its own. A form naming another option still wins over the default.
+
+```php
+class StampsInputType extends AbstractType
+{
+    public function getParent(): string
+    {
+        return TagsInputType::class;
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'tone' => 'cat-straw',
+            'glyph' => 'ph:bold/tag',
+            'suggestions_url' => $this->urlGenerator->generate('api_stamp_list'),
+        ]);
+    }
+}
+```
+
+Its twig field is the generic one's (the theme's block for the parent's prefix), its kind in `form_definition()` the generic one's, so `dynamic-form` draws it with no more. Its vue face, where a vue draws it alone, extends the generic component with the same defaults — see the design system's « A field standardised ». The demo's `DemoStampsInputType` and `demo-stamps-input` are one.
+
 ## Choosing an entity
 
 `EntitySelectInputType` offers every row of a short table at once, as a select — a team among ten —, with Doctrine's EntityType options (`class`, `choice_label`, `query_builder`); the labels are the data, not translated. A long table is searched rather than listed: symfony-search's `EntitySearchInputType`.
