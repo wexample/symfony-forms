@@ -216,6 +216,13 @@ class FormDefinitionBuilder
             }
         }
 
+        // Several values of one kind: the field each item is, each item's
+        // value, what one added starts from (`collection_input.schema.json`).
+        if ('collection' === $kind) {
+            unset($built['value']);
+            $built += $this->buildCollection($field, $built);
+        }
+
         // What is attached to the field whatever its kind, each extension as
         // it hands itself over (`field_base.schema.json`, `extensions`).
         if (! empty($vars['extensions'])) {
@@ -266,6 +273,51 @@ class FormDefinitionBuilder
         }
 
         return $built;
+    }
+
+    /**
+     * The item a collection repeats — its prototype, its first item without
+     * one, a text without either —, named and worded as the collection; and
+     * each item's value as its entry holds one.
+     */
+    private function buildCollection(FormView $field, array $built): array
+    {
+        $vars = $field->vars;
+        $prototype = $vars['prototype'] ?? (array_values($field->children)[0] ?? null);
+        $entry = $prototype instanceof FormView ? $this->buildField($prototype) : ['type' => self::KIND_DEFAULT];
+
+        // Its own value is not read: the items hold theirs.
+        unset($entry['value'], $entry['checked'], $entry['pairs'], $entry['tags'], $entry['items'], $entry['help']);
+        $entry['name'] = $vars['name'];
+        $entry['label'] = $built['label'] ?? $vars['name'];
+
+        $collection = [
+            'entry' => $entry,
+            'items' => array_values(array_map(
+                fn (FormView $child): mixed => self::valueOf($this->buildField($child)),
+                $field->children,
+            )),
+            'allowAdd' => (bool) ($vars['allow_add'] ?? false),
+            'allowDelete' => (bool) ($vars['allow_delete'] ?? false),
+        ];
+
+        if (null !== ($vars['template'] ?? null)) {
+            $collection['template'] = $vars['template'];
+        }
+
+        return $collection;
+    }
+
+    // A field's value as its kind holds it: a list, a yes or no, a text.
+    private static function valueOf(array $built): mixed
+    {
+        return match ($built['type']) {
+            'key_value' => $built['pairs'] ?? [],
+            'tags' => $built['tags'] ?? [],
+            'switch', 'checkbox' => $built['checked'] ?? false,
+            'collection' => $built['items'] ?? [],
+            default => $built['value'] ?? '',
+        };
     }
 
     /**

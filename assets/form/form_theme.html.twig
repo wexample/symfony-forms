@@ -382,6 +382,47 @@
     {% endif %}
 {% endblock %}
 
+{#- Several values of one kind: the design system's field, each item its
+    entry's widget and errors, drawn here, under its index; the prototype the
+    item added. Frozen, the values joined. -#}
+{% block collection_input_widget %}
+    {% set label_key = form.vars.label is same as(false)
+        ? form.vars.name
+        : (form.vars.label ?? form.vars.name)
+    %}
+    {% if label_key is same as(true) %}
+        {% set label_key = 'field.' ~ form.vars.name ~ '.label' %}
+    {% endif %}
+    {% set label_value = form.vars.translation_domain is same as(false)
+        ? label_key
+        : label_key|trans(form.vars.label_translation_parameters ?? {}, form.vars.translation_domain)
+    %}
+    {% if form.vars.disabled ?? false %}
+        {% set frozen_label = label_value %}
+        {% set frozen_value = form.children|map(child => child.vars.value)|filter(value => value is not iterable)|join(' · ') %}
+        {{ block('wex_frozen_value_widget') }}
+    {% else %}
+        {% set items = [] %}
+        {% for child in form.children %}
+            {% set items = items|merge([form_widget(child) ~ form_errors(child)]) %}
+        {% endfor %}
+        {{ component(
+            render_pass,
+            '@WexampleSymfonyDesignSystemBundle/components/form/collection-input',
+            {
+                name: full_name,
+                id: id,
+                label: label_value,
+                items: items,
+                prototype: allow_add and form.vars.prototype is defined ? form_widget(form.vars.prototype) : null,
+                prototype_name: form.vars.prototype_name,
+                allow_add: allow_add,
+                allow_delete: allow_delete
+            }
+        ) }}
+    {% endif %}
+{% endblock %}
+
 {#- One choice among options searched: the design system's field, the value
     posted as a text. Frozen, the label of the value. -#}
 {#- A colour: the design system's field, its hex posted. Frozen, the hex. -#}
