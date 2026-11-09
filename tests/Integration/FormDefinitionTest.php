@@ -212,6 +212,22 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertSame(['number', 1, '512'], [$tokens['type'], $tokens['step'], $tokens['value']]);
     }
 
+    public function testWhatAFieldIsForIsHandedUnderIt(): void
+    {
+        self::bootKernel();
+        $form = $this->factory()->createBuilder(FormType::class, null, ['action' => '/slot'])
+            ->add('timeout', NumberInputType::class, ['label' => 'Timeout', 'required' => false, 'help' => 'Seconds before the call is given up.', 'translation_domain' => false])
+            ->add('model', TextInputType::class, ['label' => 'Model', 'required' => false])
+            ->getForm();
+
+        $props = $this->builder()->build($form);
+        $this->rendering()->validateAgainst($this->schemas()->load('form'), $props, 'slot configs form');
+
+        [$timeout, $model] = $props['fields'];
+        $this->assertSame('Seconds before the call is given up.', $timeout['help']);
+        $this->assertArrayNotHasKey('help', $model);
+    }
+
     public function testWhatIsAttachedToAFieldIsHandedWhateverItsKind(): void
     {
         self::bootKernel();

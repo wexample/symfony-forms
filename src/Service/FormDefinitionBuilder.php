@@ -121,6 +121,7 @@ class FormDefinitionBuilder
             'type' => $kind,
             'name' => $vars['name'],
             'label' => $this->buildLabel($field),
+            'help' => $this->buildHelp($field),
             'placeholder' => $this->buildPlaceholder($field),
             'required' => (bool) ($vars['required'] ?? false),
             'minLength' => isset($attr['minlength']) ? (int) $attr['minlength'] : null,
@@ -355,6 +356,20 @@ class FormDefinitionBuilder
         $key = true === $label ? 'field.'.$vars['name'].'.label' : ($label ?? $vars['name']);
 
         return $this->translate($key, $vars['label_translation_parameters'] ?? [], $vars['translation_domain'] ?? null);
+    }
+
+    // What the field is for, under it: its `help`, in its domain as its
+    // label is (`help_translation_parameters`).
+    private function buildHelp(FormView $field): ?string
+    {
+        $vars = $field->vars;
+        $help = $vars['help'] ?? null;
+
+        if (null === $help || '' === $help) {
+            return null;
+        }
+
+        return $this->translate((string) $help, $vars['help_translation_parameters'] ?? [], $vars['translation_domain'] ?? null);
     }
 
     private function buildPlaceholder(FormView $field): ?string
