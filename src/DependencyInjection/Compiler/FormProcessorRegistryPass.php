@@ -14,9 +14,9 @@ use Wexample\SymfonyForms\Service\FormProcessor\FormProcessorRegistry;
  * Asks every tagged processor its form class once, here, and hands the
  * answers to the registry as maps.
  *
- * A processor that cannot name its form class, or a form claimed by two
- * processors, fails the container build — `cache:clear`, the deploy — instead
- * of every form submission of the running application.
+ * A processor that cannot name its form class fails the container build —
+ * `cache:clear`, the deploy — instead of every form submission of the running
+ * application.
  */
 class FormProcessorRegistryPass implements CompilerPassInterface
 {
@@ -49,17 +49,11 @@ class FormProcessorRegistryPass implements CompilerPassInterface
                 ), 0, $exception);
             }
 
-            if (isset($byFormClass[$formClass])) {
-                throw new LogicException(sprintf(
-                    'Form "%s" is claimed by two processors, "%s" and "%s"; a form has one.',
-                    $formClass,
-                    $byFormClass[$formClass],
-                    $serviceId
-                ));
-            }
-
-            $byFormClass[$formClass] = $serviceId;
-            $byFormName[ClassHelper::longTableized($formClass)] = $serviceId;
+            // Several processors may share a form, each picked by the page
+            // posting it (`#[FormProcessor]`): all are kept, and only a lookup
+            // by name or by form class landing on such a form has to choose.
+            $byFormClass[$formClass][] = $serviceId;
+            $byFormName[ClassHelper::longTableized($formClass)][] = $serviceId;
         }
 
         $container->getDefinition(FormProcessorRegistry::class)

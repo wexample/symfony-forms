@@ -27,12 +27,12 @@ class FormProcessorRegistryPassTest extends TestCase
         $registry = $this->compile([ContactFormProcessor::class]);
 
         $this->assertSame(
-            [ContactForm::class => ContactFormProcessor::class],
+            [ContactForm::class => [ContactFormProcessor::class]],
             $registry->getArgument('$processorsByFormClass')
         );
         // The name the processor writes in its form's submit address.
         $this->assertSame(
-            [ClassHelper::longTableized(ContactForm::class) => ContactFormProcessor::class],
+            [ClassHelper::longTableized(ContactForm::class) => [ContactFormProcessor::class]],
             $registry->getArgument('$processorsByFormName')
         );
     }
@@ -48,12 +48,18 @@ class FormProcessorRegistryPassTest extends TestCase
         $this->compile([ContactFormProcessor::class, OrphanFormProcessor::class]);
     }
 
-    public function testAFormClaimedByTwoProcessorsFailsTheBuild(): void
+    /**
+     * One form, a processor per page posting it, each picked there by
+     * `#[FormProcessor]`: nothing ambiguous until a lookup by name or class.
+     */
+    public function testAFormHandledByTwoProcessorsKeepsBoth(): void
     {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessageMatches('/claimed by two processors/');
+        $registry = $this->compile([ContactFormProcessor::class, SecondContactFormProcessor::class]);
 
-        $this->compile([ContactFormProcessor::class, SecondContactFormProcessor::class]);
+        $this->assertSame(
+            [ContactForm::class => [ContactFormProcessor::class, SecondContactFormProcessor::class]],
+            $registry->getArgument('$processorsByFormClass')
+        );
     }
 
     /**

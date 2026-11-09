@@ -3,6 +3,7 @@
 namespace Wexample\SymfonyForms\Service\FormProcessor;
 
 use Symfony\Component\DependencyInjection\ServiceLocator;
+use Wexample\SymfonyForms\Exception\AmbiguousFormProcessorException;
 
 /**
  * Which processor handles which form, read from maps built once, when the
@@ -12,12 +13,17 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
  * one matched; one processor unable to answer — a form not written yet, a
  * renamed class — then took down every submission of the application. Asked
  * at compile time, the same question fails the build instead.
+ *
+ * A form may have several processors, each picked by the page that posts it
+ * through `#[FormProcessor]`. Looked up by its name or its class — its submit
+ * address, `form_definition_for()` — such a form has no single answer, and
+ * the lookup says so for that form alone.
  */
 class FormProcessorRegistry
 {
     /**
-     * @param array<class-string, string> $processorsByFormClass form class => processor service id
-     * @param array<string, string>       $processorsByFormName  form name, as in the submit address => processor service id
+     * @param array<class-string, list<string>> $processorsByFormClass form class => processor service ids
+     * @param array<string, list<string>>       $processorsByFormName  form name, as in the submit address => processor service ids
      */
     public function __construct(
         private readonly ServiceLocator $processors,
@@ -28,16 +34,23 @@ class FormProcessorRegistry
 
     public function findByFormClass(string $formClass): ?AbstractFormProcessor
     {
-        return $this->get($this->processorsByFormClass[$formClass] ?? null);
+        return $this->get($formClass, $this->processorsByFormClass[$formClass] ?? []);
     }
 
     public function findByFormName(string $formName): ?AbstractFormProcessor
     {
-        return $this->get($this->processorsByFormName[$formName] ?? null);
+        return $this->get($formName, $this->processorsByFormName[$formName] ?? []);
     }
 
-    private function get(?string $serviceId): ?AbstractFormProcessor
+    /**
+     * @param list<string> $serviceIds
+     */
+    private function get(string $form, array $serviceIds): ?AbstractFormProcessor
     {
-        return null === $serviceId ? null : $this->processors->get($serviceId);
+        if (count($serviceIds) > 1) {
+            throw new AmbiguousFormProcessorException($form, $serviceIds);
+        }
+
+        return [] === $serviceIds ? null : $this->processors->get($serviceIds[0]);
     }
 }
