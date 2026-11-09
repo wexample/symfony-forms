@@ -2,7 +2,6 @@
 
 namespace Wexample\SymfonyForms\Twig;
 
-use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Twig\Extension\AbstractExtension;
@@ -10,6 +9,7 @@ use Twig\TwigFunction;
 use Wexample\SymfonyForms\Service\FormDefinitionBuilder;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractEntityFormProcessor;
 use Wexample\SymfonyForms\Service\FormProcessor\AbstractFormProcessor;
+use Wexample\SymfonyForms\Service\FormProcessor\FormProcessorRegistry;
 
 /**
  * A form handed to a vue rather than drawn (FormDefinitionBuilder): its
@@ -28,7 +28,7 @@ class FormDefinitionExtension extends AbstractExtension
 {
     public function __construct(
         private readonly FormDefinitionBuilder $builder,
-        private readonly ServiceLocator $processors,
+        private readonly FormProcessorRegistry $registry,
     ) {
     }
 
@@ -63,13 +63,7 @@ class FormDefinitionExtension extends AbstractExtension
 
     private function processorFor(string $formClass): AbstractFormProcessor
     {
-        foreach (array_keys($this->processors->getProvidedServices()) as $processorClass) {
-            /** @var class-string<AbstractFormProcessor> $processorClass */
-            if ($processorClass::getFormClass() === $formClass) {
-                return $this->processors->get($processorClass);
-            }
-        }
-
-        throw new \InvalidArgumentException('No form processor for '.$formClass.'.');
+        return $this->registry->findByFormClass($formClass)
+            ?? throw new \InvalidArgumentException('No form processor for '.$formClass.'.');
     }
 }

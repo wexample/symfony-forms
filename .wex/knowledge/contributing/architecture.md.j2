@@ -23,7 +23,9 @@ $container->registerForAutoconfiguration(FormProcessorDataResolverInterface::cla
     ->addTag(self::TAG_FORM_PROCESSOR_DATA_RESOLVER);
 ```
 
-And it loads {{ path("src/Resources/config/services.yaml") }}, where both tags are turned into service locators injected into `FormProcessorPostHandler` and `FormProcessorRequestSubscriber` (`!tagged_locator`). {{ path("src/Resources/config/routes.yaml") }} imports the controllers by attribute.
+And it loads {{ path("src/Resources/config/services.yaml") }}, where both tags are turned into service locators injected into `FormProcessorRegistry` and `FormProcessorRequestSubscriber` (`!tagged_locator`). {{ path("src/Resources/config/routes.yaml") }} imports the controllers by attribute.
+
+The bundle registers one compiler pass, {{ path("src/DependencyInjection/Compiler/FormProcessorRegistryPass.php") }}. It asks every tagged processor its form class once, while the container is compiled, and hands {{ path("src/Service/FormProcessor/FormProcessorRegistry.php") }} two maps — form class → processor, form name → processor. A processor that cannot name its form class, or a form claimed by two processors, fails the build — `cache:clear`, the deploy — rather than the running application: when the lookup walked every processor at each request, one processor without a form took down every submission and every `form_definition_for()`.
 
 ### Rendering: types, theme, components
 
@@ -113,13 +115,7 @@ Before a `POST` is handled, {{ path("src/Service/FormProcessor/FormProcessorAcce
 
 Otherwise the built form is stored under the request attribute `_form_processor_forms`, keyed by `formArgumentName`. {{ path("src/ArgumentResolver/FormProcessorValueResolver.php") }} then hands it to the controller argument: it only supports arguments typed `FormInterface` whose name matches a `formArgumentName` on the same method, and yields the form from that attribute. The controller therefore receives a form already created, already submitted, already validated.
 
-**Direct POST to the submit route.** {{ path("src/Controller/FormController.php") }} exposes `_forms/submit/{name}` (route `form_processor_submit`, matching `AbstractFormProcessor::FORM_SUBMIT_ROUTE`) and `_forms/submit/{name}/entity/{id}`, both POST only, both delegating to {{ path("src/Service/FormProcessor/FormProcessorPostHandler.php") }}. The handler walks the tagged locator to find the processor whose form matches the URL name:
-
-```php
-if (ClassHelper::longTableized($processorClass::getFormClass()) === $formName) {
-```
-
-then checks `getRequiredRoles()` through the same guard — `['ROLE_USER']` by default, `RoleHelper::PUBLIC_ACCESS` opening it up — and throws `AccessDeniedHttpException` when none is granted. It returns the processor's redirect if there is one, a `JsonResponse` for a JSON request, and `204 No Content` otherwise.
+**Direct POST to the submit route.** {{ path("src/Controller/FormController.php") }} exposes `_forms/submit/{name}` (route `form_processor_submit`, matching `AbstractFormProcessor::FORM_SUBMIT_ROUTE`) and `_forms/submit/{name}/entity/{id}`, both POST only, both delegating to {{ path("src/Service/FormProcessor/FormProcessorPostHandler.php") }}. The handler reads the processor of the URL name from the registry — the name being `ClassHelper::longTableized()` of the form class, as the processor writes it in its form's `action` — answers 404 when no form has that name, then checks `getRequiredRoles()` through the same guard — `['ROLE_USER']` by default, `RoleHelper::PUBLIC_ACCESS` opening it up — and throws `AccessDeniedHttpException` when none is granted. It returns the processor's redirect if there is one, a `JsonResponse` for a JSON request, and `204 No Content` otherwise.
 
 ### The JSON payload
 

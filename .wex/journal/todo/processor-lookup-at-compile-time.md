@@ -31,3 +31,31 @@ Other ways are possible (catching per processor and skipping it, a cached map bu
 
 - `getFormClass()` resolved by convention when not overridden (`AbstractFormProcessor` line ~107): the pass must call the same resolution, statically.
 - Processors registered by applications through the locator (`FormProcessorPostHandler::$processors`, `FormDefinitionExtension::$processors`): the same tag, the same pass.
+
+## Done
+
+The compile-time map, as suggested.
+
+- `src/DependencyInjection/Compiler/FormProcessorRegistryPass.php`, registered by the bundle:
+  asks every tagged processor `getFormClass()` once — the same static resolution as at runtime,
+  convention included — and fills `FormProcessorRegistry` with form class → processor and form
+  name (`ClassHelper::longTableized()`, as in the submit address) → processor. Abstract
+  definitions and abstract classes are left out.
+- A processor that cannot name its form class fails the build: `Form processor "<id>" cannot
+  name its form class: …`, the original exception kept as previous. A form claimed by two
+  processors fails it too — it used to go silently to the first one met.
+- `src/Service/FormProcessor/FormProcessorRegistry.php` holds the locator and the two maps.
+  `FormProcessorPostHandler` and `FormDefinitionExtension` take it instead of walking the
+  locator; same answers (404 for an unknown name, `InvalidArgumentException` for an unknown
+  form class).
+- Processors registered by applications: same tag, same pass — nothing to do on their side.
+
+Tests: `tests/Unit/FormProcessorRegistryPassTest.php` (both maps, the orphan processor failing
+the build, two processors on one form, an abstract one left out); the existing integration
+tests cover the runtime path through the registry. 99 tests green.
+
+Knowledge: `contributing/architecture` revised. `usage/overview` had a twig example outside
+`{% raw %}` that stopped the whole knowledge build (`'form_definition' is undefined`); escaped.
+The built pages are not regenerated: `wex app::state/rectify` now stops on
+`FILE_STATE_PERMISSION_ERROR`, wanting `chmod 755` on the package directory (currently 777),
+left to the owner.

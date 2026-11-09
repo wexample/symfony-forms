@@ -2,19 +2,17 @@
 
 namespace Wexample\SymfonyForms\Service\FormProcessor;
 
-use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 
 class FormProcessorPostHandler
 {
     public function __construct(
-        private readonly ServiceLocator $processors,
+        private readonly FormProcessorRegistry $registry,
         private readonly FormProcessorAccessGuard $accessGuard,
         private readonly FormResponsePayloadBuilder $payloadBuilder
     ) {
@@ -24,15 +22,13 @@ class FormProcessorPostHandler
         string $formName,
         Request $request
     ): Response {
-        $processorClass = $this->resolveProcessorClass($formName);
+        $formProcessor = $this->registry->findByFormName($formName);
 
         // A name no form answers to is an address that does not exist.
-        if (! $processorClass) {
+        if (! $formProcessor) {
             throw new NotFoundHttpException('Form processor not found for form name: ' . $formName);
         }
 
-        /** @var AbstractFormProcessor $formProcessor */
-        $formProcessor = $this->processors->get($processorClass);
         $this->assertHasAccess($formProcessor);
         $form = $formProcessor->handleSubmission($request);
 
@@ -48,18 +44,6 @@ class FormProcessorPostHandler
         }
 
         return new Response('', Response::HTTP_NO_CONTENT);
-    }
-
-    private function resolveProcessorClass(string $formName): ?string
-    {
-        foreach (array_keys($this->processors->getProvidedServices()) as $processorClass) {
-            /** @var class-string<AbstractFormProcessor> $processorClass */
-            if (ClassHelper::longTableized($processorClass::getFormClass()) === $formName) {
-                return $processorClass;
-            }
-        }
-
-        return null;
     }
 
     private function assertHasAccess(AbstractFormProcessor $formProcessor): void

@@ -18,11 +18,8 @@ services:
         resource: '../../Controller'
         tags: ['controller.service_arguments']
 
-    Wexample\SymfonyForms\Service\FormProcessor\FormProcessorPostHandler:
-        arguments:
-            $processors: !tagged_locator { tag: 'wexample.symfony_forms.form_processor' }
-
-    Wexample\SymfonyForms\Twig\FormDefinitionExtension:
+    # Its maps are filled by FormProcessorRegistryPass.
+    Wexample\SymfonyForms\Service\FormProcessor\FormProcessorRegistry:
         arguments:
             $processors: !tagged_locator { tag: 'wexample.symfony_forms.form_processor' }
 
