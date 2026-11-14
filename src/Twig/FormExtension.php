@@ -16,123 +16,45 @@ class FormExtension extends \Wexample\SymfonyDesignSystem\Twig\AbstractTemplateE
         parent::__construct($componentsExtension);
     }
 
+    /**
+     * Each function, the `type` it sets in the context and the component that
+     * draws it. One row a field: they differ by nothing else.
+     */
+    private const array FIELDS = [
+        FormRenderingService::FORM_TYPE_TEXT_INPUT => ['text', '@WexampleSymfonyDesignSystemBundle/components/form/text-input'],
+        FormRenderingService::FORM_TYPE_PASSWORD_INPUT => ['password', '@WexampleSymfonyDesignSystemBundle/components/form/password-input'],
+        FormRenderingService::FORM_TYPE_HIDDEN_INPUT => ['hidden', '@WexampleSymfonyDesignSystemBundle/components/form/hidden-input'],
+        FormRenderingService::FORM_TYPE_SUBMIT_INPUT => ['submit', '@WexampleSymfonyDesignSystemBundle/components/form/submit-input'],
+        FormRenderingService::FORM_TYPE_TEXTAREA_INPUT => ['textarea', '@WexampleSymfonyDesignSystemBundle/components/form/textarea-input'],
+        FormRenderingService::FORM_TYPE_SELECT_INPUT => ['select', '@WexampleSymfonyDesignSystemBundle/components/form/select-input'],
+    ];
+
     public function getFunctions(): array
     {
-        return [
-            new TwigFunction(
-                FormRenderingService::FORM_TYPE_TEXT_INPUT,
+        $functions = [];
+
+        foreach (self::FIELDS as $name => [$type, $component]) {
+            $functions[] = new TwigFunction(
+                $name,
                 function (
                     Environment $twig,
                     $twigContext,
                     array $context = []
-                ) {
-                    $context['type'] = 'text';
-                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_TEXT_INPUT);
+                ) use ($name, $type, $component) {
+                    $context['type'] = $type;
+                    $this->contextService->validate($context, $name);
 
                     return $this->renderComponent(
                         $twig,
                         $twigContext,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/text-input',
+                        $component,
                         $context
                     );
                 },
                 self::TEMPLATE_FUNCTION_OPTIONS
-            ),
-            new TwigFunction(
-                FormRenderingService::FORM_TYPE_PASSWORD_INPUT,
-                function (
-                    Environment $twig,
-                    $twigContext,
-                    array $context = []
-                ) {
-                    $context['type'] = 'password';
-                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_PASSWORD_INPUT);
+            );
+        }
 
-                    return $this->renderComponent(
-                        $twig,
-                        $twigContext,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/password-input',
-                        $context
-                    );
-                },
-                self::TEMPLATE_FUNCTION_OPTIONS
-            ),
-            new TwigFunction(
-                FormRenderingService::FORM_TYPE_HIDDEN_INPUT,
-                function (
-                    Environment $twig,
-                    $twigContext,
-                    array $context = []
-                ) {
-                    $context['type'] = 'hidden';
-                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_HIDDEN_INPUT);
-
-                    return $this->renderComponent(
-                        $twig,
-                        $twigContext,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/hidden-input',
-                        $context
-                    );
-                },
-                self::TEMPLATE_FUNCTION_OPTIONS
-            ),
-            new TwigFunction(
-                FormRenderingService::FORM_TYPE_SUBMIT_INPUT,
-                function (
-                    Environment $twig,
-                    $twigContext,
-                    array $context = []
-                ) {
-                    $context['type'] = 'submit';
-                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_SUBMIT_INPUT);
-
-                    return $this->renderComponent(
-                        $twig,
-                        $twigContext,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/submit-input',
-                        $context
-                    );
-                },
-                self::TEMPLATE_FUNCTION_OPTIONS
-            ),
-            new TwigFunction(
-                FormRenderingService::FORM_TYPE_TEXTAREA_INPUT,
-                function (
-                    Environment $twig,
-                    $twigContext,
-                    array $context = []
-                ) {
-                    $context['type'] = 'textarea';
-                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_TEXTAREA_INPUT);
-
-                    return $this->renderComponent(
-                        $twig,
-                        $twigContext,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/textarea-input',
-                        $context
-                    );
-                },
-                self::TEMPLATE_FUNCTION_OPTIONS
-            ),
-            new TwigFunction(
-                FormRenderingService::FORM_TYPE_SELECT_INPUT,
-                function (
-                    Environment $twig,
-                    $twigContext,
-                    array $context = []
-                ) {
-                    $context['type'] = 'select';
-                    $this->contextService->validate($context, FormRenderingService::FORM_TYPE_SELECT_INPUT);
-
-                    return $this->renderComponent(
-                        $twig,
-                        $twigContext,
-                        '@WexampleSymfonyDesignSystemBundle/components/form/select-input',
-                        $context
-                    );
-                },
-                self::TEMPLATE_FUNCTION_OPTIONS
-            ),
-        ];
+        return $functions;
     }
 }
