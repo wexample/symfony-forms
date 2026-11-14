@@ -132,6 +132,11 @@ class FormDefinitionBuilder
             'value' => is_scalar($value) ? (string) $value : null,
         ], static fn (mixed $value): bool => $value !== null);
 
+        // Shown only for some values of another field (VisibleWhenTypeExtension).
+        if (! empty($vars['visible_when'])) {
+            $built['visibleWhen'] = $vars['visible_when'];
+        }
+
         // The whole line among columns, as its row says (`row_attr`).
         if (in_array(self::CLASS_SPAN, preg_split('/\s+/', (string) ($vars['row_attr']['class'] ?? '')), true)) {
             $built['span'] = true;
@@ -269,6 +274,11 @@ class FormDefinitionBuilder
 
             if (! empty($vars['multiple'])) {
                 $built['multiple'] = true;
+            }
+
+            // Its options read again when a field they follow changes.
+            if (! empty($vars['options_url'])) {
+                $built['optionsUrl'] = (string) $vars['options_url'];
             }
         }
 

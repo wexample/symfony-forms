@@ -20,7 +20,9 @@ use Wexample\SymfonyForms\Helper\OptionsHelper;
  * - `options`: options the field holds itself — words, `value => label`, or
  *   `['value' => …, 'label' => …]`;
  * - `options_url`: a source asked for what is typed (`?q=`), answering words
- *   or `{ value, label }`;
+ *   or `{ value, label }`; where it says `__field:<name>__`, that field's
+ *   value — the source following another field, the value dropped when that
+ *   one changes and the source no longer offers it;
  * - `value_label`: the label of the value given, where `options` do not
  *   hold it — else the source is asked for it.
  *

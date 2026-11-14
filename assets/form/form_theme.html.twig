@@ -80,6 +80,11 @@
         {% set row_classes = row_classes ~ ' field-extended' %}
     {% endif %}
     {% set row_attr = row_attr|merge({ class: row_classes|trim }) %}
+    {#- Shown only for some values of another field (VisibleWhenTypeExtension):
+        the loader's form shows and hides the row, and empties it hidden. -#}
+    {% if form.vars.visible_when ?? null %}
+        {% set row_attr = row_attr|merge({ 'data-visible-when': form.vars.visible_when|json_encode }) %}
+    {% endif %}
     {% set attr = row_attr %}
     <div {{ block('attributes')|raw }}>
         {{ form_widget(form) }}
@@ -549,7 +554,8 @@
                 required: required,
                 multiple: form.vars.multiple ?? false,
                 selected: value,
-                choices: normalized_choices
+                choices: normalized_choices,
+                options_url: form.vars.options_url ?? null
             }
         ) }}
     {% endif %}

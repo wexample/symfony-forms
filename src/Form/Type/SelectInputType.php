@@ -27,6 +27,12 @@ class SelectInputType extends \Symfony\Component\Form\AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefault('auto_translate_choices', true);
+        // Where its options are read again when a field they follow changes,
+        // that field's value where it says `__field:<name>__`, answering words
+        // or `{ value, label }` — the versions of the pipeline chosen above.
+        // The choices it is built with stay what the server accepts.
+        $resolver->setDefault('options_url', null);
+        $resolver->setAllowedTypes('options_url', ['null', 'string']);
         $resolver->setNormalizer('choices', function (Options $options, $choices) {
             // A list of scalars is keyed by itself, so each value is also its
             // label key. A list holding objects (entities, enums) is left to
@@ -53,6 +59,8 @@ class SelectInputType extends \Symfony\Component\Form\AbstractType
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         parent::buildView($view, $form, $options);
+
+        $view->vars['options_url'] = $options['options_url'];
 
         if (empty($options['auto_translate_choices'])) {
             return;
