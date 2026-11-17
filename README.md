@@ -1,6 +1,6 @@
 # symfony_forms
 
-Version: 17.0.2
+Version: 17.0.3
 
 Forms management for Symfony design system
 

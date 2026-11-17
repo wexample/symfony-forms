@@ -3,7 +3,7 @@
   "description": "Forms management for Symfony design system",
   "type": "library",
   "license": "MIT",
-  "version": "17.0.2",
+  "version": "17.0.3",
   "autoload": {
     "psr-4": {
       "Wexample\\SymfonyForms\\": "src/"
@@ -18,7 +18,7 @@
   "require": {
     "php": ">=8.5",
     "doctrine/orm": "^3.0",
-    "wexample/symfony-design-system": ">=47.0.0",
+    "wexample/symfony-design-system": ">=48.0.0",
     "wexample/php-json-schema": ">=2.1.0",
     "symfony/form": "^7.4 || ^8.0",
     "symfony/doctrine-bridge": "^7.4 || ^8.0",
