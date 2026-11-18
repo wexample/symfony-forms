@@ -228,6 +228,19 @@ class FormDefinitionTest extends KernelTestCase
         $this->assertArrayNotHasKey('help', $model);
     }
 
+    public function testAHelpSaidTrueIsTheKeyOfTheFieldInItsDomain(): void
+    {
+        self::bootKernel();
+        $form = $this->factory()->createBuilder(FormType::class, null, ['action' => '/slot'])
+            ->add('timeout', NumberInputType::class, ['label' => 'Timeout', 'required' => false, 'help' => true, 'translation_domain' => false])
+            ->add('model', TextInputType::class, ['label' => 'Model', 'required' => false, 'help' => false])
+            ->getForm();
+
+        [$timeout, $model] = $this->builder()->build($form)['fields'];
+        $this->assertSame('field.timeout.help', $timeout['help']);
+        $this->assertArrayNotHasKey('help', $model);
+    }
+
     public function testWhatIsAttachedToAFieldIsHandedWhateverItsKind(): void
     {
         self::bootKernel();

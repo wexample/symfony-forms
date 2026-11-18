@@ -421,17 +421,20 @@ class FormDefinitionBuilder
     }
 
     // What the field is for, under it: its `help`, in its domain as its
-    // label is (`help_translation_parameters`).
+    // label is (`help_translation_parameters`) — `true` its key in that
+    // domain, `field.<name>.help`, as the form theme reads it.
     private function buildHelp(FormView $field): ?string
     {
         $vars = $field->vars;
         $help = $vars['help'] ?? null;
 
-        if (null === $help || '' === $help) {
+        if (null === $help || false === $help || '' === $help) {
             return null;
         }
 
-        return $this->translate((string) $help, $vars['help_translation_parameters'] ?? [], $vars['translation_domain'] ?? null);
+        $key = true === $help ? 'field.'.$vars['name'].'.help' : (string) $help;
+
+        return $this->translate($key, $vars['help_translation_parameters'] ?? [], $vars['translation_domain'] ?? null);
     }
 
     private function buildPlaceholder(FormView $field): ?string
