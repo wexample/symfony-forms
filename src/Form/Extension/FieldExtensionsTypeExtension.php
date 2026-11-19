@@ -104,7 +104,7 @@ class FieldExtensionsTypeExtension extends AbstractTypeExtension
                             continue;
                         }
 
-                        $value = '' === $submitted[$key] ? null : $submitted[$key];
+                        $value = $this->extensions[$extension]->readValue($submitted[$key], $config);
                         unset($submitted[$key]);
                         FieldExtensions::keep($parent, $name, $extension, $value);
                         $message = $this->extensions[$extension]->validateValue($value, $config);

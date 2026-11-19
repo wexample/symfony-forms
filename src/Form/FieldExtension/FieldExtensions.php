@@ -8,7 +8,7 @@ use Symfony\Component\Form\FormInterface;
  * The values of a form's valued extensions (ValuedFieldExtensionInterface),
  * as the form was given them: read by whoever processes it.
  *
- *   $variable = FieldExtensions::submitted($form, 'model', 'variable');
+ *   $inMatrix = FieldExtensions::submitted($form, 'model', 'toggle');
  *
  * What was not sent — the extension not drawn — is the value the field gave
  * it: nothing changed.
