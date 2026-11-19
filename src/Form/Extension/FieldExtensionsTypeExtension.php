@@ -5,6 +5,7 @@ namespace Wexample\SymfonyForms\Form\Extension;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
@@ -13,6 +14,8 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Wexample\SymfonyForms\Form\FieldExtension\FieldExtensionInterface;
+use Wexample\SymfonyForms\Form\FieldExtension\FieldExtensions;
+use Wexample\SymfonyForms\Form\FieldExtension\ValuedFieldExtensionInterface;
 
 /**
  * The one option every field takes for what is attached to it whatever its
@@ -74,17 +77,61 @@ class FieldExtensionsTypeExtension extends AbstractTypeExtension
         }
 
         // A form holding fields: before it hands each what was sent for it,
-        // the field's extensions may change how it will read it.
+        // the field's extensions may change how it will read it; a valued
+        // extension's own value, sent beside the field's, is taken out of
+        // what the fields are given — no field of that name —, kept, and
+        // what is wrong with it said on its field once the form is submitted.
         if ($builder->getCompound()) {
-            $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+            $refused = new \WeakMap();
+
+            $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($refused): void {
                 $parent = $event->getForm();
-                $submitted = is_array($event->getData()) ? $event->getData() : [];
+                $data = $event->getData();
+                $submitted = is_array($data) ? $data : [];
+                $messages = [];
 
                 foreach ($parent->all() as $name => $field) {
                     foreach ($field->getConfig()->getOption(self::OPTION, []) as $extension => $config) {
                         $this->extensions[$extension]->prepareSubmit($parent, $field, $submitted[$name] ?? null, $config);
+
+                        if (! $this->extensions[$extension] instanceof ValuedFieldExtensionInterface) {
+                            continue;
+                        }
+
+                        $key = FieldExtensions::key($name, $extension);
+
+                        if (! array_key_exists($key, $submitted)) {
+                            continue;
+                        }
+
+                        $value = '' === $submitted[$key] ? null : $submitted[$key];
+                        unset($submitted[$key]);
+                        FieldExtensions::keep($parent, $name, $extension, $value);
+                        $message = $this->extensions[$extension]->validateValue($value, $config);
+
+                        if (null !== $message) {
+                            $messages[$name][] = $message;
+                        }
                     }
                 }
+
+                if (is_array($data)) {
+                    $event->setData($submitted);
+                }
+
+                $refused[$parent] = $messages;
+            });
+
+            $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use ($refused): void {
+                $parent = $event->getForm();
+
+                foreach ($refused[$parent] ?? [] as $name => $messages) {
+                    foreach ($messages as $message) {
+                        $parent->get($name)->addError(new FormError($message));
+                    }
+                }
+
+                unset($refused[$parent]);
             });
         }
     }
