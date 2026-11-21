@@ -1,6 +1,6 @@
 # symfony_forms
 
-Version: 19.0.1
+Version: 19.0.2
 
 Forms management for Symfony design system
 
